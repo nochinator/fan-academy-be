@@ -1,13 +1,25 @@
 import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
-
-dotenv.config();
+import mongoose from "mongoose";
+import * as config from './utils/config'
 
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = config.PORT || 3003;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server :)");
+mongoose.set('strictQuery', false)
+
+const database = async () => {
+  try {
+    await mongoose.connect(config.MONGODB_URI!);
+    console.log('connected to MongoDB');
+  } catch (error) {
+    console.log('error connecting to MongoDB:', error);
+  }
+}
+
+database();
+
+app.get("/", (_req: Request, res: Response) => {
+  res.send("Express + TypeScript Server :)")
 });
 
 app.listen(port, () => {
