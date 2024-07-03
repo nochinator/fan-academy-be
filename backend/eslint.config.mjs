@@ -35,7 +35,11 @@ export default [
       '@stylistic/ts/no-extra-parens': ['error', 'all'],
       '@stylistic/ts/object-curly-spacing': ['error', 'always'],
       '@stylistic/ts/object-property-newline': ['error'],
-      '@stylistic/ts/type-annotation-spacing': ['error']
+      '@stylistic/ts/type-annotation-spacing': ['error'],
+      '@stylistic/ts/semi': ['error', 'always', {
+        "omitLastInOneLineBlock": false,
+        "omitLastInOneLineClassBody": false 
+      }]
     }
   }
 ];
