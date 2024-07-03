@@ -5,8 +5,9 @@ import UserService from "../services/userService";
 
 const router = express.Router();
 
-router.post('/login', (_req: Request, res: Response) => {
-  res.send('Login details sent');
+router.post('/login', async (req: Request, res: Response) => {
+  const result = await UserService.login(req.body);
+  res.send(result);
 });
 
 router.post('/signup', async (req: Request, res: Response) => {

@@ -38,8 +38,9 @@ export default [
       '@stylistic/ts/type-annotation-spacing': ['error'],
       '@stylistic/ts/semi': ['error', 'always', {
         "omitLastInOneLineBlock": false,
-        "omitLastInOneLineClassBody": false 
-      }]
+        "omitLastInOneLineClassBody": false
+      }],
+      '@stylistic/ts/space-infix-ops': ['error', { int32Hint: false }]
     }
   }
 ];
