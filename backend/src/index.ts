@@ -18,6 +18,11 @@ const database = async () => {
 
 database();
 
+app.get('/ping', (_req: Request, res: Response) => {
+  console.log('someone pinged here');
+  res.send('pong');
+});
+
 app.get("/", (_req: Request, res: Response) => {
   res.send("Express + TypeScript Server :)")
 });

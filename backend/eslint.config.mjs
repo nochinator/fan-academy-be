@@ -8,6 +8,7 @@ export default [
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
+  { ignores: ["dist/*"] },
   { plugins: { '@stylistic/ts': stylisticTs } },
   {
     rules: {
@@ -15,7 +16,7 @@ export default [
       "padded-blocks": ["error", {
         "blocks": "never",
         "classes": "never",
-        "switches": "never" 
+        "switches": "never"
       }],
       '@stylistic/ts/indent': ['error', 2],
       '@stylistic/ts/comma-dangle': ['error', {
@@ -33,7 +34,8 @@ export default [
       '@stylistic/ts/object-curly-newline': ['error', { 'multiline': true }],
       '@stylistic/ts/no-extra-parens': ['error', 'all'],
       '@stylistic/ts/object-curly-spacing': ['error', 'always'],
-      '@stylistic/ts/object-property-newline': ['error']
+      '@stylistic/ts/object-property-newline': ['error'],
+      '@stylistic/ts/type-annotation-spacing': ['error']
     }
   }
 ];
