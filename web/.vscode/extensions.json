@@ -1,0 +1,11 @@
+{
+	"recommendations": [
+		"eamodio.gitlens",
+		"editorconfig.editorconfig",
+		"irongeek.vscode-env",
+		"naumovs.color-highlight",
+		"simonsiefke.svg-preview",
+		"vscode-icons-team.vscode-icons",
+		"biomejs.biome"
+	]
+}
