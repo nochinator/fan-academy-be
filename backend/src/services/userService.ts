@@ -1,10 +1,19 @@
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
 import bcrypt from "bcrypt";
+import{ Request, Response } from "express";
 
 const UserService = {
-  async signup(userData: IUser): Promise<string> {
-    const { username, email, password } = userData;
+  async signup(req: Request): Promise<string> {
+    const { username, email, password } = req.body; // TODO: sanitize fields
+
+    // Check if the username or email are already in use
+    const userAlreadyExists: IUser[] = await User.find({ $or: [ { username }, { email }] });
+
+    if (userAlreadyExists.length) {
+      return 'An account for this username or email already exists';
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
@@ -20,6 +29,8 @@ const UserService = {
       if (error instanceof Error){ return error.message;}
     }
 
+    // TODO: send confirmation email
+    // TODO: redirect to login page
     return 'New user created';
   },
 
@@ -27,15 +38,27 @@ const UserService = {
     username: string,
     password: string
   }): Promise<string> {
-    const user: IUser | null = await User.findOne({ username });
+    const user: IUser | null = await User.findOne({ username }); // TODO: make the query case insensitive
     if (!user) {return 'Incorrect username or password';}
 
     const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck) {return 'Incorrect username or password';}
 
-    // TODO: generate token
+    // TODO: authenticate the session
 
     return user.email;
+  },
+
+  async logout(req: Request, res: Response) {
+    if (!req.session) {return res.end();}
+
+    return req.session.destroy(err => {
+      if (err) {
+        res.status(400).send('Unable to log out');
+      } else {
+        res.send('Logout successful');
+      }
+    });
   }
 };
 

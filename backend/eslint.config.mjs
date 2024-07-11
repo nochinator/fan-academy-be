@@ -8,7 +8,7 @@ export default [
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  { ignores: ["dist/*"] },
+  { ignores: ["dist/", "node_modules/"] },
   { plugins: { '@stylistic/ts': stylisticTs } },
   {
     rules: {
