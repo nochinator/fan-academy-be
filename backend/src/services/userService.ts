@@ -1,11 +1,15 @@
+import { Request, Response } from "express";
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
-import bcrypt from "bcrypt";
-import{ Request, Response } from "express";
+import { generatePassword, validatePassword } from "../utils/passwords";
 
 const UserService = {
-  async signup(req: Request): Promise<string> {
-    const { username, email, password } = req.body; // TODO: sanitize fields
+  async signup(body: {
+    username: string,
+    email: string,
+    password: string
+  }): Promise<string> {
+    const { username, email, password } = body; // TODO: sanitize fields
 
     // Check if the username or email are already in use
     const userAlreadyExists: IUser[] = await User.find({ $or: [ { username }, { email }] });
@@ -14,7 +18,7 @@ const UserService = {
       return 'An account for this username or email already exists';
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await generatePassword(password);
 
     try {
       const newUser = new User({
@@ -41,8 +45,8 @@ const UserService = {
     const user: IUser | null = await User.findOne({ username }); // TODO: make the query case insensitive
     if (!user) {return 'Incorrect username or password';}
 
-    const passwordCheck = await bcrypt.compare(password, user.password);
-    if (!passwordCheck) {return 'Incorrect username or password';}
+    const passwordCheck = await validatePassword(password, user.password);
+    if (!passwordCheck) {return 'Incorrect username or password';} // TODO: create error file
 
     // TODO: authenticate the session
 
