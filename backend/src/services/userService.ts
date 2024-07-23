@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ObjectId } from "mongoose";
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
 import { generatePassword, validatePassword } from "../utils/passwords";
@@ -9,6 +10,7 @@ const UserService = {
     email: string,
     password: string
   }): Promise<string> {
+    console.log('BODY', body);
     const { username, email, password } = body; // TODO: sanitize fields
 
     // Check if the username or email are already in use
@@ -38,19 +40,28 @@ const UserService = {
     return 'New user created';
   },
 
-  async login({ username, password }: {
-    username: string,
-    password: string
-  }): Promise<string> {
+  async login(req: Request): Promise<{
+    user: ObjectId;
+    message: string;
+  } | string> {
+    const { username, password } = req.body;
+
     const user: IUser | null = await User.findOne({ username }); // TODO: make the query case insensitive
     if (!user) {return 'Incorrect username or password';}
 
     const passwordCheck = await validatePassword(password, user.password);
     if (!passwordCheck) {return 'Incorrect username or password';} // TODO: create error file
 
-    // TODO: authenticate the session
+    console.log(req.session.cookie);
+    console.log(req.sessionStore);
 
-    return user.email;
+    return {
+      user: user._id,
+      message: 'You are now logged in!'
+    };
+
+    // TODO: authenticate the session
+    // return user.email;
   },
 
   async logout(req: Request, res: Response) {
@@ -63,6 +74,11 @@ const UserService = {
         res.send('Logout successful');
       }
     });
+  },
+
+  async getUsers(): Promise<IUser[]> {
+    // TODO: add auth
+    return await User.find();
   }
 };
 

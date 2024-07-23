@@ -16,6 +16,6 @@ export async function databaseConnection() {
 
   return {
     dbClient,
-    connection 
+    connection
   };
 };

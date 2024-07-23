@@ -1,7 +1,7 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
 import stylisticTs from "@stylistic/eslint-plugin-ts";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default [
   { files: ["**/*.{js,mjs,cjs,ts}"] },
@@ -12,6 +12,10 @@ export default [
   { plugins: { '@stylistic/ts': stylisticTs } },
   {
     rules: {
+      "no-unused-vars": [
+        "warn",
+        { "argsIgnorePattern": "^_|^next$" }
+      ],
       "no-multiple-empty-lines": ["error", { "max": 1 }],
       "padded-blocks": ["error", {
         "blocks": "never",

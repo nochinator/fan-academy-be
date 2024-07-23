@@ -23,7 +23,9 @@ const verifyCallback: VerifyFunction = async (username, password, cb): Promise<v
 
 const localStrategy = new Strategy(verifyCallback);
 
-passport.use(localStrategy); // TODO: do I need to import this in index
+const test = passport.use(localStrategy); // TODO: do I need to import this in index
+
+export default test;
 
 passport.serializeUser((user, cb) => {
   console.log('SERIALIZE', user);

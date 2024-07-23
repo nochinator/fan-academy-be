@@ -1,3 +1,4 @@
+import bodyParser from "body-parser";
 import cors from "cors";
 import express, { Express, Request, Response } from "express";
 import passport from "passport";
@@ -11,6 +12,7 @@ const index = async () => {
 
   // Middleware // TODO: move to its own file
   app.use(express.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cors());
 
   const { dbClient } = await databaseConnection();
@@ -18,8 +20,10 @@ const index = async () => {
   app.use(setSession(dbClient));
   // app.use(passport.initialize()); // deprecated?
   app.use(passport.session());
-  app.use('/user', userRouter);
 
+  // Augment express-session with a custom SessionData object
+
+  app.use('/users', userRouter);
   app.get("/", (_req: Request, res: Response) => {
     console.log(_req.session);
     res.send("Express + TypeScript Server :)");
