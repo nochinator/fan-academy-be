@@ -2,6 +2,6 @@ import IUser from "./userInterface";
 
 declare global {
   namespace Express {
-    interface User extends IUser {}
+    export interface User extends IUser {}
   }
 }

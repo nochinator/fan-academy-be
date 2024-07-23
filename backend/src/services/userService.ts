@@ -52,9 +52,6 @@ const UserService = {
     const passwordCheck = await validatePassword(password, user.password);
     if (!passwordCheck) {return 'Incorrect username or password';} // TODO: create error file
 
-    console.log(req.session.cookie);
-    console.log(req.sessionStore);
-
     return {
       user: user._id,
       message: 'You are now logged in!'

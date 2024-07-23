@@ -1,11 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import passport from "passport";
 import UserService from "../services/userService";
-import localStrategy from '../utils/passport';
 
 const router = express.Router();
 
-router.post('/login', passport.authenticate('local', localStrategy), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', passport.authenticate('local'), async (req: Request, res: Response, next: NextFunction) => {
   const result = await UserService.login(req);
   res.send(result);
 });
