@@ -36,6 +36,9 @@ router.get('/login', async (_req: Request, res: Response, next: NextFunction) =>
   res.send(form);
 });
 
-router.get('/login' );
+router.get('/all', passport.authenticate('local'), async (_req: Request, res: Response, next: NextFunction) => {
+  const result = await UserService.getUsers();
+  res.send(result);
+});
 
 export default router;
