@@ -6,7 +6,7 @@ import passport from "passport";
 import userRouter from './controllers/userController';
 import { PORT } from './utils/config';
 import { databaseConnection } from "./utils/db";
-import { localStrategy } from "./utils/passport";
+import { googleStrategy, localStrategy } from "./utils/passport";
 import { setSession } from "./utils/sessions";
 
 const index = async () => {
@@ -20,11 +20,16 @@ const index = async () => {
   const { dbClient } = await databaseConnection();
 
   app.use(setSession(dbClient));
-  app.use(passport.initialize()); // deprecated?
+  app.use(passport.initialize());
   app.use(passport.session());
   passport.use(localStrategy);
+  passport.use(googleStrategy);
 
-  // Augment express-session with a custom SessionData object
+  app.use((req, _res, next) => { // TODO: logging purposes. To be removed
+    console.log('SESSION => ', req.session);
+    console.log('USER => ', req.user);
+    next();
+  });
 
   app.use('/users', userRouter);
   app.get("/", (_req: Request, res: Response) => {

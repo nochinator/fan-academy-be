@@ -9,13 +9,14 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minLength: 8,
-    required: true
+    minLength: 8
   },
   email: {
     type: String,
     match: [/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, 'Please fill in a valid email address']
-  }
+  },
+  googleId: String,
+  picture: String
 });
 
 const User = mongoose.model<IUser>('User', userSchema);

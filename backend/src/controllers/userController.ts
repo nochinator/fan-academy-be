@@ -4,19 +4,25 @@ import UserService from "../services/userService";
 
 const router = express.Router();
 
-router.post('/login', passport.authenticate('local'), async (req: Request, res: Response, next: NextFunction) => {
-  const result = await UserService.login(req);
-  res.send(result);
-});
+router.post('/login', passport.authenticate('local', {
+  successRedirect: '/users/all',
+  failureRedirect: '/users/login',
+  failureMessage: 'Incorrect username or password'
+// }), async (req: Request, res: Response, next: NextFunction) => {
+//   const result = await UserService.login(req);
+//   res.send(result);
+//   next();
+}));
 
 router.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
   const result = await UserService.signup(req.body);
   res.send(result);
+  next();
 });
 
-router.post('/logout', passport.authenticate('local'), async (req: Request, res: Response, next: NextFunction) => {
-  const result = await UserService.logout(req, res);
-  res.send(result);
+router.get('/logout', async (req: Request, res: Response, next: NextFunction) => {
+  return await UserService.logout(req, res);
+  next();
 });
 
 router.get('/login', async (_req: Request, res: Response, next: NextFunction) => {
@@ -34,11 +40,29 @@ router.get('/login', async (_req: Request, res: Response, next: NextFunction) =>
     </div>`;
 
   res.send(form);
+  next();
 });
 
-router.get('/all', passport.authenticate('local'), async (_req: Request, res: Response, next: NextFunction) => {
-  const result = await UserService.getUsers();
-  res.send(result);
+router.get('/login/google',
+  passport.authenticate('google', {
+    failureRedirect: '/users/login',
+    scope: [ 'email', 'profile' ]
+  }));
+
+router.get('/login/google/callback',
+  passport.authenticate('google', {
+    successRedirect: '/users/all',
+    failureRedirect: '/users/login'
+  }));
+
+router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    const result = await UserService.getUsers();
+    res.send(result);
+  } else {
+    res.send('Error, you are not authenticated');
+  }
+  next();
 });
 
 export default router;

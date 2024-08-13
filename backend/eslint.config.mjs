@@ -12,10 +12,6 @@ export default [
   { plugins: { '@stylistic/ts': stylisticTs } },
   {
     rules: {
-      "no-unused-params": [
-        "error",
-        { "argsIgnorePattern": "^_|^next$" }
-      ],
       "no-multiple-empty-lines": ["error", { "max": 1 }],
       "padded-blocks": ["error", {
         "blocks": "never",

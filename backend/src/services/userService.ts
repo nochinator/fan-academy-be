@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { ObjectId } from "mongoose";
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
-import { generatePassword, validatePassword } from "../utils/passwords";
+import { generatePassword } from "../utils/passwords";
 
 const UserService = {
   async signup(body: {
@@ -40,26 +39,23 @@ const UserService = {
     return 'New user created';
   },
 
-  async login(req: Request): Promise<{
-    user: ObjectId;
-    message: string;
-  } | string> {
-    const { username, password } = req.body;
+  // async login(req: Request): Promise<{
+  //   user: ObjectId;
+  //   message: string;
+  // } | string> {
+  //   const { username, password } = req.body;
 
-    const user: IUser | null = await User.findOne({ username }); // TODO: make the query case insensitive
-    if (!user) {return 'Incorrect username or password';}
+  //   const user: IUser | null = await User.findOne({ username }); // TODO: make the query case insensitive
+  //   if (!user) {return 'Incorrect username or password';}
 
-    const passwordCheck = await validatePassword(password, user.password);
-    if (!passwordCheck) {return 'Incorrect username or password';} // TODO: create error file
+  //   const passwordCheck = await validatePassword(password, user.password);
+  //   if (!passwordCheck) {return 'Incorrect username or password';} // TODO: create error file
 
-    return {
-      user: user._id,
-      message: 'You are now logged in!'
-    };
-
-    // TODO: authenticate the session
-    // return user.email;
-  },
+  //   return {
+  //     user: user._id,
+  //     message: 'You are now logged in!'
+  //   };
+  // },
 
   async logout(req: Request, res: Response) {
     if (!req.session) {return res.end();}
@@ -68,7 +64,7 @@ const UserService = {
       if (err) {
         res.status(400).send('Unable to log out');
       } else {
-        res.send('Logout successful');
+        res.redirect('/users/login');
       }
     });
   },
