@@ -1,11 +1,25 @@
+import { Request, Response } from "express";
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
-import bcrypt from "bcrypt";
+import { generatePassword } from "../utils/passwords";
 
 const UserService = {
-  async signup(userData: IUser) {
-    const { username, email, password } = userData;
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async signup(body: {
+    username: string,
+    email: string,
+    password: string
+  }): Promise<string> {
+    console.log('BODY', body);
+    const { username, email, password } = body; // TODO: sanitize fields
+
+    // Check if the username or email are already in use
+    const userAlreadyExists: IUser[] = await User.find({ $or: [ { username }, { email }] });
+
+    if (userAlreadyExists.length) {
+      return 'An account for this username or email already exists';
+    }
+
+    const hashedPassword = await generatePassword(password);
 
     try {
       const newUser = new User({
@@ -17,10 +31,29 @@ const UserService = {
     }
     catch(error) {
       console.log(error);
-      return error;
+      if (error instanceof Error){ return error.message;}
     }
 
+    // TODO: send confirmation email
+    // TODO: redirect to login page
     return 'New user created';
+  },
+
+  async logout(req: Request, res: Response) {
+    if (!req.session) {return res.end();}
+
+    return req.session.destroy(err => {
+      if (err) {
+        res.status(400).send('Unable to log out');
+      } else {
+        res.redirect('/users/login');
+      }
+    });
+  },
+
+  async getUsers(): Promise<IUser[]> {
+    // TODO: add auth
+    return await User.find();
   }
 };
 

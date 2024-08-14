@@ -1,14 +1,14 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
 import stylisticTs from "@stylistic/eslint-plugin-ts";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default [
   { files: ["**/*.{js,mjs,cjs,ts}"] },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  { ignores: ["dist/*"] },
+  { ignores: ["dist/", "node_modules/"] },
   { plugins: { '@stylistic/ts': stylisticTs } },
   {
     rules: {
@@ -38,8 +38,9 @@ export default [
       '@stylistic/ts/type-annotation-spacing': ['error'],
       '@stylistic/ts/semi': ['error', 'always', {
         "omitLastInOneLineBlock": false,
-        "omitLastInOneLineClassBody": false 
-      }]
+        "omitLastInOneLineClassBody": false
+      }],
+      '@stylistic/ts/space-infix-ops': ['error', { int32Hint: false }]
     }
   }
 ];

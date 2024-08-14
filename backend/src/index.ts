@@ -1,35 +1,47 @@
-import express, { Express, Request, Response } from "express";
-import mongoose from "mongoose";
-import * as config from './utils/config';
-import userRouter from './controllers/userController';
+import bodyParser from "body-parser";
 import cors from "cors";
+import express, { Express, Request, Response } from "express";
+import passport from "passport";
 
-const app: Express = express();
+import userRouter from './controllers/userController';
+import { PORT } from './utils/config';
+import { databaseConnection } from "./utils/db";
+import { googleStrategy, localStrategy } from "./utils/passport";
+import { setSession } from "./utils/sessions";
 
-// Middleware // TODO: move to its own file
-app.use(express.json());
-app.use(cors());
+const index = async () => {
+  const app: Express = express();
 
-const port = config.PORT || 3003;
+  // Middleware // TODO: move to its own file
+  app.use(express.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(cors());
 
-mongoose.set('strictQuery', false);
-const database = async () => {
-  try {
-    await mongoose.connect(config.MONGODB_URI!);
-    console.log('connected to MongoDB');
-  } catch (error) {
-    console.log('error connecting to MongoDB:', error);
-  }
+  const { dbClient } = await databaseConnection();
+
+  app.use(setSession(dbClient));
+  app.use(passport.initialize());
+  app.use(passport.session());
+  passport.use(localStrategy);
+  passport.use(googleStrategy);
+
+  app.use((req, _res, next) => { // TODO: logging purposes. To be removed
+    console.log('SESSION => ', req.session);
+    console.log('USER => ', req.user);
+    next();
+  });
+
+  app.use('/users', userRouter);
+  app.get("/", (_req: Request, res: Response) => {
+    console.log(_req.session);
+    res.send("Express + TypeScript Server :)");
+  });
+
+  // TODO: add error handler mw here
+
+  app.listen(PORT, () => {
+    console.log(`[server]: Server is running at http://localhost:${PORT}`);
+  });
 };
 
-database();
-
-app.use('/user', userRouter);
-
-app.get("/", (_req: Request, res: Response) => {
-  res.send("Express + TypeScript Server :)");
-});
-
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
-});
+index();
