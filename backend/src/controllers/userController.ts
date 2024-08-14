@@ -8,10 +8,6 @@ router.post('/login', passport.authenticate('local', {
   successRedirect: '/users/all',
   failureRedirect: '/users/login',
   failureMessage: 'Incorrect username or password'
-// }), async (req: Request, res: Response, next: NextFunction) => {
-//   const result = await UserService.login(req);
-//   res.send(result);
-//   next();
 }));
 
 router.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
