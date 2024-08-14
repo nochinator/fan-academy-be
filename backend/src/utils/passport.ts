@@ -36,7 +36,7 @@ const googleVerifyCallback = async (req: Express.Request, accessToken: string, r
     if (user) {
       cb(null, user);
     } else {
-      // If no user is found, create one using the Google account email and display name // TODO: move creation to its own function
+      // If no user is found, create one using the Google account email and display name
       console.log('this shouldnt log');
       const newUser = new User({
         username: profile.displayName,

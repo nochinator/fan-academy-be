@@ -39,24 +39,6 @@ const UserService = {
     return 'New user created';
   },
 
-  // async login(req: Request): Promise<{
-  //   user: ObjectId;
-  //   message: string;
-  // } | string> {
-  //   const { username, password } = req.body;
-
-  //   const user: IUser | null = await User.findOne({ username }); // TODO: make the query case insensitive
-  //   if (!user) {return 'Incorrect username or password';}
-
-  //   const passwordCheck = await validatePassword(password, user.password);
-  //   if (!passwordCheck) {return 'Incorrect username or password';} // TODO: create error file
-
-  //   return {
-  //     user: user._id,
-  //     message: 'You are now logged in!'
-  //   };
-  // },
-
   async logout(req: Request, res: Response) {
     if (!req.session) {return res.end();}
 
