@@ -2,9 +2,9 @@ import { compare } from 'bcrypt';
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
 import { Strategy as LocalStrategy, VerifyFunction } from 'passport-local';
+import { GOOGLE_CLIENT_ID, GOOGLE_SECRET } from '../config';
 import IUser from '../interfaces/userInterface';
 import User from '../models/userModel';
-import { GOOGLE_CLIENT_ID, GOOGLE_SECRET } from './config';
 
 // LOCAL STRATEGY
 const localVerifyCallback: VerifyFunction = async (username, password, cb): Promise<void> => {

@@ -1,7 +1,7 @@
+import { hash } from 'bcrypt';
 import { Request, Response } from "express";
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
-import { generatePassword } from "../utils/passwords";
 
 const UserService = {
   async signup(body: {
@@ -19,7 +19,7 @@ const UserService = {
       return 'An account for this username or email already exists';
     }
 
-    const hashedPassword = await generatePassword(password);
+    const hashedPassword = await hash(password, 10);
 
     try {
       const newUser = new User({

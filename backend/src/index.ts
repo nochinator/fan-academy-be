@@ -3,11 +3,11 @@ import cors from "cors";
 import express, { Express, Request, Response } from "express";
 import passport from "passport";
 
+import { googleStrategy, localStrategy } from "./auth/passport";
+import { setSession } from "./auth/sessions";
+import { PORT } from './config';
 import userRouter from './controllers/userController';
-import { PORT } from './utils/config';
-import { databaseConnection } from "./utils/db";
-import { googleStrategy, localStrategy } from "./utils/passport";
-import { setSession } from "./utils/sessions";
+import { databaseConnection } from "./db";
 
 const index = async () => {
   const app: Express = express();

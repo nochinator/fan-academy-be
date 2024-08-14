@@ -1,7 +1,7 @@
 import MongoStore from 'connect-mongo';
 import session from 'express-session';
 import { MongoClient } from 'mongodb';
-import { SECRET } from './config';
+import { SECRET } from '../config';
 
 export function setSession(dbClient: MongoClient | undefined) {
   const maxAge = 1000 * 60 * 60 * 24;
