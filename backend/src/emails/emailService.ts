@@ -14,9 +14,9 @@ const emailVars = {
     name: 'Fan Academy'
   },
   to: [
-    { "email": EMAIL_TEST_ADDRESS! }
+    { "email": EMAIL_TEST_ADDRESS }
   ],
-  replyTo: { email: EMAIL_TEST_ADDRESS! }
+  replyTo: { email: EMAIL_TEST_ADDRESS }
 };
 
 export const EmailService = {

@@ -7,17 +7,37 @@ const router = express.Router();
 router.post('/login', passport.authenticate('local', {
   successRedirect: '/users/all',
   failureRedirect: '/users/login',
-  failureMessage: 'Incorrect username or password'
+  failureMessage: 'Error 4'
 }));
 
 router.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
-  const result = await UserService.signup(req.body);
-  res.send(result);
+  return await UserService.signup(req, res, next);
   next();
 });
 
 router.get('/logout', async (req: Request, res: Response, next: NextFunction) => {
   return await UserService.logout(req, res);
+  next();
+});
+
+router.get('/signup', async (_req: Request, res: Response, next: NextFunction) => {
+  const form = `<div class="login-container">
+        <h2>Signup</h2>
+        <form action="/users/signup" method="POST">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>`;
+
+  res.send(form);
   next();
 });
 

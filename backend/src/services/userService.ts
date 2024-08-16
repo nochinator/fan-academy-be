@@ -1,26 +1,23 @@
 import { hash } from 'bcrypt';
 import { Request, Response } from "express";
+import { NextFunction } from 'express-serve-static-core';
+import { EmailService } from '../emails/emailService';
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
 
 const UserService = {
-  async signup(body: {
-    username: string,
-    email: string,
-    password: string
-  }): Promise<string> {
-    console.log('BODY', body);
-    const { username, email, password } = body; // TODO: sanitize fields
+  async signup(req: Request, res: Response, next: NextFunction){
+    console.log('BODY', req.body); // TODO: remove
+    const { username, email, password } = req.body; // TODO: sanitize fields
 
     // Check if the username or email are already in use
     const userAlreadyExists: IUser[] = await User.find({ $or: [ { username }, { email }] });
-
     if (userAlreadyExists.length) {
-      return 'An account for this username or email already exists';
+      res.status(400).send('An account for this username or email already exists');
     }
 
+    // If the user doesn't exist, create a new user with an encrypted password
     const hashedPassword = await hash(password, 10);
-
     try {
       const newUser = new User({
         username,
@@ -28,15 +25,19 @@ const UserService = {
         password: hashedPassword
       });
       await newUser.save();
+
+      // Send email confirmation email
+      EmailService.sendAccountConfirmationEmail(username);
+
+      // Login user
+      req.login(newUser, (err) => {
+        if (err) { next(err); };
+        res.redirect('/users/all');});
     }
     catch(error) {
-      console.log(error);
-      if (error instanceof Error){ return error.message;}
+      console.log(error); // TODO: add logger
+      res.status(400).send('An error ocurred while creating your account. Please, try again');
     }
-
-    // TODO: send confirmation email
-    // TODO: redirect to login page
-    return 'New user created';
   },
 
   async logout(req: Request, res: Response) {

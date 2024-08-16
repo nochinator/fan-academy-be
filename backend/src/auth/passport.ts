@@ -8,16 +8,17 @@ import User from '../models/userModel';
 
 // LOCAL STRATEGY
 const localVerifyCallback: VerifyFunction = async (username, password, cb): Promise<void> => {
+  console.log('LOCAL_VERIFY', username, password);
   try {
     const user: IUser | null = await User.findOne({ username });
 
     if (user && user.password) {
       const passwordCheck = await compare(password, user.password);
       // TODO: Change the errors to redirect to login again, and share the error text
-      if (!passwordCheck) { return cb('Incorrect username or password.', false); }
+      if (!passwordCheck) { return cb('Error1.', false); }
       cb(null, user);
     } else {
-      cb('Incorrect username or password.', false);
+      cb('Error2', false);
     }
   } catch (err) {
     cb(err);
