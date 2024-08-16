@@ -10,30 +10,58 @@ apiInstance.setApiKey(
 
 const emailVars = {
   sender: {
-    email: EMAIL_TEST_ADDRESS,
+    email: EMAIL_TEST_ADDRESS, // TODO: implement actual email addresses
     name: 'Fan Academy'
   },
-  to: [
-    { "email": EMAIL_TEST_ADDRESS }
-  ],
+  // to: [
+  //   { "email": EMAIL_TEST_ADDRESS }
+  // ],
   replyTo: { email: EMAIL_TEST_ADDRESS }
 };
 
 export const EmailService = {
-  async sendAccountConfirmationEmail(username: string) {
+  async sendEmail(emailData: {
+    templateId: number,
+    email: string,
+    params: object
+  }): Promise<void> {
     const smtpEmail = new Brevo.SendSmtpEmail();
     const sendSmtpEmail = Object.assign(smtpEmail, {
       ...emailVars,
-      templateId: 1,
-      params: {
-        username,
-        confirmationLink: 'test123'
-      }
+      to: [{ email: emailData.email }],
+      templateId: emailData.templateId,
+      params: emailData.params
     });
 
     try {
       const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
       console.log('API called successfully. Returned data: ' + JSON.stringify(result));
-    } catch(err) { console.log(err);}
+    } catch(err) { err; };
+  },
+
+  async sendAccountConfirmationEmail(username: string, email: string): Promise<void> {
+    // Create confirmation link // TODO:
+    const confirmationLink = 'confirmation.com';
+    await this.sendEmail({
+      templateId: 1,
+      email,
+      params: {
+        username,
+        confirmationLink
+      }
+    });
+  },
+
+  async sendPasswordResetEmail(email: string, username: string): Promise<void> {
+    // Create recovery link // TODO:
+    const resetLink = 'recovery.com';
+    await this.sendEmail({
+      templateId: 2,
+      email,
+      params: {
+        username,
+        resetLink
+      }
+    });
   }
 };

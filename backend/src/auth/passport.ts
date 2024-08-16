@@ -30,15 +30,11 @@ const localStrategy = new LocalStrategy(localVerifyCallback);
 // GOOGLE OAUTH STRATEGY
 const googleVerifyCallback = async (req: Express.Request, accessToken: string, refreshToken: string, profile: Profile, cb: VerifyCallback): Promise<void> => {
   try {
-    // console.log('profile => ', profile);
-
     const user: IUser | null = await User.findOne({ googleId: profile.id });
-    console.log('userG =>', user);
     if (user) {
       cb(null, user);
     } else {
       // If no user is found, create one using the Google account email and display name
-      console.log('this shouldnt log');
       const newUser = new User({
         username: profile.displayName,
         email: profile._json.email,

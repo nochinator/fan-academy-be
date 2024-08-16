@@ -33,7 +33,6 @@ const index = async () => {
 
   app.use('/users', userRouter);
   app.get("/", (_req: Request, res: Response) => {
-    console.log(_req.session);
     res.send("Express + TypeScript Server :)");
   });
 

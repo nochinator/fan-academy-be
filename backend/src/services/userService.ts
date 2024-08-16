@@ -27,7 +27,7 @@ const UserService = {
       await newUser.save();
 
       // Send email confirmation email
-      EmailService.sendAccountConfirmationEmail(username);
+      EmailService.sendAccountConfirmationEmail(username, email);
 
       // Login user
       req.login(newUser, (err) => {
@@ -50,6 +50,12 @@ const UserService = {
         res.redirect('/users/login');
       }
     });
+  },
+
+  async passwordReset(req: Request, res: Response) {
+    const user: IUser | null = await User.findOne({ email: req.body.email  });
+    if (user) await EmailService.sendPasswordResetEmail(user.email, user.username);
+    res.send('A password recovery link has been sent to your email address. Please check your inbox and spam folders'); // Redirect to login
   },
 
   async getUsers(): Promise<IUser[]> {
