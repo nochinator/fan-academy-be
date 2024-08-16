@@ -70,6 +70,28 @@ router.get('/logout', async (req: Request, res: Response) => {
   return await UserService.logout(req, res);
 });
 
+// PROFILE UPDATE
+// TODO: Add account modification route
+
+// ACCOUNT DELETION // TODO: add popup asking user to type 'delete' in the FE in order for this to be called
+router.get('/delete', async (req: Request, res: Response) => {
+  const form = `<div class="delete-container">
+  <h2>Delete account</h2>
+  <form action="/users/delete" method="POST">
+      <label for="userId">UserId:</label>
+      <input type="text" id="userId" name="userId" required>
+
+      <button type="submit">Delete</button>
+  </form>
+</div>`;
+
+  res.send(form);
+});
+
+router.post('/delete', async (req: Request, res: Response, next: NextFunction) => {
+  return await UserService.deleteUser(req, res, next);
+});
+
 // EMAIL RECOVERY
 router.get('/password-reset', async (_req: Request, res: Response) => {
   const form = `<div class="password-reset-container">
@@ -78,7 +100,7 @@ router.get('/password-reset', async (_req: Request, res: Response) => {
       <label for="email">Email:</label>
       <input type="text" id="email" name="email" required>
 
-      <button type="submit">Login</button>
+      <button type="submit">Send email</button>
   </form>
 </div>`;
 
@@ -103,5 +125,13 @@ router.get('/all', async (req: Request, res: Response) => {
 router.get('/turn-notification', async(_req: Request, res: Response, next: NextFunction) => {
   return await UserService.turnNotification('66bba04c412d8d4987d52c9b', '123', res, next);
 }); // TODO: remove when done testing
+
+router.get('/game-end-notification', async(req: Request, res: Response, next: NextFunction) => {
+  return await UserService.gameEndNotification(req.body.gameId, res, next);
+}); // TODO: remove when done testing
+
+router.post('/new-game', async(req: Request, res: Response, next: NextFunction)=> {
+  return await UserService.createGame(req, res, next); // FIXME: move this to game controller
+});
 
 export default router;
