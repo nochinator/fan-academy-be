@@ -58,6 +58,16 @@ const UserService = {
     res.send('A password recovery link has been sent to your email address. Please check your inbox and spam folders'); // Redirect to login
   },
 
+  async turnNotification(userId: string, gameId: string, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const user: IUser | null = await User.findById(userId); // TODO: check if we use id or username as param
+      if (!user) next('Error sending turn notification');
+      if (user) {await EmailService.sendTurnNotificationEmail(user.email, user.username, gameId);
+        res.send('Notification sent!');
+      }
+    } catch(err) { console.log(err); res.send('Error sending turn notification');}
+  },
+
   async getUsers(): Promise<IUser[]> {
     // TODO: add auth
     return await User.find();

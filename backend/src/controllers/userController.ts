@@ -99,4 +99,9 @@ router.get('/all', async (req: Request, res: Response) => {
   }
 });
 
+// NOTIFICATIONS
+router.get('/turn-notification', async(_req: Request, res: Response, next: NextFunction) => {
+  return await UserService.turnNotification('66bba04c412d8d4987d52c9b', '123', res, next);
+}); // TODO: remove when done testing
+
 export default router;

@@ -63,5 +63,18 @@ export const EmailService = {
         resetLink
       }
     });
+  },
+
+  async sendTurnNotificationEmail(email: string, username: string, gameId: string): Promise<void> {
+    // Create recovery link // TODO:
+    const gameLink = `testlink/games/${gameId}`;
+    await this.sendEmail({
+      templateId: 3,
+      email,
+      params: {
+        username,
+        gameLink
+      }
+    });
   }
 };
