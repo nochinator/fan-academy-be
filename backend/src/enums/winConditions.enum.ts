@@ -1,6 +1,6 @@
 export enum EWinConditions {
   CRYSTAL = 'Crystals destroyed',
   UNITS = 'Units defeated',
-  TIME = 'Timed out',
+  TIME = 'Timeout',
   CONCEDED = 'Game conceded'
 }

@@ -13,4 +13,5 @@
     "outDir": "./dist/",
     "typeRoots": ["./src/interfaces/expressExtend.d.ts","./node_modules/@types"],
   },
+  "exclude": ["node_modules"]
 }

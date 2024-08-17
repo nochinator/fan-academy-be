@@ -11,12 +11,9 @@ apiInstance.setApiKey(
 
 const emailVars = {
   sender: {
-    email: EMAIL_TEST_ADDRESS, // TODO: implement actual email addresses
+    email: EMAIL_TEST_ADDRESS, // TODO: implement domain email addresses
     name: 'Fan Academy'
   },
-  // to: [
-  //   { "email": EMAIL_TEST_ADDRESS }
-  // ],
   replyTo: { email: EMAIL_TEST_ADDRESS }
 };
 
@@ -43,7 +40,7 @@ export const EmailService = {
     try {
       const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
       console.log('API called successfully. Returned data: ' + JSON.stringify(result));
-    } catch(err) { err; };
+    } catch(err) { console.log(err); }; // TODO: add error mw
   },
 
   async sendAccountConfirmationEmail(username: string, email: string): Promise<void> {
