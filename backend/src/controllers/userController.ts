@@ -1,8 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import passport from "passport";
+import { isAuthenticated } from "../middleware/isAuthenticated";
 import UserService from "../services/userService";
 
-const router = express.Router();
+const router = Router();
 
 // SIGN UP
 router.get('/signup', async (_req: Request, res: Response) => {
@@ -112,13 +113,9 @@ router.post('/password-reset', async (req: Request, res: Response) => {
 });
 
 // PROTECTED ROUTE
-router.get('/all', async (req: Request, res: Response) => {
-  if (req.isAuthenticated()) {
-    const result = await UserService.getUsers();
-    res.send(result);
-  } else {
-    res.send('Error, you are not authenticated');
-  }
+router.get('/all', isAuthenticated, async (req: Request, res: Response) => {
+  const result = await UserService.getUsers();
+  res.send(result);
 });
 
 // NOTIFICATIONS

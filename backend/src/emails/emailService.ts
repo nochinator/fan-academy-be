@@ -84,6 +84,7 @@ export const EmailService = {
 
   async sendGameEndEmail(game: IGame): Promise<void> {
     const { player1, player2, winCondition, winner } = game;
+    const victor = winner ? winner.username : ''; // REVIEW: winner is optional
     // Create recovery link // TODO:
     const gameLink = `testlink/games/${game._id}`;
     await this.sendEmail({
@@ -93,7 +94,7 @@ export const EmailService = {
         player1,
         player2,
         winCondition,
-        winner: winner.username,
+        winner: victor,
         gameLink
       }
     });

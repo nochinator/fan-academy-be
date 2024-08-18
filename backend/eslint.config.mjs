@@ -12,11 +12,16 @@ export default [
   { plugins: { '@stylistic/ts': stylisticTs } },
   {
     rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
       "no-multiple-empty-lines": ["error", { "max": 1 }],
       "padded-blocks": ["error", {
         "blocks": "never",
         "classes": "never",
         "switches": "never"
+      }],
+      '@stylistic/ts/semi': ['error', 'always', {
+        "omitLastInOneLineBlock": false,
+        "omitLastInOneLineClassBody": false
       }],
       '@stylistic/ts/indent': ['error', 2],
       '@stylistic/ts/comma-dangle': ['error', {
@@ -36,10 +41,6 @@ export default [
       '@stylistic/ts/object-curly-spacing': ['error', 'always'],
       '@stylistic/ts/object-property-newline': ['error'],
       '@stylistic/ts/type-annotation-spacing': ['error'],
-      '@stylistic/ts/semi': ['error', 'always', {
-        "omitLastInOneLineBlock": false,
-        "omitLastInOneLineClassBody": false
-      }],
       '@stylistic/ts/space-infix-ops': ['error', { int32Hint: false }]
     }
   }
