@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import Game from "../models/gameModel";
-import { EGameStatus, EGameTermination } from "../enums/game.enums";
+import { EGameStatus } from "../enums/game.enums";
 import IGame from "../interfaces/gameInterface";
+import { EmailService } from "../emails/emailService";
 
 const GameService = {
   // GET ACTIONS
@@ -30,9 +31,16 @@ const GameService = {
   // POST ACTIONS
   async sendTurn(req: Request, res: Response, next: NextFunction) {
     try {
-      const { gameId, turnNumber, boardState, actions } = req.body;
+      const { userId,  gameId, turnNumber, boardState, actions } = req.body;
 
-      const game: IGame | null = await Game.findOneAndUpdate(
+      // Check that the game exists
+      const game = await Game.findById(req.body.gameId);
+      if (!game) { next('sendTurn error - Game not found');}
+
+      // Check that the player is the active player
+      if (userId !== game!.activePlayer) { next('sendTurn - player is not the active player');}
+
+      await Game.findOneAndUpdate(
         { filter: { _id: gameId } }, {
           upate: {
             $push: {
@@ -43,25 +51,55 @@ const GameService = {
               }
             }
           }
-        });
-
-      if (!game) next('Error sending turn - No game found');
+        }); // REVIEW: should I check here for a returned doc?
     } catch(err) {
       next(err);
     }
   },
 
-  async deleteGame(gameId: string, next: NextFunction): Promise<void> {
+  async deleteGame(gameId: string, userId: string, next: NextFunction): Promise<void> {
     try {
-      const result = await Game.findByIdAndDelete(gameId);
-      if (!result) next('deleteGame - error deleting game'); // TODO: check the result type of the query (both on success and error)
+      const game: IGame | null = await Game.findById(gameId);
+      if (!game) {next('deleteGame - 404 game not found');}
+
+      if (game!.status && game?.players.includes(userId)) {
+        const result = await Game.findByIdAndDelete(gameId);
+        if (!result) next('deleteGame - error deleting game'); // TODO: check what the result type of the query is (both on success and error)
+      }
     } catch(err) { next(err);}
   },
 
   async endGame(req: Request, res: Response, next: NextFunction) {
-    /* TODO: add logic that triggers when the game ends
-    includes checking the vitory condition and sending the end of game emails to the players
-    */
+    const { gameId, winner, winCondition, lastTurn } = req.body;
+
+    // Update game document
+    try {
+      const game: IGame | null = await Game.findOneAndUpdate(
+        { filter: { _id: gameId } }, {
+          upate: {
+            ...lastTurn ? {
+              $push: {
+                turns: {
+                  turnNumber: lastTurn.turnNumber,
+                  boardState: lastTurn.boardState,
+                  actions: lastTurn.actions
+                }
+              }
+            } : {},
+            winner,
+            winCondition,
+            gameStatus: EGameStatus.FINISHED
+          }
+        }); // REVIEW: should I check here for a returned doc?
+
+      if (!game) { next('endGame - 404 game not found');}
+
+      // Send end game notificaton emails
+      await EmailService.sendGameEndEmail(game!);
+    } catch(err) { next(err);}
+
+    res.statusMessage = 'Operation succeded';
+    res.sendStatus(201);
   }
 };
 

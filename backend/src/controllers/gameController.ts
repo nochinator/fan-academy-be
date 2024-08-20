@@ -29,7 +29,7 @@ router.post('/:id/new-turn', isAuthenticated, async (req: Request, res: Response
 });
 
 // Terminate a game - used for both conceding a game or cancelling a game searching for players
-router.post('/:id/terminate', isAuthenticated, async (req: Request, res: Response, next: NextFunction)=> {
+router.post('/:id/terminate', isAuthenticated,  async (req: Request, res: Response, next: NextFunction)=> {
   // TODO: create a isAuthorized MW to check if a user can send moves / concede / cancel games
   const { reason } = req.body;
   if (reason == EGameTermination.CANCELED) {

@@ -80,6 +80,7 @@ interface IPlayer  {
 interface IGame {
   _id: ObjectId;
   status: EGameStatus;
+  players: string[];
   player1: IPlayer;
   player2: IPlayer;
   winCondition?: EWinConditions;
