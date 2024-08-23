@@ -33,7 +33,7 @@ router.post('/:id/terminate', isAuthenticated,  async (req: Request, res: Respon
   // TODO: create a isAuthorized MW to check if a user can send moves / concede / cancel games
   const { reason } = req.body;
   if (reason == EGameTermination.CANCELED) {
-    await GameService.deleteGame(req.params.id, next);
+    await GameService.deleteGame(req.params.id, req.body.userId,  next);
     res.sendStatus(201);
   };
   if (reason == EGameTermination.CONCEDED) {
