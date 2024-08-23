@@ -1,16 +1,9 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "module": "NodeNext",
-    "target": "ES2022",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "esModuleInterop": true,
-    "moduleResolution": "NodeNext",
-    "outDir": "./dist/",
-    "typeRoots": ["./src/interfaces/expressExtend.d.ts","./node_modules/@types"],
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "typeRoots": ["./backend/src/interfaces/expressExtend.d.ts"],
 }
