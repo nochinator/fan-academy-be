@@ -150,3 +150,19 @@ yalc.lock
 
 # OS
 .DS_Store
+
+# FE
+# Logs
+pnpm-debug.log*
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
