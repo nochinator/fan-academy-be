@@ -1,8 +1,9 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import Game from "../models/gameModel";
 import { EGameStatus } from "../enums/game.enums";
 import IGame from "../interfaces/gameInterface";
 import { EmailService } from "../emails/emailService";
+import { CustomError } from "../classes/customError";
 
 const GameService = {
   // GET ACTIONS
@@ -18,7 +19,7 @@ const GameService = {
     res.send(result); // TODO: check if it is an empty array if no games are found
   },
 
-  async getGame(req: Request, res: Response, _next: NextFunction) {
+  async getGame(req: Request, res: Response) {
     const result = await Game.findById(req.params.id);
     if (result) {
       res.send(result);
@@ -29,91 +30,84 @@ const GameService = {
   },
 
   // POST ACTIONS
-  async createGame(req: Request, res: Response, next: NextFunction) {
-    try {
-      const newGame = new Game({
-        player1: req.body.player1,
-        player2: req.body.player2,
-        winCondition: req.body.winCondition,
-        winner: req.body.winner
-      });
+  async createGame(req: Request, res: Response) {
+    const newGame = new Game({
+      player1: req.body.player1,
+      player2: req.body.player2,
+      winCondition: req.body.winCondition,
+      winner: req.body.winner
+    });
 
-      await newGame.save();
-      res.send('New Game created');
-    } catch(err) {
-      console.log('Error in createGame function');
-      next(err);
-    }
+    const result = await newGame.save();
+    if (!result) throw new CustomError(23);
+
+    res.send(`New Game created: ${result._id}`);
+    console.log('Error in createGame function');
   },
 
-  async sendTurn(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { userId,  gameId, turnNumber, boardState, actions } = req.body;
+  async sendTurn(req: Request, res: Response) {
+    const { userId,  gameId, turnNumber, boardState, actions } = req.body;
 
-      // Check that the game exists
-      const game = await Game.findById(req.body.gameId);
-      if (!game) { next('sendTurn error - Game not found');}
+    // Check that the game exists
+    const game = await Game.findById(req.body.gameId);
+    if (!game) throw new CustomError(24);
 
-      // Check that the player is the active player
-      if (userId !== game!.activePlayer) { next('sendTurn - player is not the active player');}
+    // Check that the player is the active player
+    if (userId !== game!.activePlayer) throw new CustomError(25);
 
-      await Game.findOneAndUpdate(
-        { filter: { _id: gameId } }, {
-          upate: {
-            $push: {
-              turns: {
-                turnNumber,
-                boardState,
-                actions
-              }
+    const result = await Game.findOneAndUpdate(
+      { filter: { _id: gameId } }, {
+        upate: {
+          $push: {
+            turns: {
+              turnNumber,
+              boardState,
+              actions
             }
           }
-        }); // REVIEW: should I check here for a returned doc?
-    } catch(err) {
-      next(err);
-    }
+        }
+      }); // REVIEW: should I check here for a returned doc?
+
+    res.send(result);
   },
 
-  async deleteGame(gameId: string, userId: string, next: NextFunction): Promise<void> {
-    try {
-      const game: IGame | null = await Game.findById(gameId);
-      if (!game) {next('deleteGame - 404 game not found');}
+  async deleteGame(gameId: string): Promise<void> {
+    const game: IGame | null = await Game.findById(gameId);
+    if (!game) throw new CustomError(24);
 
-      if (game!.status && game?.players.includes(userId)) {
-        const result = await Game.findByIdAndDelete(gameId);
-        if (!result) next('deleteGame - error deleting game'); // TODO: check what the result type of the query is (both on success and error)
-      }
-    } catch(err) { next(err);}
+    if (game!.status != EGameStatus.SEARCHING) throw new CustomError(27);
+
+    const result = await Game.findByIdAndDelete(gameId);
+    if (!result) throw new CustomError(24);
+    // TODO: check what the result type of the query is (both on success and error)
   },
 
-  async endGame(req: Request, res: Response, next: NextFunction) {
+  async endGame(req: Request, res: Response) {
     const { gameId, winner, winCondition, lastTurn } = req.body;
 
     // Update game document
-    try {
-      const game: IGame | null = await Game.findOneAndUpdate(
-        { filter: { _id: gameId } }, {
-          upate: {
-            ...lastTurn ? {
-              $push: {
-                turns: {
-                  turnNumber: lastTurn.turnNumber,
-                  boardState: lastTurn.boardState,
-                  actions: lastTurn.actions
-                }
+    const game: IGame | null = await Game.findOneAndUpdate(
+      { filter: { _id: gameId } }, {
+        upate: {
+          ...lastTurn ? {
+            $push: {
+              turns: {
+                turnNumber: lastTurn.turnNumber,
+                boardState: lastTurn.boardState,
+                actions: lastTurn.actions
               }
-            } : {},
-            winner,
-            winCondition,
-            gameStatus: EGameStatus.FINISHED
-          }
-        }); // REVIEW: should I check here for a returned doc?
+            }
+          } : {},
+          winner,
+          winCondition,
+          gameStatus: EGameStatus.FINISHED
+        }
+      }); // REVIEW: should I check here for a returned doc?
 
-      if (!game) { next('endGame - 404 game not found');}
+    if (!game) throw new CustomError(24);
 
-      // Send end game notificaton emails
-      await EmailService.sendGameEndEmail(game!);
-    } catch(err) { next(err);}
+    // Send end game notificaton emails
+    await EmailService.sendGameEndEmail(game!);
 
     res.statusMessage = 'Operation succeded';
     res.sendStatus(201);

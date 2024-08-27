@@ -1,6 +1,7 @@
 import * as Brevo from '@getbrevo/brevo';
 import { BREVO_API_KEY, EMAIL_TEST_ADDRESS } from '../config';
 import IGame from '../interfaces/gameInterface';
+import { NextFunction } from "express";
 
 const apiInstance = new Brevo.TransactionalEmailsApi();
 
@@ -21,8 +22,8 @@ export const EmailService = {
   async sendEmail(emailData: {
     templateId: number,
     email: string | string[],
-    params: object
-  }): Promise<void> {
+    params: object,
+  }, next: NextFunction): Promise<void> {
     const sendTo = Array.isArray(emailData.email)
       ? emailData.email.map((mail) => ({ email: mail }))
       : [{ email: emailData.email }];
@@ -40,10 +41,13 @@ export const EmailService = {
     try {
       const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
       console.log('API called successfully. Returned data: ' + JSON.stringify(result));
-    } catch(err) { console.log(err); }; // TODO: add error mw
+    } catch(err) {
+      console.log(err);
+      next(err);
+    };
   },
 
-  async sendAccountConfirmationEmail(username: string, email: string): Promise<void> {
+  async sendAccountConfirmationEmail(username: string, email: string, next: NextFunction): Promise<void> {
     // Create confirmation link // TODO:
     const confirmationLink = 'confirmation.com';
     await this.sendEmail({
@@ -53,10 +57,10 @@ export const EmailService = {
         username,
         confirmationLink
       }
-    });
+    }, next);
   },
 
-  async sendPasswordResetEmail(email: string, username: string): Promise<void> {
+  async sendPasswordResetEmail(email: string, username: string, next: NextFunction): Promise<void> {
     // Create recovery link // TODO:
     const resetLink = 'recovery.com';
     await this.sendEmail({
@@ -66,10 +70,10 @@ export const EmailService = {
         username,
         resetLink
       }
-    });
+    }, next);
   },
 
-  async sendTurnNotificationEmail(email: string, username: string, gameId: string): Promise<void> {
+  async sendTurnNotificationEmail(email: string, username: string, gameId: string, next: NextFunction): Promise<void> {
     // Create recovery link // TODO:
     const gameLink = `testlink/games/${gameId}`;
     await this.sendEmail({
@@ -79,10 +83,10 @@ export const EmailService = {
         username,
         gameLink
       }
-    });
+    }, next);
   },
 
-  async sendGameEndEmail(game: IGame): Promise<void> {
+  async sendGameEndEmail(game: IGame, next: NextFunction): Promise<void> {
     const { player1, player2, winCondition, winner } = game;
 
     // Create recovery link // TODO:
@@ -97,15 +101,15 @@ export const EmailService = {
         winner: winner?.username,
         gameLink
       }
-    });
+    }, next);
   },
 
-  async sendAccountDeletionEmail(email: string): Promise<void> {
+  async sendAccountDeletionEmail(email: string, next: NextFunction): Promise<void> {
     const contactLink = 'localhost/contact';
     await this.sendEmail({
       templateId: 5,
       email,
       params: { contactLink }
-    });
+    }, next);
   }
 };

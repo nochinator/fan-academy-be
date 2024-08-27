@@ -108,8 +108,8 @@ router.get('/password-reset', async (_req: Request, res: Response) => {
   res.send(form);
 });
 
-router.post('/password-reset', async (req: Request, res: Response) => {
-  await UserService.passwordReset(req, res);
+router.post('/password-reset', async (req: Request, res: Response, next: NextFunction) => {
+  await UserService.passwordReset(req, res, next);
 });
 
 // PROTECTED ROUTE
@@ -126,9 +126,5 @@ router.get('/turn-notification', async(_req: Request, res: Response, next: NextF
 router.get('/game-end-notification', async(req: Request, res: Response, next: NextFunction) => {
   return await UserService.gameEndNotification(req.body.gameId, res, next);
 }); // TODO: remove when done testing
-
-router.post('/new-game', async(req: Request, res: Response, next: NextFunction)=> {
-  return await UserService.createGame(req, res, next); // FIXME: move this to game controller
-});
 
 export default router;

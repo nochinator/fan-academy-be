@@ -3,11 +3,11 @@ import cors from "cors";
 import express, { Express, Request, Response } from "express";
 import passport from "passport";
 import "express-async-errors"; // Error MW patch
-
 import { googleStrategy, localStrategy } from "./auth/passport";
 import { setSession } from "./auth/sessions";
 import { PORT } from './config';
 import userRouter from './controllers/userController';
+import gameRouter from './controllers/gameController';
 import { databaseConnection } from "./db";
 import AppErrorHandler from "./middleware/errorHandler";
 
@@ -34,6 +34,7 @@ const index = async () => {
   });
 
   app.use('/users', userRouter);
+  app.use('/games', gameRouter);
   app.get("/", (_req: Request, res: Response) => {
     res.send("Express + TypeScript Server :)");
   });

@@ -1,6 +1,22 @@
 export const ErrorCodes = {
-  1: 'Error number 1',
-  2: 'Test'
+  // Auth
+  10: 'User is not authenticated',
+  11: 'Wrong login credentials',
+  12: 'An account for this username or email already exists',
+  13: 'Unable to log out',
+
+  // Game
+  23: 'Could not create game',
+  24: 'Game not found',
+  25: 'User is not the active player',
+  26: 'User is not authorized',
+  27: 'Can only delete games before they start',
+
+  // Generic
+  30: 'Database query error',
+
+  // User
+  40: 'User not found'
 };
 
 export type ErrorCode = keyof typeof ErrorCodes;

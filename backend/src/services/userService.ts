@@ -6,6 +6,7 @@ import IGame from '../interfaces/gameInterface';
 import IUser from "../interfaces/userInterface";
 import Game from '../models/gameModel';
 import User from "../models/userModel";
+import { CustomError } from '../classes/customError';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction){
@@ -14,90 +15,81 @@ const UserService = {
 
     // Check if the username or email are already in use
     const userAlreadyExists: IUser[] = await User.find({ $or: [ { username }, { email }] });
-    if (userAlreadyExists.length) {
-      return res.status(400).send('An account for this username or email already exists');
-    }
+    if (userAlreadyExists.length) throw new CustomError(12);
 
     // If the user doesn't exist, create a new user with an encrypted password
     const hashedPassword = await hash(password, 10);
-    try {
-      const newUser = new User({
-        username,
-        email,
-        password: hashedPassword
-      });
-      await newUser.save();
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword
+    });
+    const result =  await newUser.save();
+    if (!result) throw new CustomError(30);
 
-      // Send email confirmation email
-      EmailService.sendAccountConfirmationEmail(username, email);
+    // Send email confirmation email
+    await EmailService.sendAccountConfirmationEmail(username, email, next);
 
-      // Login user
-      return req.login(newUser, (err) => {
-        if (err) { next(err); };
-        res.redirect('/users/all');});
-    }
-    catch(error) {
-      console.log(error); // TODO: add logger
-      return res.status(400).send('An error ocurred while creating your account. Please, try again');
-    }
+    // Login user
+    return req.login(newUser, (err) => {
+      if (err) { next(err); };
+      res.redirect('/users/all');});
   },
 
   async logout(req: Request, res: Response) {
-    if (!req.session) {return res.end();}
+    if (!req.session) return res.end();
 
     return req.session.destroy(err => {
       if (err) {
-        res.status(400).send('Unable to log out');
+        throw new CustomError(13);
       } else {
         res.redirect('/users/login');
       }
     });
   },
 
-  async passwordReset(req: Request, res: Response) {
+  async passwordReset(req: Request, res: Response, next: NextFunction) {
     const user: IUser | null = await User.findOne({ email: req.body.email  });
-    if (user) await EmailService.sendPasswordResetEmail(user.email, user.username);
-    res.send('A password recovery link has been sent to your email address. Please check your inbox and spam folders'); // Redirect to login
+
+    if (!user) throw new CustomError(40);
+
+    await EmailService.sendPasswordResetEmail(user.email, user.username, next);
+
+    res.send('A password recovery link has been sent to your email address. Please check your inbox and spam folders'); // REVIEW: Redirect to login?
   },
 
   async deleteUser(req: Request, res: Response, next: NextFunction) {
-    try {
-      const deletedUser: IUser | undefined | null = await User.findOneAndDelete({ _id: req.body.userId });
-      // TODO: Query the games collection removing the username and id from each game
-      // either use a generic user id and username, or create a mock up one for each deleted user
-      if (deletedUser) await EmailService.sendAccountDeletionEmail(deletedUser?.email);
-      return req.session.destroy(err => {
-        if (err) {
-          res.status(400).send('Unable to log out');
-        } else {
-          res.redirect('/users/login');
-        }
-      });
-    } catch(err) {
-      return res.send('Error deleting user');
-      next(err);
-    }
+    const deletedUser: IUser | undefined | null = await User.findOneAndDelete({ _id: req.body.userId });
+    // TODO: Query the games collection removing the username and id from each game
+    // either use a generic user id and username, or create a mock up one for each deleted user
+    if (!deletedUser) throw new CustomError(40);
+
+    await EmailService.sendAccountDeletionEmail(deletedUser?.email, next);
+    return req.session.destroy(err => {
+      if (err) {
+        next(err);
+      } else {
+        res.redirect('/users/login');
+      }
+    });
   },
 
   async turnNotification(userId: string, gameId: string, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const user: IUser | null = await User.findById(userId); // TODO: check if we use id or username as param
-      if (!user) next('Error sending turn notification');
-      if (user) {await EmailService.sendTurnNotificationEmail(user.email, user.username, gameId);
-        res.send('Notification sent!');
-      }
-    } catch(err) { console.log(err); res.send('Error sending turn notification');}
+    const user: IUser | null = await User.findById(userId); // TODO: check if we use id or username as param
+    if (!user) throw new CustomError(40);
+
+    await EmailService.sendTurnNotificationEmail(user.email, user.username, gameId, next);
+
+    res.send('Notification sent!');
   },
 
   async gameEndNotification(gameId: string, res: Response, next: NextFunction): Promise<void> {
-    try {
-      // TODO: create game interface and collection
-      const game: IGame | null = await Game.findById(gameId); // TODO: check if we use id or username as param
-      if (!game) next('Error sending end game notification - No game found');
-      if (game) {await EmailService.sendGameEndEmail(game);
-        res.send('Notification sent!');
-      }
-    } catch(err) { console.log(err); res.send('Error sending turn notification');}
+    // TODO: create game interface and collection
+    const game: IGame | null = await Game.findById(gameId); // TODO: check if we use id or username as param
+    if (!game) throw new CustomError(24); // TODO: add check for games that are already finished
+
+    await EmailService.sendGameEndEmail(game, next);
+    res.send('Notification sent!');
   },
 
   async getUsers(): Promise<IUser[]> {
