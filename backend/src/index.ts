@@ -2,12 +2,14 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express, { Express, Request, Response } from "express";
 import passport from "passport";
+import "express-async-errors"; // Error MW patch
 
 import { googleStrategy, localStrategy } from "./auth/passport";
 import { setSession } from "./auth/sessions";
 import { PORT } from './config';
 import userRouter from './controllers/userController';
 import { databaseConnection } from "./db";
+import AppErrorHandler from "./middleware/errorHandler";
 
 const index = async () => {
   const app: Express = express();
@@ -36,7 +38,7 @@ const index = async () => {
     res.send("Express + TypeScript Server :)");
   });
 
-  // TODO: add error handler mw here
+  app.use(AppErrorHandler);
 
   app.listen(PORT, () => {
     console.log(`[server]: Server is running at http://localhost:${PORT}`);

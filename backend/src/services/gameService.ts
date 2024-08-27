@@ -29,6 +29,23 @@ const GameService = {
   },
 
   // POST ACTIONS
+  async createGame(req: Request, res: Response, next: NextFunction) {
+    try {
+      const newGame = new Game({
+        player1: req.body.player1,
+        player2: req.body.player2,
+        winCondition: req.body.winCondition,
+        winner: req.body.winner
+      });
+
+      await newGame.save();
+      res.send('New Game created');
+    } catch(err) {
+      console.log('Error in createGame function');
+      next(err);
+    }
+  },
+
   async sendTurn(req: Request, res: Response, next: NextFunction) {
     try {
       const { userId,  gameId, turnNumber, boardState, actions } = req.body;
