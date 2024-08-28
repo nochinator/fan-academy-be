@@ -9,7 +9,7 @@ const router = Router();
 
 // Get user's ongoing games
 router.get('/playing', isAuthenticated, async (req: Request, res: Response, _next: NextFunction) => {
-  return GameService.getActiveGames(req, res);
+  return GameService.getCurrentGames(req, res);
 });
 
 // Get games looking for players
@@ -34,7 +34,7 @@ router.post('/new-game', async(req: Request, res: Response)=> {
 });
 
 // Terminate a game - used for both conceding a game or cancelling a game searching for players
-router.post('/:id/terminate', isAuthenticated,  async (req: Request, res: Response)=> {
+router.post('/:id/terminate', isAuthenticated,  async (req: Request, res: Response, next: NextFunction)=> {
   // TODO: create a isAuthorized MW to check if a user can send moves / concede / cancel games
   const { reason } = req.body;
   if (reason == EGameTermination.CANCELED) {
@@ -42,7 +42,7 @@ router.post('/:id/terminate', isAuthenticated,  async (req: Request, res: Respon
     res.sendStatus(201);
   };
   if (reason == EGameTermination.CONCEDED) {
-    await GameService.endGame(req, res);
+    await GameService.endGame(req, res, next);
     res.sendStatus(201);
   }
 });

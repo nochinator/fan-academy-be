@@ -86,7 +86,7 @@ const UserService = {
     const user: IUser | null = await User.findById(userId); // TODO: check if we use id or username as param
     if (!user) throw new CustomError(40);
 
-    await EmailService.sendTurnNotificationEmail(user.email, user.username, gameId, next);
+    if (user.preferences.emailNotifications) await EmailService.sendTurnNotificationEmail(user.email, user.username, gameId, next);
 
     res.send('Notification sent!');
   },

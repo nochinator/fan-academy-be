@@ -11,6 +11,8 @@ export const ErrorCodes = {
   25: 'User is not the active player',
   26: 'User is not authorized',
   27: 'Can only delete games before they start',
+  28: 'Cannot join a full game',
+  29: 'Error starting the game',
 
   // Generic
   30: 'Database query error',

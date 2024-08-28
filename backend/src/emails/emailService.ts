@@ -93,7 +93,7 @@ export const EmailService = {
     const gameLink = `testlink/games/${game._id}`;
     await this.sendEmail({
       templateId: 4,
-      email: [player1.email, player2.email],
+      email: [player1.email, player2!.email],
       params: {
         player1,
         player2,

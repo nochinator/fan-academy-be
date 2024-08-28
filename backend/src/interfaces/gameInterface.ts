@@ -34,7 +34,7 @@ interface IGameUnit extends IBaseGameUnit {
   currentHP: number; // can't be above max HP
 
   isKO: boolean;
-  turnKO: number; // TODO: turn in which the unit was KO'd. need to implement a check at the  beginning of the player turn. If more than two turns have passed and the unit has not been revived, remove unit from board
+  turnKO: number; // TODO: turn in which the unit was KO'd. need to implement a check at the  beginning of the player turn. If more than two turns have passed and the unit has not been revived, remove unit from board. It also needs a check at the end of a players turn, to update the count only in case they have not been revived (maybe we can do both at the beginning, one after the other in the same function)
 
   attack: IUnitStats;
   healing: IUnitStats; // REVIEW: should we make this optional, or add a isHealer boolean?
@@ -82,15 +82,15 @@ interface IGame {
   status: EGameStatus;
   players: string[];
   player1: IPlayer;
-  player2: IPlayer;
+  player2?: IPlayer;
   winCondition?: EWinConditions;
   winner?: {
     userId: string;
     username: string;
   };
-  turnNumber: number;
-  activePlayer: string; // userId // this can also be saved to the user collection
-  turns: ITurn[];
+  turnNumber?: number;
+  activePlayer?: string; // userId // this can also be saved to the user collection
+  turns?: ITurn[];
 };
 
 export default IGame;

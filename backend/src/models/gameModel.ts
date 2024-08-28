@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import { model, Schema } from "mongoose";
 import IGame from "../interfaces/gameInterface";
 
-const winnerSchema = new mongoose.Schema({
+const winnerSchema = new Schema({
   userId: {
     type: String,
     required: true
@@ -12,7 +12,7 @@ const winnerSchema = new mongoose.Schema({
   }
 });
 
-const playerSchema = new mongoose.Schema({
+const playerSchema = new Schema({
   userId: {
     type: String,
     required: true
@@ -31,9 +31,33 @@ const playerSchema = new mongoose.Schema({
   }
 });
 
-const gameSchema = new mongoose.Schema({
+const gameUnitSchema = new Schema({
+  unitId: Number,
+  isPlayerOne: Boolean
+});
+
+const boardStateSchema = new Schema({
+  // TODO: find a way to add the board state
+  playerOneDeck: [gameUnitSchema],
+  playerOneDiscard: [gameUnitSchema],
+  playerTwoDeck: [gameUnitSchema],
+  playerTwoDiscard: [gameUnitSchema]
+});
+
+const gameActionSchema = new Schema({});
+
+const gameTurnSchema = new Schema({
+  turNumber: Number,
+  boardState: boardStateSchema,
+  actions: [gameActionSchema]
+});
+
+const gameSchema = new Schema({
   player1: playerSchema,
-  player2: playerSchema,
+  player2: {
+    type: playerSchema,
+    required: false
+  },
   winCondition: {
     type: String, // EWinConditions
     required: false
@@ -41,9 +65,15 @@ const gameSchema = new mongoose.Schema({
   winner: {
     type: winnerSchema,
     required: false
-  }
+  },
+  turnNumber: {
+    type: Number,
+    required: false
+  },
+  turns: [gameTurnSchema]
+
 });
 
-const Game = mongoose.model<IGame>('Game', gameSchema);
+const Game = model<IGame>('Game', gameSchema);
 
 export default Game;
