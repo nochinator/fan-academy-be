@@ -22,7 +22,15 @@ const UserService = {
     const newUser = new User({
       username,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      picture: '123', // TODO: link to default profile pic
+      currentGames: [],
+      gameHistory: [],
+      preferences: {
+        emailNotifications: true,
+        sound: true,
+        chat: true
+      }
     });
     const result =  await newUser.save();
     if (!result) throw new CustomError(30);

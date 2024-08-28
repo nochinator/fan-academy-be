@@ -1,24 +1,55 @@
-import mongoose from 'mongoose';
+import { model, Schema } from 'mongoose';
 import IUser from '../interfaces/userInterface';
 
-const userSchema = new mongoose.Schema({
+const currentGameSchema = new Schema({
+  gameId: String,
+  activePlayer: Boolean
+});
+
+const gameHistorySchema = new Schema({
+  gameId: String,
+  playerFaction: String,
+  oponentId: String,
+  oponentFaction: String,
+  startDate: Date,
+  endDate: Date,
+  won: Boolean,
+  winCondition: String
+});
+
+const preferencesSchema = new Schema({
+  emailNotifications: Boolean,
+  sound: Boolean,
+  chat: Boolean
+});
+
+const userSchema = new Schema({
   username: {
     type: String,
     minLength: 2,
+    maxLength: 10,
     required: true
   },
   password: {
     type: String,
-    minLength: 8
+    minLength: 8,
+    maxLength: 20,
+    required: false
   },
   email: {
     type: String,
     match: [/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, 'Please fill in a valid email address']
   },
-  googleId: String,
-  picture: String
+  googleId: {
+    type: String,
+    required: false
+  },
+  picture: String,
+  currentGames: [currentGameSchema],
+  gameHistory: [gameHistorySchema],
+  preferences: preferencesSchema
 });
 
-const User = mongoose.model<IUser>('User', userSchema);
+const User = model<IUser>('User', userSchema);
 
 export default User;
