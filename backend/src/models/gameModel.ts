@@ -21,10 +21,6 @@ const playerSchema = new Schema({
     type: String,
     required: true
   },
-  email: {
-    type: String,
-    required: true
-  },
   faction: {
     type: String, // EFaction
     required: true
