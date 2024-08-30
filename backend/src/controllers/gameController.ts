@@ -33,6 +33,11 @@ router.post('/new-game', async(req: Request, res: Response)=> {
   return await GameService.createGame(req, res); // REVIEW: there is no user related data validation
 });
 
+// Join a game
+router.post('/:id/join', async(req: Request, res: Response, next: NextFunction) => {
+  return await GameService.joinGame(req, res, next);
+});
+
 // Terminate a game - used for both conceding a game or cancelling a game searching for players
 router.post('/:id/terminate', isAuthenticated,  async (req: Request, res: Response, next: NextFunction)=> {
   // TODO: create a isAuthorized MW to check if a user can send moves / concede / cancel games
