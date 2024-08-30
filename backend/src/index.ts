@@ -38,7 +38,7 @@ const index = async () => {
   io.on('connection', (socket) => {
     console.log("Connected succesfully to the socket ...");
 
-    // Join a room based on URL (/games/:id/chat)
+    // Join a room based on URL (/games/:id/chat) // REVIEW: do we move this logic to the games' controller? Actually, this will just part of the the normal :id url, no need for /chat
     socket.on('joinRoom', (room) => {
       socket.join(room);
       io.to(room).emit('userConnected', socket.id);
@@ -54,6 +54,7 @@ const index = async () => {
         id: socket.id,
         message
       });
+      // TODO: add chat message to chatlogs collection
     });
 
     // Handle user disconnecting
