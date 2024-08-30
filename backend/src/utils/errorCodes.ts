@@ -18,7 +18,8 @@ export const ErrorCodes = {
   30: 'Database query error',
 
   // User
-  40: 'User not found'
+  40: 'User not found',
+  41: 'Could not update the profile, please try again'
 };
 
 export type ErrorCode = keyof typeof ErrorCodes;

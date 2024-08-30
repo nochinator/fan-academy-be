@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import passport from "passport";
 import { isAuthenticated } from "../middleware/isAuthenticated";
 import UserService from "../services/userService";
+import { Session } from "express-session";
 
 const router = Router();
 
@@ -26,8 +27,8 @@ router.get('/signup', async (_req: Request, res: Response) => {
   res.send(form);
 });
 
-router.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
-  return await UserService.signup(req, res, next);
+router.post('/signup', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  await UserService.signup(req, res, next);
 });
 
 // LOGIN
@@ -67,12 +68,14 @@ router.post('/login', passport.authenticate('local', {
 }));
 
 // LOGOUT
-router.get('/logout', async (req: Request, res: Response) => {
+router.get('/logout', async (req: Request, res: Response): Promise<Response | Session> => {
   return await UserService.logout(req, res);
 });
 
 // PROFILE UPDATE
-// TODO: Add account modification route
+router.post('/:id/update', async (req: Request, res: Response): Promise<Response> => {
+  return await UserService.updateProfile(req, res);
+});
 
 // ACCOUNT DELETION // TODO: add popup asking user to type 'delete' in the FE in order for this to be called
 router.get('/delete', async (req: Request, res: Response) => {
@@ -89,7 +92,7 @@ router.get('/delete', async (req: Request, res: Response) => {
   res.send(form);
 });
 
-router.post('/delete', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/delete', async (req: Request, res: Response, next: NextFunction): Promise<Session> => {
   return await UserService.deleteUser(req, res, next);
 });
 
@@ -108,7 +111,7 @@ router.get('/password-reset', async (_req: Request, res: Response) => {
   res.send(form);
 });
 
-router.post('/password-reset', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/password-reset', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   await UserService.passwordReset(req, res, next);
 });
 

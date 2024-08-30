@@ -8,26 +8,26 @@ import UserService from "./userService";
 
 const GameService = {
   // GET ACTIONS
-  async getCurrentGames(req: Request, res: Response): Promise<Response | void> {
+  async getCurrentGames(req: Request, res: Response): Promise<Response> {
     const result = await Game.find({ players: req.body.userId  });
 
-    res.send(result); // TODO: check if it is an empty array if no games are found
+    return res.send(result); // TODO: check if it is an empty array if no games are found
   },
 
-  async getOpenGames(res: Response): Promise<Response | void> {
+  async getOpenGames(res: Response): Promise<Response> {
     const result = await Game.find({ status: EGameStatus.SEARCHING  });
 
-    res.send(result); // TODO: check if it is an empty array if no games are found
+    return res.send(result); // TODO: check if it is an empty array if no games are found
   },
 
-  async getGame(req: Request, res: Response) {
+  async getGame(req: Request, res: Response): Promise<Response> {
     const result = await Game.findById(req.params.id);
     if (!result) throw new CustomError(24);
-    res.send(result);
+    return res.send(result);
   },
 
   // POST ACTIONS
-  async createGame(req: Request, res: Response) {
+  async createGame(req: Request, res: Response): Promise<Response> {
     const { player1 } = req.body;
     const newGame = new Game({
       player1,
@@ -38,7 +38,7 @@ const GameService = {
     const result = await newGame.save();
     if (!result) throw new CustomError(23);
 
-    res.send(result);
+    return res.send(result);
   },
 
   async joinGame(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -63,9 +63,10 @@ const GameService = {
     // Send notification to the first player
     // TODO: send in-app notification
     await UserService.turnNotification(activePlayer, gameId, res, next);
+    res.redirect(`/${gameId}`);
   },
 
-  async sendTurn(req: Request, res: Response) {
+  async sendTurn(req: Request, res: Response): Promise<Response> {
     const { userId,  gameId, turnNumber, boardState, actions } = req.body;
 
     // Check that the game exists
@@ -87,21 +88,21 @@ const GameService = {
     { new: true }
     ); // REVIEW: should I check here for a returned doc?
 
-    res.send(result);
+    return res.send(result);
   },
 
-  async deleteGame(gameId: string): Promise<void> {
-    const game: IGame | null = await Game.findById(gameId);
+  async deleteGame(req: Request, res: Response): Promise<void> {
+    const game: IGame | null = await Game.findById(req.params.id);
     if (!game) throw new CustomError(24);
-
     if (game!.status != EGameStatus.SEARCHING) throw new CustomError(27);
 
-    const result = await Game.findByIdAndDelete(gameId);
+    const result = await Game.findByIdAndDelete(game._id);
     if (!result) throw new CustomError(24);
     // TODO: check what the result type of the query is (both on success and error)
+    res.redirect('/');
   },
 
-  async endGame(req: Request, res: Response, next: NextFunction) {
+  async endGame(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { gameId, winner, winCondition, lastTurn } = req.body;
 
     // Update game document
@@ -121,15 +122,13 @@ const GameService = {
           winCondition,
           gameStatus: EGameStatus.FINISHED
         }
-      }); // REVIEW: should I check here for a returned doc?
-
+      });
     if (!game) throw new CustomError(24);
 
     // Send end game notificaton emails
     await EmailService.sendGameEndEmail(game, next);
 
-    res.statusMessage = 'Operation succeded';
-    res.sendStatus(201);
+    res.redirect('/');
   }
 };
 

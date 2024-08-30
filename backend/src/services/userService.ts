@@ -7,9 +7,10 @@ import IUser from "../interfaces/userInterface";
 import Game from '../models/gameModel';
 import User from "../models/userModel";
 import { CustomError } from '../classes/customError';
+import { Session } from 'express-session';
 
 const UserService = {
-  async signup(req: Request, res: Response, next: NextFunction){
+  async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
     console.log('BODY', req.body); // TODO: remove
     const { username, email, password } = req.body; // TODO: sanitize fields
 
@@ -39,12 +40,28 @@ const UserService = {
     await EmailService.sendAccountConfirmationEmail(username, email, next);
 
     // Login user
-    return req.login(newUser, (err) => {
+    req.login(newUser, (err) => {
       if (err) { next(err); };
       res.redirect('/users/all');});
   },
 
-  async logout(req: Request, res: Response) {
+  async updateProfile(req: Request, res: Response): Promise<Response>{
+    const { id  } = req.params;
+    const { username, email, password, picture, preferences } = req.body;
+
+    const result = await User.findByIdAndUpdate(id, {
+      username,
+      email,
+      password,
+      picture,
+      preferences
+    }, { new: true });
+    if (!result) throw new CustomError(41);
+
+    return res.send(result);
+  },
+
+  async logout(req: Request, res: Response): Promise<Response | Session> {
     if (!req.session) return res.end();
 
     return req.session.destroy(err => {
@@ -56,20 +73,16 @@ const UserService = {
     });
   },
 
-  async passwordReset(req: Request, res: Response, next: NextFunction) {
+  async passwordReset(req: Request, res: Response, next: NextFunction): Promise<void> {
     const user: IUser | null = await User.findOne({ email: req.body.email  });
-
     if (!user) throw new CustomError(40);
 
     await EmailService.sendPasswordResetEmail(user.email, user.username, next);
-
-    res.send('A password recovery link has been sent to your email address. Please check your inbox and spam folders'); // REVIEW: Redirect to login?
+    res.redirect('/users/login');
   },
 
-  async deleteUser(req: Request, res: Response, next: NextFunction) {
+  async deleteUser(req: Request, res: Response, next: NextFunction): Promise<Session> {
     const deletedUser: IUser | undefined | null = await User.findOneAndDelete({ _id: req.body.userId });
-    // TODO: Query the games collection removing the username and id from each game
-    // either use a generic user id and username, or create a mock up one for each deleted user
     if (!deletedUser) throw new CustomError(40);
 
     await EmailService.sendAccountDeletionEmail(deletedUser?.email, next);
