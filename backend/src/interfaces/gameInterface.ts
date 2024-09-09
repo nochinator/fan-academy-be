@@ -72,6 +72,7 @@ interface ITurn {
 interface IPlayer  {
   userId: string;
   username: string;
+  email: string;
   faction: EFaction;
   timeLeft: number; // time left in seconds?
 }
