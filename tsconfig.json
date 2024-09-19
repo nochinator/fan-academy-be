@@ -9,9 +9,11 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "moduleResolution": "NodeNext",
-    "outDir": "./dist/",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    // "typeRoots": ["./backend/src/interfaces/expressExtend.d.ts"],
     "typeRoots": ["./node_modules/@types"],
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

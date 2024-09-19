@@ -1,6 +1,6 @@
 import bodyParser from "body-parser";
 import cors from "cors";
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import passport from "passport";
 import "express-async-errors"; // Error MW patch
 import { googleStrategy, localStrategy } from "./auth/passport";
@@ -30,7 +30,7 @@ const index = async () => {
   // Expose the node_modules folder as static resources (to access socket.io.js in the browser)
   app.use('/static', express.static('../../node_modules'));
 
-  app.use((req, _res, next) => { // TODO: logging purposes. To be removed
+  app.use((req: Request, _res: Response, next: NextFunction) => { // TODO: logging purposes. To be removed
     console.log('SESSION => ', req.session);
     console.log('USER => ', req.user);
     next();
