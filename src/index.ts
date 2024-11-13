@@ -27,9 +27,6 @@ const index = async () => {
   passport.use(localStrategy);
   passport.use(googleStrategy);
 
-  // Expose the node_modules folder as static resources (to access socket.io.js in the browser)
-  app.use('/static', express.static('../../node_modules'));
-
   app.use((req: Request, _res: Response, next: NextFunction) => { // TODO: logging purposes. To be removed
     console.log('SESSION => ', req.session);
     console.log('USER => ', req.user);
