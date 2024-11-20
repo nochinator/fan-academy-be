@@ -33,11 +33,19 @@ const index = async () => {
     next();
   });
 
+  app.get('/auth/check', async (req: Request, res: Response) => {
+    if (req.isAuthenticated()) {
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(401);
+    }
+  });
+
   app.use('/users', userRouter);
   app.use('/games', gameRouter);
   app.get("/", (_req: Request, res: Response) => {
     res.send('Welcome to FA');
-  });
+  }); // TODO: no longer needed as next renders the page directly
 
   app.use(AppErrorHandler);
 

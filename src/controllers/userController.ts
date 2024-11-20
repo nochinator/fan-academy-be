@@ -64,7 +64,7 @@ router.get('/login/google/callback',
 router.post('/login', passport.authenticate('local', {
   successRedirect: '/users/all',
   failureRedirect: '/users/login',
-  failureMessage: 'Error 4'
+  failureMessage: '{error: Error 4}'
 }));
 
 // LOGOUT
@@ -116,6 +116,7 @@ router.post('/password-reset', async (req: Request, res: Response, next: NextFun
 });
 
 // PROTECTED ROUTE
+// TODO: add isAuthenticated to the other routes to protect them
 router.get('/all', isAuthenticated, async (req: Request, res: Response) => {
   const result = await UserService.getUsers();
   res.send(result);
