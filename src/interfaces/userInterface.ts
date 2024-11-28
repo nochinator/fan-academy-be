@@ -23,7 +23,7 @@ interface IActiveGame {
   activePlayer: boolean
 }
 
-interface IUser {
+interface IUser extends Express.User {
   _id: ObjectId;
   username: string;
   email: string;

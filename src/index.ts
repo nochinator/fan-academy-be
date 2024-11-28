@@ -10,6 +10,7 @@ import userRouter from './controllers/userController';
 import gameRouter from './controllers/gameController';
 import { databaseConnection } from "./db";
 import AppErrorHandler from "./middleware/errorHandler";
+import IUser from "./interfaces/userInterface";
 
 const index = async () => {
   const app: Express = express();
@@ -33,9 +34,11 @@ const index = async () => {
     next();
   });
 
-  app.get('/auth/check', async (req: Request, res: Response) => {
-    if (req.isAuthenticated()) {
-      res.sendStatus(200);
+  app.get('/auth-check', async (req: Request, res: Response) => {
+    const user = req.user as IUser;
+    if (user._id) {
+      console.log('AUTH-CHECK - User Id ->', user._id);
+      res.send({ userId: user._id });
     } else {
       res.sendStatus(401);
     }

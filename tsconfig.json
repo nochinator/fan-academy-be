@@ -11,9 +11,9 @@
     "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
-    // "typeRoots": ["./backend/src/interfaces/expressExtend.d.ts"],
-    "typeRoots": ["./node_modules/@types"],
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "./src/interfaces"],
   },
   "include": ["**/*.ts", "**/*.tsx", "src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["./node_modules", "./dist"]
 }
