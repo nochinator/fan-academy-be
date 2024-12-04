@@ -9,7 +9,8 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "ts-node-dev src/index.ts",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "debug": "DEBUG=* ts-node-dev src/index.ts"
   },
   "author": "",
   "license": "MIT",

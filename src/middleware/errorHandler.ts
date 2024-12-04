@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CustomError } from "../classes/customError";
 
 const  AppErrorHandler =  (err: CustomError | Error, req: Request, res: Response, _next: NextFunction ) => {
+  console.log('APPHANDLERERROR: ', err);
   if (err instanceof CustomError) {
     return res.send({ error: err.code }); // REVIEW: do we need to expand the logic here?
   };

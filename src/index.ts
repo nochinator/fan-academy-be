@@ -36,9 +36,9 @@ const index = async () => {
 
   app.get('/auth-check', async (req: Request, res: Response) => {
     const user = req.user as IUser;
-    if (user._id) {
+    if (user?._id) {
       console.log('AUTH-CHECK - User Id ->', user._id);
-      res.send({ userId: user._id });
+      res.sendStatus(200);
     } else {
       res.sendStatus(401);
     }
