@@ -18,7 +18,10 @@ const index = async () => {
   // Middleware // TODO: move to its own file
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(cors());
+  app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+  }));
 
   const { dbClient } = await databaseConnection();
 
