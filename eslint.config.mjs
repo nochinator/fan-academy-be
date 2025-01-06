@@ -12,6 +12,7 @@ export default [
   { plugins: { '@stylistic/ts': stylisticTs } },
   {
     rules: {
+      "@typescript-eslint/no-explicit-any": ["off"],
       '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
       "no-multiple-empty-lines": ["error", { "max": 1 }],
       "padded-blocks": ["error", {

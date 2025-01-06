@@ -1,5 +1,6 @@
 export const ErrorCodes = {
   // Auth
+  1: 'Incorrect username or password',
   10: 'User is not authenticated',
   11: 'Wrong login credentials',
   12: 'An account for this username or email already exists',

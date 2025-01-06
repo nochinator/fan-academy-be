@@ -3,6 +3,7 @@ import passport from "passport";
 import { isAuthenticated } from "../middleware/isAuthenticated";
 import UserService from "../services/userService";
 import { Session } from "express-session";
+import { CustomError } from "../classes/customError";
 
 const router = Router();
 
@@ -61,11 +62,26 @@ router.get('/login/google/callback',
     failureRedirect: '/users/login'
   }));
 
-router.post('/login', passport.authenticate('local', {
-  successRedirect: '/users/all',
-  failureRedirect: '/users/login',
-  failureMessage: '{error: Error 4}'
-}));
+router.post("/login", (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate("local", (err: any, user: Express.User | false, _info?: { message?: string }): void => {
+    try {
+      if (err) { throw new CustomError(1); }
+
+      // Manually log in the user
+      req.login(user, (loginErr: any) => {
+        if (loginErr) { return next(loginErr); }
+
+        res.status(200).json({
+          message: "Login successful",
+          user
+        });
+      });
+    } catch(err) {
+      console.log(err);
+      next(err);
+    }
+  })(req, res, next);
+});
 
 // LOGOUT
 router.get('/logout', async (req: Request, res: Response): Promise<Response | Session> => {
