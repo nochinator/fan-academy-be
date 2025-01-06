@@ -1,4 +1,5 @@
 export interface ICustomError {
-  code: string;
+  code: number
+  message: string;
   trace?: Error
 }
