@@ -1,10 +1,9 @@
 import { ObjectId } from "mongoose";
 import { EFaction, EWinConditions } from "../enums/game.enums";
 
-interface IUserPreferences {
-  emailNotifications: boolean;
-  sound: boolean;
-  chat: boolean;
+interface IActiveGame {
+  gameId: string;
+  activePlayer: boolean
 }
 
 interface IArchivedGame {
@@ -18,10 +17,13 @@ interface IArchivedGame {
   winCondition: EWinConditions;
 }
 
-interface IActiveGame {
-  gameId: string;
-  activePlayer: boolean
+interface IUserPreferences {
+  emailNotifications: boolean;
+  sound: boolean;
+  chat: boolean;
 }
+
+interface ISocketSessions { socketId: string; }
 
 interface IUser extends Express.User {
   _id: ObjectId;
@@ -30,6 +32,7 @@ interface IUser extends Express.User {
   password?: string;
   googleId?: string
   picture?: string;
+  socketSessions: ISocketSessions[];
   currentGames: IActiveGame[];
   gameHistory: IArchivedGame[]; // currentGames become archived here once finished
   preferences: IUserPreferences;

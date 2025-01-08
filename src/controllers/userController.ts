@@ -1,55 +1,31 @@
 import { NextFunction, Request, Response, Router } from "express";
 import passport from "passport";
-import { isAuthenticated } from "../middleware/isAuthenticated";
 import UserService from "../services/userService";
 import { Session } from "express-session";
 import { CustomError } from "../classes/customError";
 
 const router = Router();
 
+// GET USERS
+router.get('/all', async (req: Request, res: Response) => {
+  const result = await UserService.getUsers();
+  res.send(result);
+}); // NOTE: removed isAuthenticated
+
+router.get('/find/:id', async (req: Request, res: Response) => {
+  return await UserService.getUser(req, res);
+}); // NOTE: removed isAuthenticated
+
+// router.get('/me', async (req: Request, res: Response) => {
+//   return await UserService.getMe(req, res);
+// });
+
 // SIGN UP
-router.get('/signup', async (_req: Request, res: Response) => {
-  const form = `<div class="signup-container">
-        <h2>Signup</h2>
-        <form action="/users/signup" method="POST">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <button type="submit">Signup</button>
-        </form>
-    </div>`;
-
-  res.send(form);
-});
-
 router.post('/signup', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   await UserService.signup(req, res, next);
 });
 
 // LOGIN
-router.get('/login', async (_req: Request, res: Response) => {
-  const form = `<div class="login-container">
-        <h2>Login</h2>
-        <form action="/users/login" method="POST">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <button type="submit">Login</button>
-        </form>
-    </div>`;
-
-  res.send(form);
-});
-
 router.get('/login/google',
   passport.authenticate('google', {
     failureRedirect: '/users/login',
@@ -60,7 +36,7 @@ router.get('/login/google/callback',
   passport.authenticate('google', {
     successRedirect: '/users/all',
     failureRedirect: '/users/login'
-  }));
+  })); // TODO: Am I using this in the end?
 
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", (err: any, user: Express.User | false, _info?: { message?: string }): void => {
@@ -89,7 +65,7 @@ router.get('/logout', async (req: Request, res: Response): Promise<Response | Se
 });
 
 // PROFILE UPDATE
-router.post('/:id/update', async (req: Request, res: Response): Promise<Response> => {
+router.post('/update/:id', async (req: Request, res: Response): Promise<Response> => {
   return await UserService.updateProfile(req, res);
 });
 
@@ -113,29 +89,8 @@ router.post('/delete', async (req: Request, res: Response, next: NextFunction): 
 });
 
 // EMAIL RECOVERY
-router.get('/password-reset', async (_req: Request, res: Response) => {
-  const form = `<div class="password-reset-container">
-  <h2>Password recovery</h2>
-  <form action="/users/password-reset" method="POST">
-      <label for="email">Email:</label>
-      <input type="text" id="email" name="email" required>
-
-      <button type="submit">Send email</button>
-  </form>
-</div>`;
-
-  res.send(form);
-});
-
 router.post('/password-reset', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   await UserService.passwordReset(req, res, next);
-});
-
-// PROTECTED ROUTE
-// TODO: add isAuthenticated to the other routes to protect them
-router.get('/all', isAuthenticated, async (req: Request, res: Response) => {
-  const result = await UserService.getUsers();
-  res.send(result);
 });
 
 // NOTIFICATIONS

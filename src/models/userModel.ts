@@ -43,6 +43,8 @@ const userSchema = new Schema({
     required: false
   },
   picture: String,
+  lastSeen: Date,
+  socketSessions: [{ socketId: String }],
   currentGames: [currentGameSchema],
   gameHistory: [gameHistorySchema],
   preferences: preferencesSchema

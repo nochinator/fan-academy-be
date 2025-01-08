@@ -46,7 +46,7 @@ const UserService = {
   },
 
   async updateProfile(req: Request, res: Response): Promise<Response>{
-    const { id  } = req.params;
+    const { id } = req.params;
     const { username, email, password, picture, preferences } = req.body;
 
     const result = await User.findByIdAndUpdate(id, {
@@ -111,9 +111,28 @@ const UserService = {
   },
 
   async getUsers(): Promise<IUser[]> {
-    // TODO: add auth
     return await User.find();
+  },
+
+  async getUser(req: Request, res: Response): Promise<Response> {
+    const { userId } = req.body; // FIXME: I have req.params somewhere, choose one
+
+    const user =  await User.findById(userId);
+    if (!user) throw new CustomError(40);
+
+    return res.send(user);
   }
+
+  // async getMe(req: Request, res: Response): Promise<Response> {
+  //   const user = req.user as IUser;
+  //   console.log('UUUUUUSER', user);
+  //   if (!user._id) { throw new CustomError(10); }
+
+  //   const result = await User.findById(user._id);
+  //   if (!result) { throw new CustomError(40); }
+
+  //   return res.send(result);
+  // }
 };
 
 export default UserService;

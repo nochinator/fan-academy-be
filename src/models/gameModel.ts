@@ -43,7 +43,7 @@ const boardStateSchema = new Schema({
 const gameActionSchema = new Schema({});
 
 const gameTurnSchema = new Schema({
-  turNumber: Number,
+  turnNumber: Number,
   boardState: boardStateSchema,
   actions: [gameActionSchema]
 });
@@ -65,8 +65,11 @@ const gameSchema = new Schema({
   turnNumber: {
     type: Number,
     required: false
-  },
-  turns: [gameTurnSchema]
+  }, // TODO: do we need this, or can we just pop the last item in the turns array?
+  turns: {
+    type: [gameTurnSchema],
+    required: false
+  }
 
 });
 
