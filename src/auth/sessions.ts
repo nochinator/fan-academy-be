@@ -3,7 +3,7 @@ import session from 'express-session';
 import { MongoClient } from 'mongodb';
 import { SECRET } from '../config';
 
-export function setSession(dbClient: MongoClient | undefined) {
+export function sessionMiddleware(dbClient: MongoClient | undefined) {
   const maxAge = 1000 * 60 * 60 * 24;
   const expires = new Date(+new Date + maxAge);
   return session( {

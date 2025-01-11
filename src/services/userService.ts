@@ -24,7 +24,7 @@ const UserService = {
       username,
       email,
       password: hashedPassword,
-      picture: '123', // TODO: link to default profile pic
+      picture: '/images/profilePics/Avatar_1stGame-hd.jpg', // TODO: link to default profile pic
       currentGames: [],
       gameHistory: [],
       preferences: {
