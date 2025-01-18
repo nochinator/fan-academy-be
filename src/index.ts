@@ -14,6 +14,7 @@ import http from 'http';
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import { socketIo } from "./middleware/websockets";
+import gameServer from "./colyseus/colyseusServer";
 
 declare module "express-session" {
   interface SessionData { passport: { user: string };}
@@ -24,6 +25,8 @@ declare module "express-session" {
 const index = async () => {
   const app: Express = express();
   const server = http.createServer(app);
+  // Attach the Colyseus serverto the HTTP server
+  gameServer.attach({ server });
 
   // Middleware // TODO: move to its own file
   app.use(express.json());
