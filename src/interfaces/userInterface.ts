@@ -23,8 +23,6 @@ interface IUserPreferences {
   chat: boolean;
 }
 
-interface ISocketSessions { socketId: string; }
-
 interface IUser extends Express.User {
   _id: ObjectId;
   username: string;
@@ -32,7 +30,6 @@ interface IUser extends Express.User {
   password?: string;
   googleId?: string
   picture?: string;
-  socketSessions: ISocketSessions[];
   currentGames: IActiveGame[];
   gameHistory: IArchivedGame[]; // currentGames become archived here once finished
   preferences: IUserPreferences;

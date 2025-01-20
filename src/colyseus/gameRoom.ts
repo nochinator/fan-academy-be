@@ -1,4 +1,6 @@
 import { Room, Client } from "colyseus";
+import { IncomingMessage } from "http";
+import { verifySession } from "../middleware/socketSessions";
 
 export class GameRoom extends Room {
   // Define room options
@@ -17,7 +19,7 @@ export class GameRoom extends Room {
   }
 
   // Handle client joining
-  onJoin(client: Client, _options: any): void {
+  onJoin(client: Client, _options: any, _auth: any): void {
     console.log(`Client ${client.sessionId} joined the room`);
   }
 
@@ -29,5 +31,18 @@ export class GameRoom extends Room {
   // Handle room disposal
   onDispose(): void {
     console.log("Room disposed");
+  }
+
+  // Room auth
+  async onAuth(client: Client, _options: any, req: IncomingMessage): Promise<boolean>  {
+    const session =  await verifySession(req);
+
+    if (session) {
+      console.log(`User authenticated`);
+      return true; // Allow access to the room
+    }
+
+    console.log('Authentication failed');
+    return false; // Deny access
   }
 }
