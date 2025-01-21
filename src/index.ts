@@ -3,7 +3,7 @@ import cors from "cors";
 import express, { Express, NextFunction, Request, Response } from "express";
 import passport from "passport";
 import "express-async-errors"; // Error MW patch
-import { googleStrategy, localStrategy } from "./auth/passport";
+import { googleStrategy, localStrategy } from "./middleware/passport";
 import { PORT } from './config';
 import userRouter from './controllers/userController';
 import gameRouter from './controllers/gameController';
@@ -11,7 +11,7 @@ import AppErrorHandler from "./middleware/errorHandler";
 import IUser from "./interfaces/userInterface";
 import http from 'http';
 import gameServer from "./colyseus/colyseusServer";
-import { sessionMiddleware } from "./auth/sessions";
+import { sessionMiddleware } from "./middleware/sessions";
 import { databaseConnection } from "./db";
 
 declare module "express-session" {
