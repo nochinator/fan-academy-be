@@ -13,6 +13,9 @@
     "rootDir": "./src",
     "skipLibCheck": true,
     "typeRoots": ["./node_modules/@types", "./src/interfaces"],
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "strictPropertyInitialization": false
   },
   "include": ["**/*.ts", "**/*.tsx", "src/**/*"],
   "exclude": ["./node_modules", "./dist"]

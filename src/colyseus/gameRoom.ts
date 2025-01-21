@@ -5,6 +5,9 @@ import { verifySession } from "../middleware/socketSessions";
 export class GameRoom extends Room {
   // Define room options
   onCreate(options: any): void {
+    this.maxClients = 2; // number of players
+    this.autoDispose = false; // keeps the room alive even if both players leave
+
     console.log("Game room created!", options);
 
     this.onMessage("turn", (client, message) => {
@@ -26,6 +29,15 @@ export class GameRoom extends Room {
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
     console.log(`Client ${client.sessionId} left the room`);
+    if (this.clients.length === 0) { setTimeout(()=> {
+      /** TODO:
+       * I don't need to pause, since each turn is saved into the db, and I can set the room id, I can save both to a rooms collection, alongside the user ids.
+       * Then destroy the room if there are no players online, and recreate it with the saved state once someone joins
+       * For the game list on the main menu, I use the room list
+       * I just need the game schema
+       */
+      console.log('Removing room due to inactivity');
+      this.disconnect();}, 259200000); }
   }
 
   // Handle room disposal

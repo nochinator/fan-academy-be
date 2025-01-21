@@ -19,10 +19,8 @@ export function getSessionFromSid(sid: string, sessionStore: session.Store): Pro
 // Verify user session on joining colyseus room
 export async function verifySession(req: any) {
   try {
-    console.log('FIRST CHECK');
     const cookies = parse(req.headers.cookie || '');
     const sid = cookies['connect.sid']?.replace(/^s:/, '').split('.')[0]; // Remove "s:" prefix and signature
-    console.log('SID ->', sid);
 
     if (!sid) {
       console.log('No session ID found in cookies.');
@@ -30,6 +28,12 @@ export async function verifySession(req: any) {
     }
 
     const session = await Session.findById(sid);
+    // TODO: we need an authentication function if the user is reconnecting
+    /**
+     * retrieve id of the room the user is accessing somehow (rooms collection since we are not disposing of them?)
+     * if there are < 2 users in the room list, proceed
+     * if there are 2 users in the room list, check if the user is one of them
+     */
 
     if (session) {
       console.log('Session found:', session);
