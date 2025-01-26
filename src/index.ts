@@ -47,7 +47,7 @@ const index = async () => {
     const user = req.user as IUser;
     if (user?._id) {
       console.log('AUTH-CHECK - User Id ->', user._id);
-      res.sendStatus(200);
+      res.send(user._id);
     } else {
       res.sendStatus(401);
     }
