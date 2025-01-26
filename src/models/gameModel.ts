@@ -1,78 +1,189 @@
-import { model, Schema } from "mongoose";
+
+import mongoose from "mongoose";
 import IGame from "../interfaces/gameInterface";
 
-const winnerSchema = new Schema({
-  userId: {
-    type: String,
-    required: true
-  },
-  username: {
+const { Schema, model } = mongoose;
+
+/**
+ * EquippedItem Schema
+ */
+const EquippedItemSchema = new Schema({
+  itemName: {
     type: String,
     required: true
   }
 });
 
-const playerSchema = new Schema({
-  userId: {
+/**
+ * Unit Schema
+ */
+const UnitSchema = new Schema({
+  unitClass: {
+    type: String,
+    enum: ["hero", "item"],
+    required: true
+  }, // Enum for unitClass
+  unitType: {
+    type: String,
+    required: true
+  }, // Enum could be added here as well
+  unitId: {
     type: String,
     required: true
   },
-  username: {
+  boardPosition: {
+    type: Number,
+    default: 0
+  },
+  maxHealth: {
+    type: Number,
+    required: true
+  },
+  currentHealth: {
+    type: Number,
+    required: true
+  },
+  isKO: {
+    type: Boolean,
+    default: false
+  },
+  movement: {
+    type: Number,
+    required: true
+  },
+  range: {
+    type: Number,
+    required: true
+  },
+  attackType: {
+    type: String,
+    enum: ["physical", "magical"],
+    required: true
+  },
+  rangeAttackDamage: {
+    type: Number,
+    required: true
+  },
+  meleeAttackDamage: {
+    type: Number,
+    required: true
+  },
+  healingPower: {
+    type: Number,
+    default: 0
+  }, // If > 0 can heal
+  physicalDamageResistance: {
+    type: Number,
+    default: 0
+  },
+  magicalDamageResistance: {
+    type: Number,
+    default: 0
+  },
+  equippedItems: [EquippedItemSchema], // Array of EquippedItem
+  spriteLink: {
+    type: String,
+    required: true
+  }
+});
+
+/**
+ * Faction Schema
+ */
+const FactionSchema = new Schema({
+  factionName: {
+    type: String,
+    required: true
+  },
+  unitsOnBoard: {
+    type: [UnitSchema],
+    default: []
+  },
+  unitsInHand: {
+    type: [UnitSchema],
+    default: []
+  },
+  unitsInDeck: {
+    type: [UnitSchema],
+    default: []
+  },
+  cristalOneHealth: {
+    type: Number,
+    required: true
+  },
+  cristalTwoHealth: {
+    type: Number,
+    required: true
+  }
+});
+
+/**
+ * Player Schema
+ */
+const PlayerSchema = new Schema({
+  playerId: {
     type: String,
     required: true
   },
   faction: {
-    type: String, // EFaction
+    type: FactionSchema,
     required: true
   }
 });
 
-const gameUnitSchema = new Schema({
-  unitId: Number,
-  isPlayerOne: Boolean
+/**
+ * TurnAction Schema
+ */
+const TurnActionSchema = new Schema({
+  activeUnit: {
+    type: String,
+    required: true
+  }, // Unit id
+  targetUnit: {
+    type: String,
+    required: true
+  }, // Unit id or deck
+  action: {
+    type: String,
+    enum: ["attack", "heal", "shuffle"],
+    required: true
+  },
+  actionNumber: {
+    type: Number,
+    required: true
+  }
 });
 
-const boardStateSchema = new Schema({
-  // TODO: find a way to add the board state
-  playerOneDeck: [gameUnitSchema],
-  playerOneDiscard: [gameUnitSchema],
-  playerTwoDeck: [gameUnitSchema],
-  playerTwoDiscard: [gameUnitSchema]
-});
-
-const gameActionSchema = new Schema({});
-
-const gameTurnSchema = new Schema({
-  turnNumber: Number,
-  boardState: boardStateSchema,
-  actions: [gameActionSchema]
-});
-
-const gameSchema = new Schema({
-  player1: playerSchema,
-  player2: {
-    type: playerSchema,
-    required: false
-  },
-  winCondition: {
-    type: String, // EWinConditions
-    required: false
-  },
-  winner: {
-    type: winnerSchema,
-    required: false
-  },
+/**
+ * Turn Schema
+ */
+const TurnSchema = new Schema({
   turnNumber: {
     type: Number,
-    required: false
-  }, // TODO: do we need this, or can we just pop the last item in the turns array?
-  turns: {
-    type: [gameTurnSchema],
-    required: false
+    required: true
+  },
+  activePlayer: {
+    type: String,
+    required: true
+  }, // userId
+  actions: {
+    type: [TurnActionSchema],
+    default: []
   }
-
 });
 
-const Game = model<IGame>('Game', gameSchema);
+/**
+ * RoomState Schema
+ */
+const GameSchema = new Schema({
+  players: {
+    type: [PlayerSchema],
+    default: []
+  },
+  gameState: {
+    type: [TurnSchema],
+    default: []
+  }
+});
 
-export default Game;
+export default model<IGame>("Game", GameSchema);

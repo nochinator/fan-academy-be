@@ -4,7 +4,7 @@ import { Schema, type } from "@colyseus/schema";
  *  PLAYER SCHEMA
  */
 class EquippedItem extends Schema {
-  @type('string') itermName: string;
+  @type('string') itemName: string;
 }
 
 class Unit extends Schema {
@@ -12,11 +12,16 @@ class Unit extends Schema {
   @type('string') unitClass: string; //  hero | item
   @type('string') unitType: string; //  archer, voidmonk...
   @type('string') unitId: string; //  used to locate the unit in the board. eg: P213 -> 13th unit deployed by second player
+  @type('number') boardPosition: number; // 0-45, 0 if not on board
   @type('number') maxHealth: number;
   @type('number') currentHealth: number;
   @type('boolean') isKO: boolean;
+  @type('number') movement: number;
+  @type('number') range: number; // 1, 2, 3 // TODO: need a function for calculating potential targets (ortogonal, 2 distance, etc...)
   @type('string') attackType: string; //  physiucal | magical
-  @type('number') attackDamage: number;
+  @type('number') rangeAttackDamage: number;
+  @type('number') meleeAttackDamage: number;
+  @type('number') healingPower: number; // If > 0 can heal
   @type('number') physicalDamageResistance: number;
   @type('number') magicalDamageResistance: number;
   @type([EquippedItem]) equippedItems: EquippedItem[];
@@ -27,8 +32,8 @@ class Faction extends Schema {
   @type([Unit]) unitsOnBoard: Unit[];
   @type([Unit]) unitsInHand: Unit[];
   @type([Unit]) unitsInDeck: Unit[];
-  @type('number') cristalAHealth: number;
-  @type('number') cristalBHealth: number;
+  @type('number') cristalOneHealth: number;
+  @type('number') cristalTwoHealth: number;
 }
 
 class Player extends Schema {
@@ -51,6 +56,7 @@ class Turn extends Schema {
   @type('string') activePlayer: string; // TODO: userId, not room client id
   @type([TurnAction]) actions: TurnAction[];
 }
+
 export default class RoomState extends Schema {
   @type([Player]) players: Player[];
   @type([Turn]) gameState: Turn[];
