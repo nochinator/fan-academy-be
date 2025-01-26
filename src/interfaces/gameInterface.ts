@@ -71,4 +71,5 @@ export interface Turn {
 export default interface IGame {
   players: Player[];
   gameState: Turn[];
+  board: string;
 }

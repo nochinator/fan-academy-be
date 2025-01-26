@@ -60,4 +60,5 @@ class Turn extends Schema {
 export default class RoomState extends Schema {
   @type([Player]) players: Player[];
   @type([Turn]) gameState: Turn[];
+  @type('string') board: string;
 }

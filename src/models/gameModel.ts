@@ -183,6 +183,10 @@ const GameSchema = new Schema({
   gameState: {
     type: [TurnSchema],
     default: []
+  },
+  board: {
+    type: String,
+    required: true
   }
 });
 
