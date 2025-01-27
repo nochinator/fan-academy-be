@@ -2,6 +2,7 @@ import * as Brevo from '@getbrevo/brevo';
 import { BREVO_API_KEY, EMAIL_TEST_ADDRESS } from '../config';
 import IGame from '../interfaces/gameInterface';
 import { NextFunction } from "express";
+import UserService from '../services/userService';
 
 const apiInstance = new Brevo.TransactionalEmailsApi();
 
@@ -86,20 +87,35 @@ export const EmailService = {
     }, next);
   },
 
+  // REVIEW: include link back to the game for a rematch?
+  // TODO: refactor
   async sendGameEndEmail(game: IGame, next: NextFunction): Promise<void> {
-    const { player1, player2, winCondition, winner } = game;
+    const { players, winCondition, winner } = game;
 
-    // Create recovery link // TODO:
-    const gameLink = `testlink/games/${game._id}`;
+    const playerData = await UserService.getUsers([players[0].playerId, players[1].playerId]);
+
+    const player1 = {
+      username: playerData[0].username,
+      faction: players[0].faction
+    };
+
+    const player2 = {
+      username: playerData[1].username,
+      faction: players[1].faction
+    };
+
+    const winnerUsername = playerData.find(player => {
+      player._id.toString() === winner;
+    })?.username
+    ;
     await this.sendEmail({
       templateId: 4,
-      email: [player1.email, player2!.email],
+      email: [playerData[0].email, playerData[1].email],
       params: {
         player1,
         player2,
         winCondition,
-        winner: winner?.username,
-        gameLink
+        winner: winnerUsername
       }
     }, next);
   },

@@ -72,4 +72,7 @@ export default interface IGame {
   players: Player[];
   gameState: Turn[];
   board: string;
+  winCondition?: string;
+  winner?: string; // userId
+  // REVIEW: start and end dates?
 }

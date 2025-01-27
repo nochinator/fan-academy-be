@@ -61,4 +61,6 @@ export default class RoomState extends Schema {
   @type([Player]) players: Player[];
   @type([Turn]) gameState: Turn[];
   @type('string') board: string;
+  @type('string') winCondition?: string;
+  @type('string') winner?: string; // userId
 }

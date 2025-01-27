@@ -187,6 +187,14 @@ const GameSchema = new Schema({
   board: {
     type: String,
     required: true
+  },
+  winCondition: {
+    type: String,
+    required: false
+  },
+  winner: {
+    type: String,
+    required: false
   }
 });
 

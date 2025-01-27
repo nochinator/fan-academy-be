@@ -2,9 +2,7 @@ import { hash } from 'bcrypt';
 import { Request, Response } from "express";
 import { NextFunction } from 'express-serve-static-core';
 import { EmailService } from '../emails/emailService';
-import IGame from '../interfaces/gameInterface';
 import IUser from "../interfaces/userInterface";
-import Game from '../models/gameModel';
 import User from "../models/userModel";
 import { CustomError } from '../classes/customError';
 import { Session } from 'express-session';
@@ -101,17 +99,19 @@ const UserService = {
     res.send('Notification sent!');
   },
 
-  async gameEndNotification(gameId: string, res: Response, next: NextFunction): Promise<void> {
-    // TODO: create game interface and collection
-    const game: IGame | null = await Game.findById(gameId); // TODO: check if we use id or username as param
-    if (!game) throw new CustomError(24); // TODO: add check for games that are already finished
+  // FIXME: query duplicated on gameService
+  // async gameEndNotification(gameId: string, res: Response, next: NextFunction): Promise<void> {
+  //   // TODO: create game interface and collection
+  //   const game: IGame | null = await Game.findById(gameId); // TODO: check if we use id or username as param
+  //   if (!game) throw new CustomError(24); // TODO: add check for games that are already finished
 
-    await EmailService.sendGameEndEmail(game, next);
-    res.send('Notification sent!');
-  },
+  //   await EmailService.sendGameEndEmail(game, next);
+  //   res.send('Notification sent!');
+  // },
 
-  async getUsers(): Promise<IUser[]> {
-    return await User.find();
+  async getUsers(userIds?: string[]): Promise<IUser[]> {
+    const query = userIds ? { _id: { $in: userIds } } : {};
+    return await User.find(query);
   },
 
   async getUser(req: Request, res: Response): Promise<Response> {
