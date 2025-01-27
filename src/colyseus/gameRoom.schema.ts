@@ -1,7 +1,7 @@
 import { Schema, type } from "@colyseus/schema";
 
 /**
- *  PLAYER SCHEMA
+ *  USER SCHEMA
  */
 class EquippedItem extends Schema {
   @type('string') itemName: string;
@@ -11,7 +11,7 @@ class Unit extends Schema {
   // TODO: strings here should be enums
   @type('string') unitClass: string; //  hero | item
   @type('string') unitType: string; //  archer, voidmonk...
-  @type('string') unitId: string; //  used to locate the unit in the board. eg: P213 -> 13th unit deployed by second player
+  @type('string') unitId: string; //  used to locate the unit in the board. eg: P213 -> 13th unit deployed by second user
   @type('number') boardPosition: number; // 0-45, 0 if not on board
   @type('number') maxHealth: number;
   @type('number') currentHealth: number;
@@ -28,8 +28,8 @@ class Unit extends Schema {
   @type('string') spriteLink: string; // path based on items
 }
 
-class PlayerData extends Schema {
-  @type('string') playerId: string;
+class userData extends Schema {
+  @type('string') userId: string;
   @type('string') username: string;
   @type('string') picture: string;
 }
@@ -43,8 +43,8 @@ class Faction extends Schema {
   @type('number') cristalTwoHealth: number;
 }
 
-class Player extends Schema {
-  @type(PlayerData) playerData: PlayerData;
+class User extends Schema {
+  @type(userData) userData: userData;
   @type(Faction) faction: Faction;
 }
 
@@ -60,12 +60,12 @@ class TurnAction extends Schema {
 
 class Turn extends Schema {
   @type('number') turnNumber: number;
-  @type('string') activePlayer: string; // TODO: userId, not room client id
+  @type('string') activeuser: string; // TODO: userId, not room client id
   @type([TurnAction]) actions: TurnAction[];
 }
 
 export default class RoomState extends Schema {
-  @type([Player]) players: Player[];
+  @type([User]) users: User[];
   @type([Turn]) gameState: Turn[];
   @type('string') board: string;
   @type('string') winCondition?: string;

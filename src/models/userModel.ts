@@ -3,12 +3,12 @@ import IUser from '../interfaces/userInterface';
 
 const currentGameSchema = new Schema({
   gameId: String,
-  activePlayer: Boolean
+  activeUser: Boolean
 });
 
 const gameHistorySchema = new Schema({
   gameId: String,
-  playerFaction: String,
+  userFaction: String,
   oponentId: String,
   oponentFaction: String,
   startDate: Date,

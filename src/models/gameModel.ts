@@ -118,10 +118,10 @@ const FactionSchema = new Schema({
 });
 
 /**
- * Player Schema
+ * user Schema
  */
-const PlayerSchema = new Schema({
-  playerData: {
+const UserSchema = new Schema({
+  userData: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
@@ -163,7 +163,7 @@ const TurnSchema = new Schema({
     type: Number,
     required: true
   },
-  activePlayer: {
+  activeUser: {
     type: String,
     required: true
   }, // userId
@@ -177,8 +177,8 @@ const TurnSchema = new Schema({
  * RoomState Schema
  */
 const GameSchema = new Schema({
-  players: {
-    type: [PlayerSchema],
+  users: {
+    type: [UserSchema],
     default: []
   },
   gameState: {

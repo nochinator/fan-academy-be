@@ -41,19 +41,19 @@ export interface Faction {
 }
 
 /**
- * PlayerData Interface
+ * userData Interface
  */
-export interface PlayerData {
-  playerId: ObjectId;
-  playerName: string;
+export interface userData {
+  userId: ObjectId;
+  userName: string;
   picture: string;
 }
 
 /**
- * Player Interface
+ * user Interface
  */
-export interface Player {
-  playerData: any; // REVIEW:
+export interface User {
+  userData: any; // REVIEW:
   faction: Faction;
 }
 
@@ -72,7 +72,7 @@ export interface TurnAction {
  */
 export interface Turn {
   turnNumber: number;
-  activePlayer: string; // userId
+  activeuser: string; // userId
   actions: TurnAction[];
 }
 
@@ -80,7 +80,7 @@ export interface Turn {
  * Game Interface
  */
 export default interface IGame {
-  players: Player[];
+  users: User[];
   gameState: Turn[];
   board: string;
   winCondition?: string;

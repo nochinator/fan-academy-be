@@ -90,30 +90,30 @@ export const EmailService = {
   // REVIEW: include link back to the game for a rematch?
   // TODO: refactor
   async sendGameEndEmail(game: IGame, next: NextFunction): Promise<void> {
-    const { players, winCondition, winner } = game;
+    const { users, winCondition, winner } = game;
 
-    const playerData = await UserService.getUsers([players[0].playerId, players[1].playerId]);
+    const userData = await UserService.getUsers([users[0].userData.userId, users[1].userData.userId]);
 
-    const player1 = {
-      username: playerData[0].username,
-      faction: players[0].faction
+    const user1 = {
+      username: userData[0].username,
+      faction: users[0].faction
     };
 
-    const player2 = {
-      username: playerData[1].username,
-      faction: players[1].faction
+    const user2 = {
+      username: userData[1].username,
+      faction: users[1].faction
     };
 
-    const winnerUsername = playerData.find(player => {
-      player._id.toString() === winner;
+    const winnerUsername = userData.find(user => {
+      user._id.toString() === winner;
     })?.username
     ;
     await this.sendEmail({
       templateId: 4,
-      email: [playerData[0].email, playerData[1].email],
+      email: [userData[0].email, userData[1].email],
       params: {
-        player1,
-        player2,
+        user1,
+        user2,
         winCondition,
         winner: winnerUsername
       }

@@ -8,34 +8,34 @@ import { CustomError } from "../classes/customError";
 const GameService = {
   // GET ACTIONS
   async getCurrentGames(req: Request, res: Response): Promise<Response> {
-    // const result = await Game.find({ players: req.body.userId  });
+    // const result = await Game.find({ users: req.body.userId  });
 
     console.log('userId', req.query.userId);
 
     const result = await Game.aggregate([
-      // Step 1: Match games where the playerId matches the input
-      { $match: { "players.playerId": req.query.userId } },
+      // Step 1: Match games where the userId matches the input
+      { $match: { "users.userId": req.query.userId } },
 
-      // Step 2: Convert players.playerId to ObjectId for matching
+      // Step 2: Convert users.userId to ObjectId for matching
       {
         $addFields: {
-          convertedPlayerIds: {
+          converteduserIds: {
             $map: {
-              input: "$players.playerId",
-              as: "playerId",
-              in: { $toObjectId: "$$playerId" }
+              input: "$users.userId",
+              as: "userId",
+              in: { $toObjectId: "$$userId" }
             }
           }
         }
       },
 
-      // Step 3: Perform the lookup with the converted playerId
+      // Step 3: Perform the lookup with the converted userId
       {
         $lookup: {
           from: "users", // The collection to join
-          localField: "convertedPlayerIds", // The field in the current collection
+          localField: "convertedUserIds", // The field in the current collection
           foreignField: "_id", // The field in the foreign collection
-          as: "playerDetails", // The output array
+          as: "userDetails", // The output array
           pipeline: [
             {
               $project: {
@@ -66,11 +66,11 @@ const GameService = {
 
   // POST ACTIONS
   async createGame(req: Request, res: Response): Promise<Response> {
-    const { player1 } = req.body;
+    const { user1 } = req.body;
     const newGame = new Game({
-      player1,
+      user1,
       status: EGameStatus.SEARCHING,
-      players: [player1.userId]
+      users: [user1.userId]
     });
 
     const result = await newGame.save();
@@ -80,27 +80,27 @@ const GameService = {
   },
 
   // async joinGame(req: Request, res: Response, next: NextFunction): Promise<void> {
-  //   const { gameId, player2 } = req.body;
+  //   const { gameId, user2 } = req.body;
 
   //   const game = await Game.findById(gameId);
-  //   // Throw an error if the game no longer exists or if there is already a second player
+  //   // Throw an error if the game no longer exists or if there is already a second user
   //   if (!game) throw new CustomError(24);
-  //   if (game.player2) throw new CustomError(28);
+  //   if (game.user2) throw new CustomError(28);
 
-  //   // Randomly select the first player and start the game
-  //   const activePlayer = Math.random() < 0.5 ? game.player1.userId : player2.userId;
+  //   // Randomly select the first user and start the game
+  //   const activeuser = Math.random() < 0.5 ? game.user1.userId : user2.userId;
 
   //   const result = await Game.findByIdAndUpdate(gameId, {
-  //     player2,
+  //     user2,
   //     status: EGameStatus.PLAYING,
-  //     activePlayer,
-  //     $push: { players: player2.userId }
+  //     activeuser,
+  //     $push: { users: user2.userId }
   //   }, { new: true });
   //   if (!result) throw new CustomError(29);
 
-  //   // Send notification to the first player
+  //   // Send notification to the first user
   //   // TODO: send in-app notification
-  //   await UserService.turnNotification(activePlayer, gameId, res, next);
+  //   await UserService.turnNotification(activeuser, gameId, res, next);
   //   res.redirect(`/${gameId}`);
   // },
 
@@ -111,8 +111,8 @@ const GameService = {
   //   const game = await Game.findById(req.body.gameId);
   //   if (!game) throw new CustomError(24);
 
-  //   // Check that the player is the active player
-  //   if (userId !== game!.activePlayer) throw new CustomError(25);
+  //   // Check that the user is the active user
+  //   if (userId !== game!.activeuser) throw new CustomError(25);
 
   //   const result = await Game.findByIdAndUpdate( gameId, {
   //     $push: {
