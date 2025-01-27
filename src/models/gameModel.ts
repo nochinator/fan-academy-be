@@ -121,8 +121,9 @@ const FactionSchema = new Schema({
  * Player Schema
  */
 const PlayerSchema = new Schema({
-  playerId: {
-    type: String,
+  playerData: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
   faction: {

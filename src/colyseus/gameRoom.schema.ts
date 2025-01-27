@@ -27,6 +27,13 @@ class Unit extends Schema {
   @type([EquippedItem]) equippedItems: EquippedItem[];
   @type('string') spriteLink: string; // path based on items
 }
+
+class PlayerData extends Schema {
+  @type('string') playerId: string;
+  @type('string') username: string;
+  @type('string') picture: string;
+}
+
 class Faction extends Schema {
   @type('string') factionName: string;
   @type([Unit]) unitsOnBoard: Unit[];
@@ -37,7 +44,7 @@ class Faction extends Schema {
 }
 
 class Player extends Schema {
-  @type('string') playerId: string;
+  @type(PlayerData) playerData: PlayerData;
   @type(Faction) faction: Faction;
 }
 

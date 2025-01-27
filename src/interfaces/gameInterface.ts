@@ -1,3 +1,5 @@
+import { ObjectId } from "mongoose";
+
 /**
  * EquippedItem Interface
  */
@@ -39,10 +41,19 @@ export interface Faction {
 }
 
 /**
+ * PlayerData Interface
+ */
+export interface PlayerData {
+  playerId: ObjectId;
+  playerName: string;
+  picture: string;
+}
+
+/**
  * Player Interface
  */
 export interface Player {
-  playerId: string;
+  playerData: any; // REVIEW:
   faction: Faction;
 }
 
