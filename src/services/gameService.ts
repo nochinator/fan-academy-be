@@ -9,14 +9,33 @@ const GameService = {
   // GET ACTIONS
   async getCurrentGames(req: Request, res: Response): Promise<Response> {
     // const result = await Game.find({ players: req.body.userId  });
-    const result = Game.aggregate([
-      { $match: { "players.playerId": req.body.userId } },
+
+    console.log('userId', req.query.userId);
+
+    const result = await Game.aggregate([
+      // Step 1: Match games where the playerId matches the input
+      { $match: { "players.playerId": req.query.userId } },
+
+      // Step 2: Convert players.playerId to ObjectId for matching
+      {
+        $addFields: {
+          convertedPlayerIds: {
+            $map: {
+              input: "$players.playerId",
+              as: "playerId",
+              in: { $toObjectId: "$$playerId" }
+            }
+          }
+        }
+      },
+
+      // Step 3: Perform the lookup with the converted playerId
       {
         $lookup: {
-          from: "users",
-          localField: "players.playerId",
-          foreignField: "userId",
-          as: "playerDetails",
+          from: "users", // The collection to join
+          localField: "convertedPlayerIds", // The field in the current collection
+          foreignField: "_id", // The field in the foreign collection
+          as: "playerDetails", // The output array
           pipeline: [
             {
               $project: {
