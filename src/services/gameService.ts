@@ -4,50 +4,21 @@ import { EGameStatus } from "../enums/game.enums";
 import IGame from "../interfaces/gameInterface";
 import { EmailService } from "../emails/emailService";
 import { CustomError } from "../classes/customError";
+import mongoose from "mongoose";
+import User from "../models/userModel";
 
 const GameService = {
   // GET ACTIONS
   async getCurrentGames(req: Request, res: Response): Promise<Response> {
     // const result = await Game.find({ users: req.body.userId  });
+    const userId = new mongoose.Types.ObjectId(req.query.userId?.toString());
+    console.log('userId', userId);
 
-    console.log('userId', req.query.userId);
+    const result = await Game.find({ 'players.playerId': userId });
+    const test = await User.find({ _id: userId });
 
-    const result = await Game.aggregate([
-      // Step 1: Match games where the userId matches the input
-      { $match: { "users.userId": req.query.userId } },
-
-      // Step 2: Convert users.userId to ObjectId for matching
-      {
-        $addFields: {
-          converteduserIds: {
-            $map: {
-              input: "$users.userId",
-              as: "userId",
-              in: { $toObjectId: "$$userId" }
-            }
-          }
-        }
-      },
-
-      // Step 3: Perform the lookup with the converted userId
-      {
-        $lookup: {
-          from: "users", // The collection to join
-          localField: "convertedUserIds", // The field in the current collection
-          foreignField: "_id", // The field in the foreign collection
-          as: "userDetails", // The output array
-          pipeline: [
-            {
-              $project: {
-                _id: 1,
-                username: 1,
-                picture: 1
-              }
-            }
-          ]
-        }
-      }
-    ]);
+    console.log('result', result);
+    console.log('test', test);
 
     return res.send(result); // TODO: check if it is an empty array if no games are found
   },

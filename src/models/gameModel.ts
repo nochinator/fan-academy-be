@@ -129,6 +129,10 @@ const UserSchema = new Schema({
   faction: {
     type: FactionSchema,
     required: true
+  },
+  playerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true 
   }
 });
 
@@ -177,7 +181,7 @@ const TurnSchema = new Schema({
  * RoomState Schema
  */
 const GameSchema = new Schema({
-  users: {
+  players: {
     type: [UserSchema],
     default: []
   },

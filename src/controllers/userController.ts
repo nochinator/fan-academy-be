@@ -98,8 +98,8 @@ router.get('/turn-notification', async(_req: Request, res: Response, next: NextF
   return await UserService.turnNotification('66bba04c412d8d4987d52c9b', '123', res, next);
 }); // TODO: remove when done testing
 
-router.get('/game-end-notification', async(req: Request, res: Response, next: NextFunction) => {
-  return await UserService.gameEndNotification(req.body.gameId, res, next);
-}); // TODO: remove when done testing
+// router.get('/game-end-notification', async(req: Request, res: Response, next: NextFunction) => {
+//   return await UserService.gameEndNotification(req.body.gameId, res, next);
+// }); // TODO: remove when done testing
 
 export default router;
