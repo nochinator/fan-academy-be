@@ -6,6 +6,7 @@ import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
 import { CustomError } from '../classes/customError';
 import { Session } from 'express-session';
+import { ObjectId } from 'mongoose';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
@@ -109,7 +110,7 @@ const UserService = {
   //   res.send('Notification sent!');
   // },
 
-  async getUsers(userIds?: string[]): Promise<IUser[]> {
+  async getUsers(userIds?: ObjectId[]): Promise<IUser[]> {
     const query = userIds ? { _id: { $in: userIds } } : {};
     return await User.find(query);
   },

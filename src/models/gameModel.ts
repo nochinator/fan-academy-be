@@ -129,10 +129,6 @@ const UserSchema = new Schema({
   faction: {
     type: FactionSchema,
     required: true
-  },
-  playerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true 
   }
 });
 
@@ -181,6 +177,10 @@ const TurnSchema = new Schema({
  * RoomState Schema
  */
 const GameSchema = new Schema({
+  roomId: {
+    type: String,
+    required: true
+  },
   players: {
     type: [UserSchema],
     default: []
@@ -189,10 +189,10 @@ const GameSchema = new Schema({
     type: [TurnSchema],
     default: []
   },
-  board: {
-    type: String,
-    required: true
-  },
+  // board: {
+  //   type: String,
+  //   required: true
+  // },
   winCondition: {
     type: String,
     required: false
@@ -200,6 +200,14 @@ const GameSchema = new Schema({
   winner: {
     type: String,
     required: false
+  },
+  status: {
+    type: String,
+    required: true
+  },
+  createdAt: {
+    type: Date,
+    required: true
   }
 });
 

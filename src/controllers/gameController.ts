@@ -16,6 +16,11 @@ router.get('/open', isAuthenticated, async (req: Request, res: Response, _next: 
   return GameService.getOpenGames(res);
 }); // REVIEW: not used at the moment (data included in /playing)
 
+// Get the oldest game looking for a player, if any
+router.get('/matchmaking', isAuthenticated, async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
+  return GameService.matchmaking(req, res);
+});
+
 // Get a specific game
 router.get('/:id', isAuthenticated, async (req: Request, res: Response): Promise<Response> => {
   return GameService.getGame(req, res);
@@ -28,8 +33,8 @@ router.get('/:id', isAuthenticated, async (req: Request, res: Response): Promise
 // });
 
 // Create a new game
-router.post('/new-game', async(req: Request, res: Response): Promise<Response> => {
-  return await GameService.createGame(req, res); // REVIEW: there is no user related data validation
+router.post('/new-game', isAuthenticated, async(req: Request, res: Response): Promise<Response> => {
+  return await GameService.createGame(req, res);
 });
 
 // Join a game

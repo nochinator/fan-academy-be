@@ -29,6 +29,18 @@ const GameService = {
     return res.send(result); // TODO: check if it is an empty array if no games are found
   },
 
+  async matchmaking(req: Request, res: Response): Promise<Response> {
+    const userId = new mongoose.Types.ObjectId(req.query.userId?.toString());
+
+    const result = await Game.findOne({ userData: { $ne: userId } }).sort({ createdAt: 1 }).populate('userData');
+
+    console.log('MATCHMAKING RESULT', result);
+
+    if(!result) res.sendStatus(404);
+
+    return res.send(result); // TODO: should return just the roomId
+  },
+
   async getGame(req: Request, res: Response): Promise<Response> {
     const result = await Game.findById(req.params.id);
     if (!result) throw new CustomError(24);
@@ -37,11 +49,13 @@ const GameService = {
 
   // POST ACTIONS
   async createGame(req: Request, res: Response): Promise<Response> {
-    const { user1 } = req.body;
+    const { userId, roomId, faction } = req.body;
+    const userData = new mongoose.Types.ObjectId(userId);
     const newGame = new Game({
-      user1,
+      roomId,
+      players: [faction, userData],
       status: EGameStatus.SEARCHING,
-      users: [user1.userId]
+      createdAt: new Date()
     });
 
     const result = await newGame.save();

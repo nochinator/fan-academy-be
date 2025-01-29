@@ -1,4 +1,5 @@
 import { ObjectId } from "mongoose";
+import { EGameStatus } from "../enums/game.enums";
 
 /**
  * EquippedItem Interface
@@ -43,7 +44,7 @@ export interface Faction {
 /**
  * userData Interface
  */
-export interface userData {
+export interface UserData {
   userId: ObjectId;
   userName: string;
   picture: string;
@@ -53,7 +54,7 @@ export interface userData {
  * user Interface
  */
 export interface User {
-  userData: any; // REVIEW:
+  userData: ObjectId; // userId. Populates from user
   faction: Faction;
 }
 
@@ -80,10 +81,13 @@ export interface Turn {
  * Game Interface
  */
 export default interface IGame {
-  users: User[];
+  roomId: string;
+  players: User[];
   gameState: Turn[];
-  board: string;
+  // board: string;
   winCondition?: string;
   winner?: string; // userId
-  // REVIEW: start and end dates?
+  status: EGameStatus
+  createdAt: Date;
+  // REVIEW: start and end dates? and one more field for last turn sent
 }
