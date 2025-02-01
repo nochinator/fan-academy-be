@@ -1,4 +1,4 @@
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 
 interface IUserPreferences {
   emailNotifications: boolean;
@@ -7,7 +7,7 @@ interface IUserPreferences {
 }
 
 interface IUser extends Express.User {
-  _id: ObjectId;
+  _id: Types.ObjectId;
   username: string;
   email: string;
   password?: string;

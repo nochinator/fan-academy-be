@@ -1,5 +1,5 @@
 
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import IGame from "../interfaces/gameInterface";
 
 const { Schema, model } = mongoose;
@@ -109,11 +109,11 @@ const FactionSchema = new Schema({
   },
   cristalOneHealth: {
     type: Number,
-    required: true
+    required: false // FIXME:
   },
   cristalTwoHealth: {
     type: Number,
-    required: true
+    required: false // FIXME:
   }
 });
 
@@ -122,7 +122,7 @@ const FactionSchema = new Schema({
  */
 const UserSchema = new Schema({
   userData: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Types.ObjectId,
     ref: 'User',
     required: true
   },
@@ -177,8 +177,8 @@ const TurnSchema = new Schema({
  * RoomState Schema
  */
 const GameSchema = new Schema({
-  roomId: {
-    type: String,
+  _id: {
+    type: mongoose.Schema.Types.ObjectId,
     required: true
   },
   players: {

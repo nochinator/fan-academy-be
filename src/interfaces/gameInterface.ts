@@ -1,4 +1,4 @@
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
 
 /**
@@ -34,18 +34,18 @@ export interface Unit {
  */
 export interface Faction {
   factionName: string;
-  unitsOnBoard: Unit[];
-  unitsInHand: Unit[];
-  unitsInDeck: Unit[];
-  cristalOneHealth: number;
-  cristalTwoHealth: number;
+  unitsOnBoard?: Unit[];
+  unitsInHand?: Unit[];
+  unitsInDeck?: Unit[];
+  cristalOneHealth?: number;
+  cristalTwoHealth?: number;
 }
 
 /**
  * userData Interface
  */
 export interface UserData {
-  userId: ObjectId;
+  userId: Types.ObjectId;
   userName: string;
   picture: string;
 }
@@ -54,7 +54,7 @@ export interface UserData {
  * user Interface
  */
 export interface User {
-  userData: ObjectId; // userId. Populates from user
+  userData: Types.ObjectId; // userId. Populates from user
   faction: Faction;
 }
 
@@ -81,7 +81,7 @@ export interface Turn {
  * Game Interface
  */
 export default interface IGame {
-  roomId: string;
+  _id: Types.ObjectId;
   players: User[];
   gameState: Turn[];
   // board: string;

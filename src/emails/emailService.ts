@@ -2,7 +2,6 @@ import * as Brevo from '@getbrevo/brevo';
 import { BREVO_API_KEY, EMAIL_TEST_ADDRESS } from '../config';
 import IGame from '../interfaces/gameInterface';
 import { NextFunction } from "express";
-import UserService from '../services/userService';
 
 const apiInstance = new Brevo.TransactionalEmailsApi();
 
@@ -88,36 +87,36 @@ export const EmailService = {
   },
 
   // REVIEW: include link back to the game for a rematch?
-  // TODO: refactor
-  async sendGameEndEmail(game: IGame, next: NextFunction): Promise<void> {
-    const { players, winCondition, winner } = game;
+  // TODO: refactor FIXME:
+  async sendGameEndEmail(_game: IGame, _next: NextFunction): Promise<void> {
+    // const { players, winCondition, winner } = game;
 
-    const userData = await UserService.getUsers([players[0].userData, players[1].userData]);
+    // const userData = await UserService.getUsers([players[0].userData, players[1].userData]);
 
-    const user1 = {
-      username: userData[0].username,
-      faction: players[0].faction
-    };
+    // const user1 = {
+    //   username: userData[0].username,
+    //   faction: players[0].faction
+    // };
 
-    const user2 = {
-      username: userData[1].username,
-      faction: players[1].faction
-    };
+    // const user2 = {
+    //   username: userData[1].username,
+    //   faction: players[1].faction
+    // };
 
-    const winnerUsername = userData.find(user => {
-      user._id.toString() === winner;
-    })?.username
-    ;
-    await this.sendEmail({
-      templateId: 4,
-      email: [userData[0].email, userData[1].email],
-      params: {
-        user1,
-        user2,
-        winCondition,
-        winner: winnerUsername
-      }
-    }, next);
+    // const winnerUsername = userData.find(user => {
+    //   user._id.toString() === winner;
+    // })?.username
+    // ;
+    // await this.sendEmail({
+    //   templateId: 4,
+    //   email: [userData[0].email, userData[1].email],
+    //   params: {
+    //     user1,
+    //     user2,
+    //     winCondition,
+    //     winner: winnerUsername
+    //   }
+    // }, next);
   },
 
   async sendAccountDeletionEmail(email: string, next: NextFunction): Promise<void> {

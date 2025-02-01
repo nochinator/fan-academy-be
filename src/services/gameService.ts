@@ -4,21 +4,18 @@ import { EGameStatus } from "../enums/game.enums";
 import IGame from "../interfaces/gameInterface";
 import { EmailService } from "../emails/emailService";
 import { CustomError } from "../classes/customError";
-import mongoose from "mongoose";
-import User from "../models/userModel";
+import mongoose, { Types } from "mongoose";
 
 const GameService = {
   // GET ACTIONS
   async getCurrentGames(req: Request, res: Response): Promise<Response> {
     // const result = await Game.find({ users: req.body.userId  });
-    const userId = new mongoose.Types.ObjectId(req.query.userId?.toString());
+    const userId = new Types.ObjectId(req.query.userId?.toString());
     console.log('userId', userId);
 
     const result = await Game.find({ 'players.playerId': userId });
-    const test = await User.find({ _id: userId });
 
     console.log('result', result);
-    console.log('test', test);
 
     return res.send(result); // TODO: check if it is an empty array if no games are found
   },
@@ -29,31 +26,40 @@ const GameService = {
     return res.send(result); // TODO: check if it is an empty array if no games are found
   },
 
-  async matchmaking(req: Request, res: Response): Promise<Response> {
-    const userId = new mongoose.Types.ObjectId(req.query.userId?.toString());
+  async matchmaking(playerId: string): Promise<(mongoose.Document<unknown, unknown, IGame> & IGame & { _id: Types.ObjectId; } & { __v: number; }) | null> {
+    const userId = new Types.ObjectId(playerId);
 
-    const result = await Game.findOne({ userData: { $ne: userId } }).sort({ createdAt: 1 }).populate('userData');
+    const result = await Game.findOne({ players: { $elemMatch: { userData: { $ne: userId } } } }).sort({ createdAt: 1 }).populate('players.userData', "username picture");
 
-    console.log('MATCHMAKING RESULT', result);
+    console.log('MATCHMAKING RESULT', JSON.stringify(result));
 
-    if(!result) res.sendStatus(404);
-
-    return res.send(result); // TODO: should return just the roomId
+    return result; // TODO: should return just the roomId
   },
 
   async getGame(req: Request, res: Response): Promise<Response> {
-    const result = await Game.findById(req.params.id);
-    if (!result) throw new CustomError(24);
+    const userId = new Types.ObjectId(req.query.userId?.toString());
+    const roomId = new Types.ObjectId(req.query.roomId?.toString());
+    const result = await Game.findOne({
+      _id: roomId,
+      "players.userData": userId
+    });
+    // if (!result) throw new CustomError(24); // REVIEW: do we need to throw here? I should just pass it to the FE
     return res.send(result);
   },
 
   // POST ACTIONS
-  async createGame(req: Request, res: Response): Promise<Response> {
-    const { userId, roomId, faction } = req.body;
-    const userData = new mongoose.Types.ObjectId(userId);
+  async createGame(options: {
+    userId: string,
+    factionName: string
+  }): Promise<IGame | null> {
+    const { userId, factionName } = options;
+
+    const userData = new Types.ObjectId(userId);
     const newGame = new Game({
-      roomId,
-      players: [faction, userData],
+      players: [{
+        faction: { factionName },
+        userData
+      }],
       status: EGameStatus.SEARCHING,
       createdAt: new Date()
     });
@@ -61,7 +67,20 @@ const GameService = {
     const result = await newGame.save();
     if (!result) throw new CustomError(23);
 
-    return res.send(result);
+    return result;
+  },
+
+  async getColyseusRoom(roomId: string, userId: string): Promise<IGame | null> {
+    const gameId = new Types.ObjectId(roomId);
+    const userData = new Types.ObjectId(userId);
+
+    console.log('GAME ID and USER DATA', gameId, userData);
+    const result =  await Game.findOne({
+      _id: gameId,
+      'players.userData': userData
+    }).populate('players.userData', "email picture"); // TODO: check if populate adds _id
+
+    return result;
   },
 
   // async joinGame(req: Request, res: Response, next: NextFunction): Promise<void> {

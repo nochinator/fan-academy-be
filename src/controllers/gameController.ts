@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { isAuthenticated } from "../middleware/isAuthenticated";
 import GameService from "../services/gameService";
-// import passport from "passport";
-// import UserService from "../services/userService";
 
 const router = Router();
 
@@ -18,11 +16,16 @@ router.get('/open', isAuthenticated, async (req: Request, res: Response, _next: 
 
 // Get the oldest game looking for a player, if any
 router.get('/matchmaking', isAuthenticated, async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
-  return GameService.matchmaking(req, res);
+  const playerId = req.query.userId?.toString();
+
+  if (!playerId) return res.sendStatus(400);
+
+  const response = GameService.matchmaking(playerId);
+  return res.send(response);
 });
 
 // Get a specific game
-router.get('/:id', isAuthenticated, async (req: Request, res: Response): Promise<Response> => {
+router.get('/get', isAuthenticated, async (req: Request, res: Response): Promise<Response> => {
   return GameService.getGame(req, res);
 });
 
@@ -34,7 +37,17 @@ router.get('/:id', isAuthenticated, async (req: Request, res: Response): Promise
 
 // Create a new game
 router.post('/new-game', isAuthenticated, async(req: Request, res: Response): Promise<Response> => {
-  return await GameService.createGame(req, res);
+  const userId = req.query.userId?.toString();
+  const factionName = req.query.faction?.toString();
+
+  if (!userId || !factionName) return res.sendStatus(400);
+
+  const result = await GameService.createGame({
+    userId,
+    factionName
+  });
+
+  return res.send(result);
 });
 
 // Join a game

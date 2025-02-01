@@ -1,22 +1,6 @@
 import { model, Schema } from 'mongoose';
 import IUser from '../interfaces/userInterface';
 
-const currentGameSchema = new Schema({
-  gameId: String,
-  activeUser: Boolean
-});
-
-const gameHistorySchema = new Schema({
-  gameId: String,
-  userFaction: String,
-  oponentId: String,
-  oponentFaction: String,
-  startDate: Date,
-  endDate: Date,
-  won: Boolean,
-  winCondition: String
-});
-
 const preferencesSchema = new Schema({
   emailNotifications: Boolean,
   sound: Boolean,
@@ -38,14 +22,8 @@ const userSchema = new Schema({
     type: String,
     match: [/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, 'Please fill in a valid email address']
   },
-  googleId: {
-    type: String,
-    required: false
-  },
   picture: String,
   lastSeen: Date,
-  currentGames: [currentGameSchema],
-  gameHistory: [gameHistorySchema],
   preferences: preferencesSchema
 });
 
