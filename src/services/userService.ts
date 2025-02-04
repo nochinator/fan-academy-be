@@ -23,7 +23,7 @@ const UserService = {
       username,
       email,
       password: hashedPassword,
-      picture: '/images/profilePics/Avatar_1stGame-hd.jpg', // TODO: link to default profile pic
+      picture: '/assets/images/profilePics/Avatar_1stGame-hd.jpg', // TODO: link to default profile pic
       currentGames: [],
       gameHistory: [],
       preferences: {
@@ -32,16 +32,20 @@ const UserService = {
         chat: true
       }
     });
-    const result =  await newUser.save();
-    if (!result) throw new CustomError(30);
+    const user =  await newUser.save();
+    if (!user) throw new CustomError(30);
 
     // Send email confirmation email
     await EmailService.sendAccountConfirmationEmail(username, email, next);
 
-    // Login user
-    req.login(newUser, (err) => {
-      if (err) { next(err); };
-      res.redirect('/users/all');});
+    // Manually log in the user
+    req.login(user, (loginErr: any) => {
+      if (loginErr) { return next(loginErr); }
+
+      res.status(200).json({
+        message: "Login successful",
+        user
+      });});
   },
 
   async updateProfile(req: Request, res: Response): Promise<Response>{

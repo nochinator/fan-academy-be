@@ -13,17 +13,17 @@ const GameService = {
     const userId = new Types.ObjectId(req.query.userId?.toString());
     console.log('userId', userId);
 
-    const result = await Game.find({ 'players.playerId': userId });
+    const result = await Game.find({ 'players.userData': userId }).populate('players.userData', "username picture");;
 
-    console.log('result', result);
+    console.log('result', JSON.stringify(result));
 
-    return res.send(result); // TODO: check if it is an empty array if no games are found
+    return res.send(result);
   },
 
   async getOpenGames(res: Response): Promise<Response> {
     const result = await Game.find({ status: EGameStatus.SEARCHING  });
 
-    return res.send(result); // TODO: check if it is an empty array if no games are found
+    return res.send(result);
   },
 
   async matchmaking(playerId: string): Promise<(mongoose.Document<unknown, unknown, IGame> & IGame & { _id: Types.ObjectId; } & { __v: number; }) | null> {
@@ -80,58 +80,9 @@ const GameService = {
       'players.userData': userData
     }).populate('players.userData', "email picture"); // TODO: check if populate adds _id
 
+    console.log('Result', JSON.stringify(result));
     return result;
   },
-
-  // async joinGame(req: Request, res: Response, next: NextFunction): Promise<void> {
-  //   const { gameId, user2 } = req.body;
-
-  //   const game = await Game.findById(gameId);
-  //   // Throw an error if the game no longer exists or if there is already a second user
-  //   if (!game) throw new CustomError(24);
-  //   if (game.user2) throw new CustomError(28);
-
-  //   // Randomly select the first user and start the game
-  //   const activeuser = Math.random() < 0.5 ? game.user1.userId : user2.userId;
-
-  //   const result = await Game.findByIdAndUpdate(gameId, {
-  //     user2,
-  //     status: EGameStatus.PLAYING,
-  //     activeuser,
-  //     $push: { users: user2.userId }
-  //   }, { new: true });
-  //   if (!result) throw new CustomError(29);
-
-  //   // Send notification to the first user
-  //   // TODO: send in-app notification
-  //   await UserService.turnNotification(activeuser, gameId, res, next);
-  //   res.redirect(`/${gameId}`);
-  // },
-
-  // async sendTurn(req: Request, res: Response): Promise<Response> {
-  //   const { userId,  gameId, turnNumber, boardState, actions } = req.body;
-
-  //   // Check that the game exists
-  //   const game = await Game.findById(req.body.gameId);
-  //   if (!game) throw new CustomError(24);
-
-  //   // Check that the user is the active user
-  //   if (userId !== game!.activeuser) throw new CustomError(25);
-
-  //   const result = await Game.findByIdAndUpdate( gameId, {
-  //     $push: {
-  //       turns: {
-  //         turnNumber,
-  //         boardState,
-  //         actions
-  //       }
-  //     }
-  //   },
-  //   { new: true }
-  //   ); // REVIEW: should I check here for a returned doc?
-
-  //   return res.send(result);
-  // },
 
   // async deleteGame(req: Request, res: Response): Promise<void> {
   //   const game: IGame | null = await Game.findById(req.params.id);
