@@ -4,8 +4,11 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
+import IGame from "../interfaces/gameInterface";
 
 export class GameRoom extends Room {
+  userId: Types.ObjectId;
+
   onInit(_options: any) {
     this.maxClients = 2;
   }
@@ -30,7 +33,7 @@ export class GameRoom extends Room {
     const factionName = options.faction;
     const roomId = options.roomId;
     console.log('ON CREATE ROOM ID', roomId);
-    const userId = new Types.ObjectId(options.userId);
+    this.userId = new Types.ObjectId(options.userId);
 
     if (roomId) {
       // RoomId provided means creating a room for a game already in play
@@ -51,7 +54,7 @@ export class GameRoom extends Room {
       if (gameLookingForPlayers) {
         // Add player to the game and remove SEARCHING status
         gameLookingForPlayers.players.push({
-          userData: userId,
+          userData: this.userId,
           faction: { factionName }
         });
 
@@ -81,19 +84,21 @@ export class GameRoom extends Room {
     }
 
     // this.setState({}); // REVIEW: ?
-    console.log('checking colyseus roomId', this.roomId);
-    console.log('checking provided roomId', roomId);
-
     console.log("Game room created! ID -> ", this.roomId);
 
-    this.onMessage("turn", (client, message) => {
+    this.onMessage("turnSent", (client, message: IGame) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
         sessionId: client.sessionId,
-        turnMoves: message.turnMoves
+        turnMoves: message // TODO: unpack the moves on the FE
       });
+
+      this.presence.publish("turnPlayedPresence", {
+        userIds: [message.players[0].userData,
+          message.players[1].userData]
+      }); // TODO: make sure that we sent the whole game
     });
   }
 
@@ -138,11 +143,4 @@ export class GameRoom extends Room {
     console.log('Authentication failed');
     return false; // Deny access
   }
-
-  // async onMessage(client, message) {
-  //   console.log("Received message:", message);
-
-  //   // Update MongoDB when a turn is taken
-  //   await Game.findByIdAndUpdate(this.roomId, { $set: message });
-  // }
 }

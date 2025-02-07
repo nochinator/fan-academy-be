@@ -6,7 +6,11 @@ const router = Router();
 
 // Get user's ongoing games
 router.get('/playing', isAuthenticated, async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
-  return GameService.getCurrentGames(req, res);
+  const userId = req.query.userId?.toString();
+
+  const response = GameService.getCurrentGames(userId!);
+
+  return res.send(response);
 });
 
 // Get games looking for players

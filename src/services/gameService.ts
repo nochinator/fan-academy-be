@@ -8,16 +8,16 @@ import mongoose, { Types } from "mongoose";
 
 const GameService = {
   // GET ACTIONS
-  async getCurrentGames(req: Request, res: Response): Promise<Response> {
+  async getCurrentGames(userId: string): Promise<IGame[] | null> {
     // const result = await Game.find({ users: req.body.userId  });
-    const userId = new Types.ObjectId(req.query.userId?.toString());
+    const userObjectId = new Types.ObjectId(userId);
     console.log('userId', userId);
 
-    const result = await Game.find({ 'players.userData': userId }).populate('players.userData', "username picture");;
+    const result = await Game.find({ 'players.userData': userObjectId }).populate('players.userData', "username picture");;
 
     console.log('result', JSON.stringify(result));
 
-    return res.send(result);
+    return result;
   },
 
   async getOpenGames(res: Response): Promise<Response> {
