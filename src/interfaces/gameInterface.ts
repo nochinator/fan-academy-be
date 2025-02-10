@@ -73,7 +73,6 @@ export interface TurnAction {
  */
 export interface Turn {
   turnNumber: number;
-  activeuser: string; // userId
   actions: TurnAction[];
 }
 
@@ -89,5 +88,7 @@ export default interface IGame {
   winner?: string; // userId
   status: EGameStatus
   createdAt: Date;
+  activePlayer: Types.ObjectId; // userId
+
   // REVIEW: start and end dates? and one more field for last turn sent
 }

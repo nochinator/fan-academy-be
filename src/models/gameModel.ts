@@ -163,10 +163,6 @@ const TurnSchema = new Schema({
     type: Number,
     required: true
   },
-  activeUser: {
-    type: String,
-    required: true
-  }, // userId
   actions: {
     type: [TurnActionSchema],
     default: []
@@ -208,7 +204,11 @@ const GameSchema = new Schema({
   createdAt: {
     type: Date,
     required: true
-  }
+  },
+  activePlayer: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  } // userId
 });
 
 export default model<IGame>("Game", GameSchema);
