@@ -8,7 +8,7 @@ const router = Router();
 router.get('/playing', isAuthenticated, async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
   const userId = req.query.userId?.toString();
 
-  const response = GameService.getCurrentGames(userId!);
+  const response = await GameService.getCurrentGames(userId!);
 
   return res.send(response);
 });
@@ -24,7 +24,7 @@ router.get('/matchmaking', isAuthenticated, async (req: Request, res: Response, 
 
   if (!playerId) return res.sendStatus(400);
 
-  const response = GameService.matchmaking(playerId);
+  const response = await GameService.matchmaking(playerId);
   return res.send(response);
 });
 
