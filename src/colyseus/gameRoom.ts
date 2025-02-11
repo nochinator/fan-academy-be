@@ -4,7 +4,6 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
-import IGame from "../interfaces/gameInterface";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -86,7 +85,9 @@ export class GameRoom extends Room {
     // this.setState({}); // REVIEW: ?
     console.log("Game room created! ID -> ", this.roomId);
 
-    this.onMessage("turnSent", (client, message: IGame) => {
+    // FIXME: do we need a message on game created
+
+    this.onMessage("turnSent", (client, message: any) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
 
       // Broadcast movement to all connected clients
@@ -95,10 +96,7 @@ export class GameRoom extends Room {
         turnMoves: message // TODO: unpack the moves on the FE
       });
 
-      this.presence.publish("turnPlayedPresence", {
-        userIds: [message.players[0].userData,
-          message.players[1].userData]
-      }); // TODO: make sure that we sent the whole game
+      this.presence.publish("turnPlayedPresence", message); // TODO: make sure that we sent the whole game
     });
   }
 

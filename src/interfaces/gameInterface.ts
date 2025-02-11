@@ -88,7 +88,7 @@ export default interface IGame {
   winner?: string; // userId
   status: EGameStatus
   createdAt: Date;
-  activePlayer: Types.ObjectId; // userId
+  activePlayer: Types.ObjectId | null; // userId
 
   // REVIEW: start and end dates? and one more field for last turn sent
 }

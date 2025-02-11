@@ -207,7 +207,7 @@ const GameSchema = new Schema({
   },
   activePlayer: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true
+    required: false
   } // userId
 });
 

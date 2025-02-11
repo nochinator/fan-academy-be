@@ -15,8 +15,6 @@ const GameService = {
 
     const result = await Game.find({ 'players.userData': userObjectId }).populate('players.userData', "username picture");;
 
-    console.log('result', JSON.stringify(result));
-
     return result;
   },
 
@@ -29,9 +27,12 @@ const GameService = {
   async matchmaking(playerId: string): Promise<(mongoose.Document<unknown, unknown, IGame> & IGame & { _id: Types.ObjectId; } & { __v: number; }) | null> {
     const userId = new Types.ObjectId(playerId);
 
-    const result = await Game.findOne({ players: { $elemMatch: { userData: { $ne: userId } } } }).sort({ createdAt: 1 }).populate('players.userData', "username picture");
+    const result = await Game.findOne({
+      players: { $elemMatch: { userData: { $ne: userId } } },
+      status: EGameStatus.SEARCHING
+    }).sort({ createdAt: 1 }).populate('players.userData', "username picture");
 
-    console.log('MATCHMAKING RESULT', JSON.stringify(result));
+    console.log('MATCHMAKING RESULT', JSON.stringify(result?._id));
 
     return result; // TODO: should return just the roomId
   },
@@ -55,7 +56,9 @@ const GameService = {
     const { userId, factionName } = options;
 
     const userData = new Types.ObjectId(userId);
+    const gameId = new Types.ObjectId();
     const newGame = new Game({
+      _id: gameId,
       players: [{
         faction: { factionName },
         userData
