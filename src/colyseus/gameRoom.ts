@@ -4,6 +4,7 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
+import { User } from "../interfaces/gameInterface";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -89,14 +90,17 @@ export class GameRoom extends Room {
 
     this.onMessage("turnSent", (client, message: any) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
+      // TODO: data validation for correct message
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
         sessionId: client.sessionId,
-        turnMoves: message // TODO: unpack the moves on the FE
+        game: message // TODO: unpack the moves on the FE
       });
 
-      this.presence.publish("turnPlayedPresence", message); // TODO: make sure that we sent the whole game
+      // Retrieve user ids and publish update the users' game lists
+      const userIds = message.game.players.map((player: User) =>  player.userData.toString());
+      this.presence.publish("turnPlayedPresence", userIds); // TODO: make sure that we sent the whole game
     });
   }
 
