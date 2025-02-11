@@ -5,6 +5,8 @@ import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
 import { User } from "../interfaces/gameInterface";
+import Game from "../models/gameModel";
+import { CustomError } from "../classes/customError";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -88,18 +90,31 @@ export class GameRoom extends Room {
 
     // FIXME: do we need a message on game created
 
-    this.onMessage("turnSent", (client, message: any) => {
+    this.onMessage("turnSent", async (client, message: any) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
       // TODO: data validation for correct message
+
+      // Update game document in the db with the new turn
+      console.log('UPDATE message -> ', message);
+
+      const updatedGame = await Game.findByIdAndUpdate(message._id, {
+        gameState: message.gameState,
+        activePlayer: message.activePlayer,
+        ...message.winCondition ? { windCodition: message.winCondition } : {},
+        ...message.winner ? { winner: message.winner } : {}
+
+      });
+      console.log('UPDATED GAME -> ', updatedGame);
+      if (!updatedGame) throw new CustomError(24);
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
         sessionId: client.sessionId,
-        game: message // TODO: unpack the moves on the FE
+        game: updatedGame // TODO: unpack the moves on the FE
       });
 
       // Retrieve user ids and publish update the users' game lists
-      const userIds = message.game.players.map((player: User) =>  player.userData.toString());
+      const userIds = updatedGame.players.map((player: User) =>  player.userData.toString());
       this.presence.publish("turnPlayedPresence", userIds); // TODO: make sure that we sent the whole game
     });
   }
