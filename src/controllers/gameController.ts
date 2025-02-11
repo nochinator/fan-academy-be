@@ -55,6 +55,16 @@ router.post('/new-game', isAuthenticated, async(req: Request, res: Response): Pr
 });
 
 // Terminate a game - used for both conceding a game or cancelling a game searching for players
+router.post('/delete', isAuthenticated,  async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
+  // TODO: create a isAuthorized MW to check if a user can send moves / concede / cancel games
+  const userId = req.query.userId?.toString();
+  const gameId = req.query.gameId?.toString();
+
+  const response = await GameService.deleteGame(userId, gameId);
+  return res.send(response);
+});
+
+// // Terminate a game - used for both conceding a game or cancelling a game searching for players
 // router.post('/:id/terminate', isAuthenticated,  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 //   // TODO: create a isAuthorized MW to check if a user can send moves / concede / cancel games
 //   const { reason } = req.body;

@@ -87,16 +87,23 @@ const GameService = {
     return result;
   },
 
-  // async deleteGame(req: Request, res: Response): Promise<void> {
-  //   const game: IGame | null = await Game.findById(req.params.id);
-  //   if (!game) throw new CustomError(24);
-  //   if (game!.status != EGameStatus.SEARCHING) throw new CustomError(27);
+  async deleteGame(userId: string | undefined, gameId: string | undefined): Promise<IGame | null> {
+    const gameObjectId = new Types.ObjectId(gameId);
+    const userObjectId = new Types.ObjectId(userId);
 
-  //   const result = await Game.findByIdAndDelete(game._id);
-  //   if (!result) throw new CustomError(24);
-  //   // TODO: check what the result type of the query is (both on success and error)
-  //   res.redirect('/');
-  // },
+    const game: IGame | null = await Game.findOne({
+      _id: gameObjectId,
+      players: { $elemMatch: { userData: { $eq: userObjectId } } },
+      status: EGameStatus.SEARCHING
+    });
+
+    if (!game) throw new CustomError(24);
+
+    const result = await Game.findByIdAndDelete(game._id);
+    if (!result) throw new CustomError(24);
+
+    return result;
+  },
 
   async endGame(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { gameId, winner, winCondition, lastTurn } = req.body;
