@@ -4,7 +4,7 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
-import { User } from "../interfaces/gameInterface";
+import { TurnAction, User } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { CustomError } from "../classes/customError";
 
@@ -23,22 +23,27 @@ export class GameRoom extends Room {
      * On create can be:
      * -looking for a game.
      *    -checks for already open rooms
-     *      -if not, creates the room for the first time (no second player, dispose inmediatly), also no uuid provided from the FE
-     *      -create the room, add player1 data, set to searching
+     *      -if no room found:
+     *        -creates the room for the first time (no second player, dispose inmediatly), also no roomId uuid provided from the FE
+     *        -create the room, add player1 data, set to searching
      *
-     *      -if room, add player2 data, set room to full
+     *      -if room found, add player2 data, set room to full // FIXME: I can't get the room limit to work
      *
      *      -update the game list
-     * -re-creating a room: provides the roomid
-     *    -check if the user is one of the two players, grant access and show the state
+     * -re-creating a room: provides the roomId
+     *    -check if the user is one of the two players, grant access and show the state // REVIEW:
      */
     const factionName = options.faction;
     const roomId = options.roomId;
     console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, factionName);
     this.userId = new Types.ObjectId(options.userId);
 
+    /**
+     *
+     * CREATING A ROOM FOR A GAME ALREADY IN PLAY
+     *
+     */
     if (roomId) {
-      // RoomId provided means creating a room for a game already in play
       // get the game and check if the user is one of the players
       // TODO: should also check which player?
       const game = await GameService.getColyseusRoom(roomId, options.userId);
@@ -47,8 +52,12 @@ export class GameRoom extends Room {
       this.roomId = roomId; // FIXME:
     }
 
+    /**
+     *
+     * CREATING A ROOM FOR A NEW GAME
+     *
+     */
     if(!roomId && factionName) {
-      // No roomId means user is looking to start a game
       // Check for games already looking for players
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
 
@@ -58,8 +67,11 @@ export class GameRoom extends Room {
           userData: this.userId,
           faction: { factionName }
         });
-
         gameLookingForPlayers.status = EGameStatus.PLAYING;
+
+        // Randomly select the first player
+        const playerIds = gameLookingForPlayers.players.map((player: User) => player.userData);
+        gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
 
         await gameLookingForPlayers.save();
         // TODO: The return of this function should trigger the beginning of a game
@@ -69,7 +81,7 @@ export class GameRoom extends Room {
         this.presence.publish("gameUpdatedPresence", [options.userId, gameLookingForPlayers.players[0].userData._id.toString()]);
       }
 
-      // If there are no open games, create one
+      // If there are no games looking for players, create one
       if(!gameLookingForPlayers) {
         const newGame = await GameService.createGame({
           userId: options.userId,
@@ -84,9 +96,14 @@ export class GameRoom extends Room {
     }
 
     // this.setState({}); // REVIEW: ?
+
     console.log("Game room created! ID -> ", this.roomId);
 
-    this.onMessage("turnSent", async (client, message: any) => {
+    this.onMessage("turnSent", async (client, message: {
+      _id: Types.ObjectId,
+      newTurn: TurnAction[],
+      newActivePlayer: Types.ObjectId // REVIEW:
+    }) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
       // TODO: data validation for correct message
 
@@ -94,12 +111,9 @@ export class GameRoom extends Room {
       console.log('UPDATE message -> ', message);
 
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
-        gameState: message.gameState,
-        activePlayer: message.activePlayer,
-        ...message.winCondition ? { windCodition: message.winCondition } : {},
-        ...message.winner ? { winner: message.winner } : {}
-
-      });
+        $push: { gameState: message.newTurn },
+        activePlayer: message.newActivePlayer
+      }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
       console.log('UPDATED GAME -> ', updatedGame);
       if (!updatedGame) throw new CustomError(24);
 

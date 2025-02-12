@@ -69,21 +69,12 @@ export interface TurnAction {
 }
 
 /**
- * Turn Interface
- */
-export interface Turn {
-  turnNumber: number;
-  actions: TurnAction[];
-}
-
-/**
  * Game Interface
  */
 export default interface IGame {
   _id: Types.ObjectId;
   players: User[];
-  gameState: Turn[];
-  // board: string;
+  gameState: TurnAction[];
   winCondition?: string;
   winner?: string; // userId
   status: EGameStatus

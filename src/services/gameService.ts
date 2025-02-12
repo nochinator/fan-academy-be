@@ -75,7 +75,7 @@ const GameService = {
 
   async getColyseusRoom(roomId: string, userId: string): Promise<IGame | null> {
     console.log('getColyseusRoom gameId and userdata', roomId, userId);
-    const gameId = new Types.ObjectId(roomId);
+    const gameId = new Types.ObjectId(roomId); ////////////////////////
     const userData = new Types.ObjectId(userId);
 
     console.log('GAME ID and USER DATA', gameId, userData);

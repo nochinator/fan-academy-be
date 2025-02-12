@@ -156,20 +156,6 @@ const TurnActionSchema = new Schema({
 });
 
 /**
- * Turn Schema
- */
-const TurnSchema = new Schema({
-  turnNumber: {
-    type: Number,
-    required: true
-  },
-  actions: {
-    type: [TurnActionSchema],
-    default: []
-  }
-});
-
-/**
  * RoomState Schema
  */
 const GameSchema = new Schema({
@@ -182,13 +168,9 @@ const GameSchema = new Schema({
     default: []
   },
   gameState: {
-    type: [TurnSchema],
+    type: [TurnActionSchema],
     default: []
   },
-  // board: {
-  //   type: String,
-  //   required: true
-  // },
   winCondition: {
     type: String,
     required: false
