@@ -34,7 +34,7 @@ export class GameRoom extends Room {
      */
     const factionName = options.faction;
     const roomId = options.roomId;
-    console.log('ON CREATE ROOM ID', roomId);
+    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, factionName);
     this.userId = new Types.ObjectId(options.userId);
 
     if (roomId) {
@@ -44,8 +44,7 @@ export class GameRoom extends Room {
       const game = await GameService.getColyseusRoom(roomId, options.userId);
       if (!game) console.log('No game found error here1');
 
-      // TODO: send state and show game in the fe
-      this.roomId = roomId;
+      this.roomId = roomId; // FIXME:
     }
 
     if(!roomId && factionName) {
@@ -63,11 +62,11 @@ export class GameRoom extends Room {
         gameLookingForPlayers.status = EGameStatus.PLAYING;
 
         await gameLookingForPlayers.save();
-        // TODO: get the state from the game and send it to the user?
-        // the return of this function should trigger and gamelist update
-        console.log(JSON.stringify(gameLookingForPlayers));
+        // TODO: The return of this function should trigger the beginning of a game
+        console.log('Matchmaking found an open game');
         this.roomId = gameLookingForPlayers._id.toString();
-        console.log('THIS ROOM', this.roomId);
+
+        this.presence.publish("gameUpdatedPresence", [options.userId, gameLookingForPlayers.players[0].userData._id.toString()]);
       }
 
       // If there are no open games, create one
@@ -77,18 +76,15 @@ export class GameRoom extends Room {
           factionName
         });
         console.log('NEWGAME', newGame);
-        /**
-         * here we should return something that triggers the gamelist update
-         * should also not join the room, but disconnect inmediately ?
-         */
+
         if (newGame) this.roomId = newGame._id.toString();
+
+        this.presence.publish("gameUpdatedPresence", [options.userId]);
       }
     }
 
     // this.setState({}); // REVIEW: ?
     console.log("Game room created! ID -> ", this.roomId);
-
-    // FIXME: do we need a message on game created
 
     this.onMessage("turnSent", async (client, message: any) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
@@ -115,7 +111,7 @@ export class GameRoom extends Room {
 
       // Retrieve user ids and publish update the users' game lists
       const userIds = updatedGame.players.map((player: User) =>  player.userData.toString());
-      this.presence.publish("turnPlayedPresence", userIds); // TODO: make sure that we sent the whole game
+      this.presence.publish("gameUpdatedPresence", userIds); // TODO: make sure that we sent the whole game
     });
   }
 
@@ -127,12 +123,16 @@ export class GameRoom extends Room {
     /**
      * check if the user is one of the two players, grant access and send newest state in the db. once connected, the 'sendTurn' or equivalent function should also broadcast the moves after the turn is sent
      */
-    const roomId = this.roomId ? this.roomId : options.roomId; // REVIEW:
+    console.log('ONJOIN', this.roomId, options.roomId);
+
+    const roomId = this.roomId ? this.roomId : options.roomId;
+    if (!roomId) throw new CustomError(24);
+
     const game = await GameService.getColyseusRoom(roomId, options.userId);
     if (!game) console.log('No game found error here2');
 
-    // TODO: send state and show game in the fe
     console.log(`Client ${client.sessionId} joined the room`);
+    // REVIEW: we don't need to send anything in this case, the FE can display the last game state from the db. Since it is connected it will get any new updates
   }
 
   // Handle client leaving
