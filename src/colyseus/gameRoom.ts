@@ -4,7 +4,7 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
-import { TurnAction, User } from "../interfaces/gameInterface";
+import { ITurnAction, IPlayer, IFaction } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { CustomError } from "../classes/customError";
 
@@ -16,7 +16,7 @@ export class GameRoom extends Room {
   }
   async onCreate(options: {
     roomId?: string,
-    faction?: string,
+    faction?: IFaction,
     userId: string
   }): Promise<void> {
     /**
@@ -33,9 +33,9 @@ export class GameRoom extends Room {
      * -re-creating a room: provides the roomId
      *    -check if the user is one of the two players, grant access and show the state // REVIEW:
      */
-    const factionName = options.faction;
+    const faction = options.faction;
     const roomId = options.roomId;
-    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, factionName);
+    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction?.factionName);
     this.userId = new Types.ObjectId(options.userId);
 
     /**
@@ -45,11 +45,10 @@ export class GameRoom extends Room {
      */
     if (roomId) {
       // get the game and check if the user is one of the players
-      // TODO: should also check which player?
       const game = await GameService.getColyseusRoom(roomId, options.userId);
-      if (!game) console.log('No game found error here1');
+      if (!game) console.log('Player not found in players array');
 
-      this.roomId = roomId; // FIXME:
+      this.roomId = roomId;
     }
 
     /**
@@ -57,7 +56,7 @@ export class GameRoom extends Room {
      * CREATING A ROOM FOR A NEW GAME
      *
      */
-    if(!roomId && factionName) {
+    if(!roomId && faction) {
       // Check for games already looking for players
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
 
@@ -65,12 +64,12 @@ export class GameRoom extends Room {
         // Add player to the game and remove SEARCHING status
         gameLookingForPlayers.players.push({
           userData: this.userId,
-          faction: { factionName }
+          faction
         });
         gameLookingForPlayers.status = EGameStatus.PLAYING;
 
-        // Randomly select the first player
-        const playerIds = gameLookingForPlayers.players.map((player: User) => player.userData);
+        // Randomly select the starting player
+        const playerIds = gameLookingForPlayers.players.map((player: IPlayer) => player.userData);
         gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
 
         await gameLookingForPlayers.save();
@@ -78,6 +77,12 @@ export class GameRoom extends Room {
         console.log('Matchmaking found an open game');
         this.roomId = gameLookingForPlayers._id.toString();
 
+        /**
+         * Ideally we create the first state in the backend, but that requires duplication of the classes
+         * No it doesn't. We can create a deck when the user creates a game, down to randomizing the initial hand
+         * If a player creates a game, and there is already one searching, we simply add p2 deck to the game state and send it back (since p1's deck was already set when p1 created the game)
+         */
+        // Send a message to update the game list
         this.presence.publish("gameUpdatedPresence", [options.userId, gameLookingForPlayers.players[0].userData._id.toString()]);
       }
 
@@ -85,7 +90,7 @@ export class GameRoom extends Room {
       if(!gameLookingForPlayers) {
         const newGame = await GameService.createGame({
           userId: options.userId,
-          factionName
+          faction
         });
         console.log('NEWGAME', newGame);
 
@@ -95,13 +100,11 @@ export class GameRoom extends Room {
       }
     }
 
-    // this.setState({}); // REVIEW: ?
-
     console.log("Game room created! ID -> ", this.roomId);
 
     this.onMessage("turnSent", async (client, message: {
       _id: Types.ObjectId,
-      newTurn: TurnAction[],
+      newTurn: ITurnAction[],
       newActivePlayer: Types.ObjectId // REVIEW:
     }) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
@@ -124,7 +127,7 @@ export class GameRoom extends Room {
       });
 
       // Retrieve user ids and publish update the users' game lists
-      const userIds = updatedGame.players.map((player: User) =>  player.userData.toString());
+      const userIds = updatedGame.players.map((player: IPlayer) =>  player.userData.toString());
       this.presence.publish("gameUpdatedPresence", userIds); // TODO: make sure that we sent the whole game
     });
   }

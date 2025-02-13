@@ -5,16 +5,6 @@ import IGame from "../interfaces/gameInterface";
 const { Schema, model } = mongoose;
 
 /**
- * EquippedItem Schema
- */
-const EquippedItemSchema = new Schema({
-  itemName: {
-    type: String,
-    required: true
-  }
-});
-
-/**
  * Unit Schema
  */
 const UnitSchema = new Schema({
@@ -80,9 +70,16 @@ const UnitSchema = new Schema({
     type: Number,
     default: 0
   },
-  equippedItems: [EquippedItemSchema], // Array of EquippedItem
-  spriteLink: {
-    type: String,
+  dragonScale: {
+    type: Boolean,
+    required: true
+  },
+  runeMetal: {
+    type: Boolean,
+    required: true
+  },
+  shiningHelm: {
+    type: Boolean,
     required: true
   }
 });

@@ -39,20 +39,20 @@ router.get('/get', isAuthenticated, async (req: Request, res: Response): Promise
 //   return GameService.sendTurn(req, res);
 // });
 
-// Create a new game
-router.post('/new-game', isAuthenticated, async(req: Request, res: Response): Promise<Response> => {
-  const userId = req.query.userId?.toString();
-  const factionName = req.query.faction?.toString();
+// Create a new game // REVIEW: throws an error since I now use IFaction instead of just the factionName string. However, we don't create games throught the API anymore so, if it continues to be unused in the future, delete.
+// router.post('/new-game', isAuthenticated, async(req: Request, res: Response): Promise<Response> => {
+//   const userId = req.query.userId?.toString();
+//   const factionName = req.query.faction?.toString();
 
-  if (!userId || !factionName) return res.sendStatus(400);
+//   if (!userId || !factionName) return res.sendStatus(400);
 
-  const result = await GameService.createGame({
-    userId,
-    factionName
-  });
+//   const result = await GameService.createGame({
+//     userId,
+//     faction
+//   });
 
-  return res.send(result);
-});
+//   return res.send(result);
+// });
 
 // Terminate a game - used for both conceding a game or cancelling a game searching for players
 router.post('/delete', isAuthenticated,  async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {

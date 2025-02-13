@@ -2,14 +2,9 @@ import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
 
 /**
- * EquippedItem Interface
- */
-export interface EquippedItem {itemName: string;}
-
-/**
  * Unit Interface
  */
-export interface Unit {
+export interface IUnit {
   unitClass: "hero" | "item";
   unitType: string; // enum?
   unitId: string;
@@ -25,26 +20,27 @@ export interface Unit {
   healingPower: number; // If > 0, the unit can heal
   physicalDamageResistance: number;
   magicalDamageResistance: number;
-  equippedItems: EquippedItem[]; // Array of equipped items
-  spriteLink: string;
+  dragonScale: boolean;
+  runeMetal: boolean;
+  shiningHelm: boolean;
 }
 
 /**
  * Faction Interface
  */
-export interface Faction {
+export interface IFaction {
   factionName: string;
-  unitsOnBoard?: Unit[];
-  unitsInHand?: Unit[];
-  unitsInDeck?: Unit[];
-  cristalOneHealth?: number;
-  cristalTwoHealth?: number;
+  unitsOnBoard: IUnit[];
+  unitsInHand: IUnit[];
+  unitsInDeck: IUnit[];
+  cristalOneHealth: number;
+  cristalTwoHealth: number;
 }
 
 /**
  * userData Interface
  */
-export interface UserData {
+export interface IUserData {
   userId: Types.ObjectId;
   userName: string;
   picture: string;
@@ -53,15 +49,15 @@ export interface UserData {
 /**
  * user Interface
  */
-export interface User {
+export interface IPlayer {
   userData: Types.ObjectId; // userId. Populates from user
-  faction: Faction;
+  faction: IFaction;
 }
 
 /**
  * TurnAction Interface
  */
-export interface TurnAction {
+export interface ITurnAction {
   activeUnit: string; // Unit id
   targetUnit: string; // Unit id or deck
   action: "attack" | "heal" | "shuffle"; // Enum for action type
@@ -73,8 +69,8 @@ export interface TurnAction {
  */
 export default interface IGame {
   _id: Types.ObjectId;
-  players: User[];
-  gameState: TurnAction[];
+  players: IPlayer[];
+  gameState: ITurnAction[];
   winCondition?: string;
   winner?: string; // userId
   status: EGameStatus

@@ -5,10 +5,13 @@ export class Lobby extends Room{
   onCreate(options: { userId: string }): void {
     this.presence.subscribe('gameUpdatedPresence', async (message: string[]) => {
       console.log('MESSAGE ->', message);
-      if (message.includes(options.userId)) { // FIXME: need strings to be able to compare them
+
+      if (message.includes(options.userId)) {
         console.log('Received subscribed presence message');
+
         const colyseusGameList = await GameService.getCurrentGames(options.userId);
-        this.broadcast('gameListUpdate', { colyseusGameList });
+
+        this.broadcast('gameListUpdate', colyseusGameList);
       } else {
         console.log('Subscribed presence error - ids dont match');
       }
