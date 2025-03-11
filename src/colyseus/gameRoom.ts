@@ -4,7 +4,7 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
-import { ITurnAction, IPlayer, IFaction } from "../interfaces/gameInterface";
+import { ITurnAction, IPlayerData, IFaction } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { CustomError } from "../classes/customError";
 
@@ -12,30 +12,32 @@ export class GameRoom extends Room {
   userId: Types.ObjectId;
 
   onInit(_options: any) {
-    this.maxClients = 2;
+    this.maxClients = 2; // FIXME: I can't get the room limit to work
   }
+
   async onCreate(options: {
     roomId?: string,
     faction?: IFaction,
     userId: string
   }): Promise<void> {
     /**
-     * On create can be:
+     * onCreate can be called when:
      * -looking for a game.
-     *    -checks for already open rooms
-     *      -if no room found:
-     *        -creates the room for the first time (no second player, dispose inmediatly), also no roomId uuid provided from the FE
-     *        -create the room, add player1 data, set to searching
+     *    -checks for already opened rooms
+     *      -if no room is found:
+     *        -creates the room for the first time (no second player, room is disposed of immediatly), also no roomId (uuid) provided by the FE
+     *        -creates the room, adds player1 data, sets the room status to 'searching'
      *
-     *      -if room found, add player2 data, set room to full // FIXME: I can't get the room limit to work
+     *      -if a room is found, adds player2 data, sets room status to 'playing'
      *
      *      -update the game list
-     * -re-creating a room: provides the roomId
-     *    -check if the user is one of the two players, grant access and show the state // REVIEW:
+     *
+     * -re-creating a room: the options parameter provides the roomId
+     *    -checks if the user is one of the two players, then grants access and shows the state // REVIEW:
      */
     const faction = options.faction;
     const roomId = options.roomId;
-    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction?.factionName);
+    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction);
     this.userId = new Types.ObjectId(options.userId);
 
     /**
@@ -48,7 +50,7 @@ export class GameRoom extends Room {
       const game = await GameService.getColyseusRoom(roomId, options.userId);
       if (!game) console.log('Player not found in players array');
 
-      this.roomId = roomId;
+      this.roomId = roomId; // REVIEW: should roomId be set even if player is not in the array? looks like a bug
     }
 
     /**
@@ -64,16 +66,16 @@ export class GameRoom extends Room {
         // Add player to the game and remove SEARCHING status
         gameLookingForPlayers.players.push({
           userData: this.userId,
-          faction
+          faction: faction.factionName
         });
         gameLookingForPlayers.status = EGameStatus.PLAYING;
 
         // Randomly select the starting player
-        const playerIds = gameLookingForPlayers.players.map((player: IPlayer) => player.userData);
+        const playerIds = gameLookingForPlayers.players.map((player: IPlayerData) => player.userData._id);
         gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
 
         await gameLookingForPlayers.save();
-        // TODO: The return of this function should trigger the beginning of a game
+        // TODO: The return of this function should trigger the beginning of a game // FIXME:
         console.log('Matchmaking found an open game');
         this.roomId = gameLookingForPlayers._id.toString();
 
@@ -127,7 +129,7 @@ export class GameRoom extends Room {
       });
 
       // Retrieve user ids and publish update the users' game lists
-      const userIds = updatedGame.players.map((player: IPlayer) =>  player.userData.toString());
+      const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
       this.presence.publish("gameUpdatedPresence", userIds); // TODO: make sure that we sent the whole game
     });
   }

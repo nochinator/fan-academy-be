@@ -1,20 +1,20 @@
 import { Types } from "mongoose";
-import { EGameStatus } from "../enums/game.enums";
+import { EAction, EAttackType, EFaction, EGameStatus } from "../enums/game.enums";
 
 /**
  * Unit Interface
  */
 export interface IUnit {
   unitClass: "hero" | "item";
-  unitType: string; // enum?
-  unitId: string;
-  boardPostion: number;
+  unitType: string; // TODO: enum?
+  unitId: string; // eg: p101 -> player 1 archer for ex
+  boardPosition: number;
   maxHealth: number;
   currentHealth: number;
   isKO: boolean;
   movement: number;
   range: number;
-  attackType: "physical" | "magical";
+  attackType: EAttackType;
   rangeAttackDamage: number;
   meleeAttackDamage: number;
   healingPower: number; // If > 0, the unit can heal
@@ -23,16 +23,16 @@ export interface IUnit {
   dragonScale: boolean;
   runeMetal: boolean;
   shiningHelm: boolean;
+  // belongsTo: string; // user id
 }
 
 /**
  * Faction Interface
  */
 export interface IFaction {
-  factionName: string;
+  factionName: EFaction;
   unitsOnBoard: IUnit[];
   unitsInHand: IUnit[];
-  unitsInDeck: IUnit[];
   cristalOneHealth: number;
   cristalTwoHealth: number;
 }
@@ -40,28 +40,37 @@ export interface IFaction {
 /**
  * userData Interface
  */
-export interface IUserData {
-  userId: Types.ObjectId;
-  userName: string;
-  picture: string;
-}
-
-/**
- * user Interface
- */
-export interface IPlayer {
-  userData: Types.ObjectId; // userId. Populates from user
-  faction: IFaction;
+export interface IPlayerData {
+  userData: Types.ObjectId;
+  faction: EFaction;
 }
 
 /**
  * TurnAction Interface
  */
 export interface ITurnAction {
-  activeUnit: string; // Unit id
+  activeUnit?: string; // Unit id
   targetUnit: string; // Unit id or deck
-  action: "attack" | "heal" | "shuffle"; // Enum for action type
+  action: EAction;
   actionNumber: number; // Order in the turn
+}
+
+/**
+ * Player Interface
+ */
+export interface IPlayerState {
+  playerId: Types.ObjectId;
+  factionData: IFaction;
+}
+
+/**
+ * GameState Interface
+ */
+export interface IGameState {
+  player1: IPlayerState;
+  player2: IPlayerState;
+  boardState: IUnit[];
+  action?: ITurnAction;
 }
 
 /**
@@ -69,8 +78,9 @@ export interface ITurnAction {
  */
 export default interface IGame {
   _id: Types.ObjectId;
-  players: IPlayer[];
+  players: IPlayerData[];
   gameState: ITurnAction[];
+  currentState: IGameState;
   winCondition?: string;
   winner?: string; // userId
   status: EGameStatus

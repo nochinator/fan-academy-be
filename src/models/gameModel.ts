@@ -1,6 +1,7 @@
 
 import mongoose, { Types } from "mongoose";
 import IGame from "../interfaces/gameInterface";
+import { EFaction } from "../enums/game.enums";
 
 const { Schema, model } = mongoose;
 
@@ -90,11 +91,8 @@ const UnitSchema = new Schema({
 const FactionSchema = new Schema({
   factionName: {
     type: String,
+    enum: Object.values(EFaction),
     required: true
-  },
-  unitsOnBoard: {
-    type: [UnitSchema],
-    default: []
   },
   unitsInHand: {
     type: [UnitSchema],
@@ -124,7 +122,8 @@ const UserSchema = new Schema({
     required: true
   },
   faction: {
-    type: FactionSchema,
+    type: String,
+    enum: Object.values(EFaction),
     required: true
   }
 });
@@ -153,6 +152,42 @@ const TurnActionSchema = new Schema({
 });
 
 /**
+ * PlayerState Schema
+ */
+const PlayerStateSchema = new Schema({
+  playerId: {
+    type: Types.ObjectId,
+    required: true
+  },
+  factionData: {
+    type: FactionSchema,
+    required: true
+  }
+});
+
+/**
+ * GameState Schema
+ */
+const GameStateSchema = new Schema({
+  player1: {
+    type: PlayerStateSchema,
+    required: true
+  },
+  player2: {
+    type: PlayerStateSchema,
+    required: true
+  },
+  boardState: {
+    type: [UnitSchema],
+    default: []
+  },
+  action: {
+    type: TurnActionSchema,
+    required: true
+  }
+});
+
+/**
  * RoomState Schema
  */
 const GameSchema = new Schema({
@@ -165,8 +200,12 @@ const GameSchema = new Schema({
     default: []
   },
   gameState: {
-    type: [TurnActionSchema],
+    type: [GameStateSchema],
     default: []
+  },
+  currentState: {
+    type: GameStateSchema,
+    required: true // REVIEW: a game waiting for players still has a currentState that needs to be updated twice
   },
   winCondition: {
     type: String,

@@ -13,7 +13,7 @@ const GameService = {
     const userObjectId = new Types.ObjectId(userId);
     console.log('userId', userId);
 
-    const result = await Game.find({ 'players.userData': userObjectId }).populate('players.userData', "username picture");;
+    const result = await Game.find({ 'players.userData': userObjectId }).populate('players.userData', "username picture");
 
     return result;
   },
@@ -60,8 +60,15 @@ const GameService = {
     const newGame = new Game({
       _id: gameId,
       players: [{
-        faction,
+        faction: faction.factionName,
         userData
+      }],
+      gameState: [{
+        player1: {
+          playerId: userId,
+          factionData: faction
+        },
+        boardState: []
       }],
       status: EGameStatus.SEARCHING,
       createdAt: new Date()
@@ -75,14 +82,14 @@ const GameService = {
 
   async getColyseusRoom(roomId: string, userId: string): Promise<IGame | null> {
     console.log('getColyseusRoom gameId and userdata', roomId, userId);
-    const gameId = new Types.ObjectId(roomId); ////////////////////////
+    const gameId = new Types.ObjectId(roomId);
     const userData = new Types.ObjectId(userId);
 
     console.log('GAME ID and USER DATA', gameId, userData);
     const result =  await Game.findOne({
       _id: gameId,
       'players.userData': userData
-    }).populate('players.userData', "email picture"); // TODO: check if populate adds _id
+    }).populate('players.userData', "email picture");
 
     console.log('Result', JSON.stringify(result));
     return result;
@@ -109,24 +116,19 @@ const GameService = {
   async endGame(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { gameId, winner, winCondition, lastTurn } = req.body;
 
+    const update: any = {
+      winner,
+      winCondition,
+      gameStatus: EGameStatus.FINISHED
+    };
+
+    if (lastTurn) {
+      update.$push = { gameState: lastTurn };
+      update.currentTurn = lastTurn;
+    }
+
     // Update game document
-    const game: IGame | null = await Game.findOneAndUpdate(
-      { filter: { _id: gameId } }, {
-        upate: {
-          ...lastTurn ? {
-            $push: {
-              turns: {
-                turnNumber: lastTurn.turnNumber,
-                boardState: lastTurn.boardState,
-                actions: lastTurn.actions
-              }
-            }
-          } : {},
-          winner,
-          winCondition,
-          gameStatus: EGameStatus.FINISHED
-        }
-      });
+    const game: IGame | null = await Game.findOneAndUpdate({ filter: { _id: gameId } }, { update });
     if (!game) throw new CustomError(24);
 
     // Send end game notificaton emails
