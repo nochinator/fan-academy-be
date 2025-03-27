@@ -80,7 +80,7 @@ export default interface IGame {
   _id: Types.ObjectId;
   players: IPlayerData[];
   gameState: IGameState[];
-  currentState: IGameState;
+  currentState?: IGameState;
   winCondition?: string;
   winner?: string; // userId
   status: EGameStatus

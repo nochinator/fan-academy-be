@@ -70,12 +70,6 @@ const GameService = {
         },
         boardState: []
       }],
-      currentState: {
-        player1: {
-          playerId: userId,
-          factionData: faction
-        }
-      },
       status: EGameStatus.SEARCHING,
       createdAt: new Date()
     });

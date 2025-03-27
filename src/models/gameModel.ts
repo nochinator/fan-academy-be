@@ -205,7 +205,7 @@ const GameSchema = new Schema({
   },
   currentState: {
     type: GameStateSchema,
-    required: true // REVIEW: a game waiting for players still has a currentState that needs to be updated twice
+    required: false
   },
   winCondition: {
     type: String,

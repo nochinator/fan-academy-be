@@ -63,11 +63,19 @@ export class GameRoom extends Room {
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
 
       if (gameLookingForPlayers) {
-        // Add player to the game and remove SEARCHING status
+        // Add player to the players array and game state, set the current state and remove SEARCHING status
         gameLookingForPlayers.players.push({
           userData: this.userId,
           faction: faction.factionName
         });
+
+        gameLookingForPlayers.gameState[0].player2 = {
+          playerId: this.userId,
+          factionData: faction
+        };
+
+        gameLookingForPlayers.currentState = gameLookingForPlayers.gameState[0];
+
         gameLookingForPlayers.status = EGameStatus.PLAYING;
 
         // Randomly select the starting player
@@ -75,7 +83,7 @@ export class GameRoom extends Room {
         gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
 
         await gameLookingForPlayers.save();
-        // TODO: The return of this function should trigger the beginning of a game // FIXME:
+        // TODO: The return of this function should trigger the beginning of a game
         console.log('Matchmaking found an open game');
         this.roomId = gameLookingForPlayers._id.toString();
 
