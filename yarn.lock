@@ -60,6 +60,14 @@
     "@types/ws" "^7.4.4"
     ws "^8.18.0"
 
+"@colyseus/ws-transport@^0.16.3":
+  version "0.16.3"
+  resolved "https://registry.yarnpkg.com/@colyseus/ws-transport/-/ws-transport-0.16.3.tgz#f76a9e7352f4b5f154723b1bc31335bb8be0703a"
+  integrity sha512-RCNghW0UM2Ql4obkju7/D94Ir4ijD+lmxTmcXCuLc4teXy+GRZEZDfeiO349jv8rdmJZSFitUvz5tub5GKM5bQ==
+  dependencies:
+    "@types/ws" "^8.5.14"
+    ws "^8.18.0"
+
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz#00629c35a688e05a88b1cda684fb9d5e73f000a1"
@@ -544,6 +552,13 @@
   version "7.4.7"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-7.4.7.tgz#f7c390a36f7a0679aa69de2d501319f4f8d9b702"
   integrity sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==
+  dependencies:
+    "@types/node" "*"
+
+"@types/ws@^8.5.14":
+  version "8.18.0"
+  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.18.0.tgz#8a2ec491d6f0685ceaab9a9b7ff44146236993b5"
+  integrity sha512-8svvI3hMyvN0kKCJMvTJP/x6Y/EoQbepff882wL+Sn5QsXb3etnamgrJq4isrBxSJj5L2AuXcI0+bgkoAXGUJw==
   dependencies:
     "@types/node" "*"
 

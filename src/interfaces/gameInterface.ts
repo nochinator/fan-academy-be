@@ -68,7 +68,7 @@ export interface IPlayerState {
  */
 export interface IGameState {
   player1: IPlayerState;
-  player2: IPlayerState;
+  player2?: IPlayerState;
   boardState: IUnit[];
   action?: ITurnAction;
 }
@@ -79,7 +79,7 @@ export interface IGameState {
 export default interface IGame {
   _id: Types.ObjectId;
   players: IPlayerData[];
-  gameState: ITurnAction[];
+  gameState: IGameState[];
   currentState: IGameState;
   winCondition?: string;
   winner?: string; // userId

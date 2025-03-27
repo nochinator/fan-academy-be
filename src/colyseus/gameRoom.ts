@@ -4,7 +4,7 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
-import { ITurnAction, IPlayerData, IFaction } from "../interfaces/gameInterface";
+import { IPlayerData, IFaction, IGameState } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { CustomError } from "../classes/customError";
 
@@ -16,9 +16,9 @@ export class GameRoom extends Room {
   }
 
   async onCreate(options: {
+    userId: string,
     roomId?: string,
-    faction?: IFaction,
-    userId: string
+    faction?: IFaction
   }): Promise<void> {
     /**
      * onCreate can be called when:
@@ -37,7 +37,7 @@ export class GameRoom extends Room {
      */
     const faction = options.faction;
     const roomId = options.roomId;
-    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction);
+    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction?.factionName);
     this.userId = new Types.ObjectId(options.userId);
 
     /**
@@ -104,10 +104,10 @@ export class GameRoom extends Room {
 
     console.log("Game room created! ID -> ", this.roomId);
 
-    this.onMessage("turnSent", async (client, message: {
+    this.onMessage("turnSent", async (client: Client, message: {
       _id: Types.ObjectId,
-      newTurn: ITurnAction[],
-      newActivePlayer: Types.ObjectId // REVIEW:
+      newTurn: IGameState,
+      newActivePlayer: Types.ObjectId
     }) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
       // TODO: data validation for correct message
@@ -117,6 +117,7 @@ export class GameRoom extends Room {
 
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
         $push: { gameState: message.newTurn },
+        currentTurn: message.newTurn,
         activePlayer: message.newActivePlayer
       }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
       console.log('UPDATED GAME -> ', updatedGame);
@@ -142,7 +143,8 @@ export class GameRoom extends Room {
     /**
      * check if the user is one of the two players, grant access and send newest state in the db. once connected, the 'sendTurn' or equivalent function should also broadcast the moves after the turn is sent
      */
-    console.log('ONJOIN', this.roomId, options.roomId);
+    console.log('ONJOIN', this.roomId, options.roomId); // RFIXME: options undefined
+    console.log('onjoin_options', options);
 
     const roomId = this.roomId ? this.roomId : options.roomId;
     if (!roomId) throw new CustomError(24);

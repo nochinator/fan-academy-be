@@ -70,6 +70,12 @@ const GameService = {
         },
         boardState: []
       }],
+      currentState: {
+        player1: {
+          playerId: userId,
+          factionData: faction
+        }
+      },
       status: EGameStatus.SEARCHING,
       createdAt: new Date()
     });
@@ -86,12 +92,12 @@ const GameService = {
     const userData = new Types.ObjectId(userId);
 
     console.log('GAME ID and USER DATA', gameId, userData);
-    const result =  await Game.findOne({
+    const result = await Game.findOne({
       _id: gameId,
       'players.userData': userData
     }).populate('players.userData', "email picture");
 
-    console.log('Result', JSON.stringify(result));
+    console.log('Result', result!._id);
     return result;
   },
 

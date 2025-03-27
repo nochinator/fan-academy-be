@@ -175,7 +175,7 @@ const GameStateSchema = new Schema({
   },
   player2: {
     type: PlayerStateSchema,
-    required: true
+    required: false
   },
   boardState: {
     type: [UnitSchema],
@@ -183,7 +183,7 @@ const GameStateSchema = new Schema({
   },
   action: {
     type: TurnActionSchema,
-    required: true
+    required: false
   }
 });
 
