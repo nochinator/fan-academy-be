@@ -1,11 +1,20 @@
 import { Types } from "mongoose";
-import { EAction, EAttackType, EFaction, EGameStatus } from "../enums/game.enums";
+import { EAction, EAttackType, EFaction, EGameStatus, EItems } from "../enums/game.enums";
 
 /**
- * Unit Interface
+ * Item Interface
  */
-export interface IUnit {
-  unitClass: "hero" | "item";
+export interface IItem {
+  class: 'hero' | 'item'
+  itemType: EItems;
+  boardPosition: 45 | 46 | 47 | 48 | 49 | 50 | 51 // Needs a check when dragging to be applied to the unit if possible
+}
+
+/**
+ * Hero Interface
+ */
+export interface IHero {
+  unitClass: "hero";
   unitType: string; // TODO: enum?
   unitId: string; // eg: p101 -> player 1 archer for ex
   boardPosition: number;
@@ -31,8 +40,8 @@ export interface IUnit {
  */
 export interface IFaction {
   factionName: EFaction;
-  unitsOnBoard: IUnit[];
-  unitsInHand: IUnit[];
+  unitsInHand: (IHero | IItem)[];
+  unitsInDeck: (IHero | IItem)[];
   cristalOneHealth: number;
   cristalTwoHealth: number;
 }
@@ -69,7 +78,7 @@ export interface IPlayerState {
 export interface IGameState {
   player1: IPlayerState;
   player2?: IPlayerState;
-  boardState: IUnit[];
+  boardState: IHero[];
   action?: ITurnAction;
 }
 
