@@ -15,8 +15,9 @@ export interface IItem {
  */
 export interface IHero {
   unitClass: "hero";
+  faction: EFaction;
   unitType: string; // TODO: enum?
-  unitId: string; // eg: p101 -> player 1 archer for ex
+  unitId: string; // userId_ unitName_ unitNumber
   boardPosition: number;
   maxHealth: number;
   currentHealth: number;
@@ -29,7 +30,7 @@ export interface IHero {
   healingPower: number; // If > 0, the unit can heal
   physicalDamageResistance: number;
   magicalDamageResistance: number;
-  dragonScale: boolean;
+  factionBuff: boolean; // either dragonscale or soulstone
   runeMetal: boolean;
   shiningHelm: boolean;
   // belongsTo: string; // user id
@@ -39,6 +40,7 @@ export interface IHero {
  * Faction Interface
  */
 export interface IFaction {
+  userId: string;
   factionName: EFaction;
   unitsInHand: (IHero | IItem)[];
   unitsInDeck: (IHero | IItem)[];
