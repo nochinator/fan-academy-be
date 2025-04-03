@@ -5,16 +5,18 @@ import { EAction, EAttackType, EFaction, EGameStatus, EItems } from "../enums/ga
  * Item Interface
  */
 export interface IItem {
-  class: 'hero' | 'item'
+  class: 'item';
+  itemId: string; // userId_itemName_itemNumber
   itemType: EItems;
-  boardPosition: 45 | 46 | 47 | 48 | 49 | 50 | 51 // Needs a check when dragging to be applied to the unit if possible
+  boardPosition: number // Needs a check when dragging to be applied to the unit if possible
+  isActive: boolean
 }
 
 /**
  * Hero Interface
  */
 export interface IHero {
-  unitClass: "hero";
+  class: 'hero';
   faction: EFaction;
   unitType: string; // TODO: enum?
   unitId: string; // userId_ unitName_ unitNumber
@@ -33,6 +35,7 @@ export interface IHero {
   factionBuff: boolean; // either dragonscale or soulstone
   runeMetal: boolean;
   shiningHelm: boolean;
+  isActive: boolean
   // belongsTo: string; // user id
 }
 
