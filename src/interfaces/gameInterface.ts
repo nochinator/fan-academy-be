@@ -1,25 +1,25 @@
 import { Types } from "mongoose";
-import { EAction, EAttackType, EFaction, EGameStatus, EItems } from "../enums/game.enums";
+import { EAction, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems } from "../enums/game.enums";
 
 /**
  * Item Interface
  */
 export interface IItem {
-  class: 'item';
+  class: EClass;
   itemId: string; // userId_itemName_itemNumber
   itemType: EItems;
-  boardPosition: number // Needs a check when dragging to be applied to the unit if possible
-  isActive: boolean
+  boardPosition: number // 45-51
+  isActiveValue: boolean;
 }
 
 /**
  * Hero Interface
  */
 export interface IHero {
-  class: 'hero';
+  class: EClass;
   faction: EFaction;
-  unitType: string; // TODO: enum?
-  unitId: string; // userId_ unitName_ unitNumber
+  unitType: EHeroes;
+  unitId: string; // userId_unitName_unitNumber
   boardPosition: number;
   maxHealth: number;
   currentHealth: number;
@@ -32,11 +32,10 @@ export interface IHero {
   healingPower: number; // If > 0, the unit can heal
   physicalDamageResistance: number;
   magicalDamageResistance: number;
-  factionBuff: boolean; // either dragonscale or soulstone
+  factionBuff: boolean;
   runeMetal: boolean;
   shiningHelm: boolean;
-  isActive: boolean
-  // belongsTo: string; // user id
+  isActiveValue: boolean;
 }
 
 /**
