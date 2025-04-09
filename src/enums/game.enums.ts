@@ -30,6 +30,7 @@ export enum EAction {
   MOVE = 'move',
   ATTACK = 'attack',
   SPAWN = 'spawn',
+  HEAL = 'heal',
   USE = 'use', // works for potions and buffs
   SHUFFLE = 'shuffle'
 }
@@ -38,7 +39,7 @@ export enum EItems {
   // Generic
   SHINING_HELM = 'shiningHelm',
   RUNE_METAL = 'runeMetal',
-  SCROLL = 'scroll',
+  SUPERCHARGE = 'supercharge',
 
   // Council
   DRAGON_SCALE = 'dragonScale',
@@ -65,7 +66,7 @@ export enum EHeroes {
   WIZARD = 'wizard',
 
   // Dark Elves
-  HERETIC = 'heretic',
+  PRIESTESS = 'priestess',
   IMPALER = 'impaler',
   NECROMANCER = 'necromancer',
   PHANTOM = 'phantom',
