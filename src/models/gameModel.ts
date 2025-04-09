@@ -12,7 +12,11 @@ const ItemSchema = new Schema({
   //   type: String,
   //   required: true
   // },
-  itemId: {
+  faction: {
+    type: String,
+    required: true
+  },
+  unitId: {
     type: String,
     required: true
   },
@@ -22,10 +26,6 @@ const ItemSchema = new Schema({
   },
   boardPosition: {
     type: Number,
-    required: true
-  },
-  isActive: {
-    type: Boolean,
     required: true
   }
 }, { _id: false });
@@ -75,18 +75,10 @@ const HeroSchema = new Schema({
     enum: ['physical', 'magical'],
     required: true
   },
-  rangeAttackDamage: {
+  power: {
     type: Number,
     required: true
   },
-  meleeAttackDamage: {
-    type: Number,
-    required: true
-  },
-  healingPower: {
-    type: Number,
-    default: 0
-  }, // If > 0 can heal
   physicalDamageResistance: {
     type: Number,
     default: 0
@@ -104,10 +96,6 @@ const HeroSchema = new Schema({
     required: true
   },
   shiningHelm: {
-    type: Boolean,
-    required: true
-  },
-  isActive: {
     type: Boolean,
     required: true
   }

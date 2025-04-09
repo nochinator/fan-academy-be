@@ -6,10 +6,10 @@ import { EAction, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems } 
  */
 export interface IItem {
   class: EClass;
-  itemId: string; // userId_itemName_itemNumber
+  faction: EFaction;
+  unitId: string; // userId_itemName_itemNumber
   itemType: EItems;
   boardPosition: number // 45-51
-  isActiveValue: boolean;
 }
 
 /**
@@ -27,15 +27,12 @@ export interface IHero {
   movement: number;
   range: number;
   attackType: EAttackType;
-  rangeAttackDamage: number;
-  meleeAttackDamage: number;
-  healingPower: number; // If > 0, the unit can heal
+  power: number;
   physicalDamageResistance: number;
   magicalDamageResistance: number;
   factionBuff: boolean;
   runeMetal: boolean;
   shiningHelm: boolean;
-  isActiveValue: boolean;
 }
 
 /**
