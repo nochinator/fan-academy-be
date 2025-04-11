@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Game from "../models/gameModel";
 import { EGameStatus } from "../enums/game.enums";
-import IGame, { IFaction } from "../interfaces/gameInterface";
+import IGame, { IFaction, ITile } from "../interfaces/gameInterface";
 import { EmailService } from "../emails/emailService";
 import { CustomError } from "../classes/customError";
 import mongoose, { Types } from "mongoose";
@@ -52,8 +52,9 @@ const GameService = {
   async createGame(options: {
     userId: string,
     faction: IFaction
+    boardState: ITile[]
   }): Promise<IGame | null> {
-    const { userId, faction } = options;
+    const { userId, faction, boardState } = options;
 
     const userData = new Types.ObjectId(userId);
     const gameId = new Types.ObjectId();
@@ -68,7 +69,7 @@ const GameService = {
           playerId: userId,
           factionData: faction
         },
-        boardState: []
+        boardState
       }],
       status: EGameStatus.SEARCHING,
       createdAt: new Date()

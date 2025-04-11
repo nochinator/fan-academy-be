@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose';
 import IGame from '../interfaces/gameInterface';
-import { EFaction } from '../enums/game.enums';
+import { EAction, EFaction, ETiles } from '../enums/game.enums';
 
 const { Schema, model } = mongoose;
 
@@ -180,7 +180,7 @@ const TurnActionSchema = new Schema({
   }, // Unit id or deck
   action: {
     type: String,
-    enum: ['attack', 'heal', 'shuffle'],
+    enum: EAction,
     required: true
   },
   actionNumber: {
@@ -204,6 +204,45 @@ const PlayerStateSchema = new Schema({
 }, { _id: false });
 
 /**
+ * Tile Schema
+ */
+const TileSchema = new Schema({
+  row: {
+    type: Number,
+    required: true
+  },
+  col: {
+    type: Number,
+    required: true
+  },
+  tileType: {
+    type: String,
+    enum: ETiles,
+    required: true
+  },
+  x: {
+    type: Number,
+    required: true
+  },
+  y: {
+    type: Number,
+    required: true
+  },
+  occupied: {
+    type: Boolean,
+    required: true
+  },
+  obstacle: {
+    type: Boolean,
+    required: true
+  },
+  hero: {
+    type: HeroSchema,
+    required: false
+  }
+}, { _id: false });
+
+/**
  * GameState Schema
  */
 const GameStateSchema = new Schema({
@@ -216,7 +255,7 @@ const GameStateSchema = new Schema({
     required: false
   },
   boardState: {
-    type: [HeroSchema],
+    type: [TileSchema],
     default: []
   },
   action: {

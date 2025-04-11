@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { EAction, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems } from "../enums/game.enums";
+import { EAction, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems, ETiles } from "../enums/game.enums";
 
 /**
  * Item Interface
@@ -74,12 +74,26 @@ export interface IPlayerState {
 }
 
 /**
+ * Tile Interface
+ */
+export interface ITile {
+  row: number
+  col: number
+  tileType: ETiles,
+  x: number
+  y: number
+  occupied: boolean,
+  obstacle: boolean,
+  hero?: IHero | undefined;
+}
+
+/**
  * GameState Interface
  */
 export interface IGameState {
   player1: IPlayerState;
   player2?: IPlayerState;
-  boardState: IHero[];
+  boardState: ITile[];
   action?: ITurnAction;
 }
 

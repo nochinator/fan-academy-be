@@ -4,7 +4,7 @@ import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
-import { IPlayerData, IFaction, IGameState } from "../interfaces/gameInterface";
+import { IPlayerData, IFaction, IGameState, ITile } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { CustomError } from "../classes/customError";
 
@@ -19,6 +19,7 @@ export class GameRoom extends Room {
     userId: string,
     roomId?: string,
     faction?: IFaction
+    boardState?: ITile[]
   }): Promise<void> {
     /**
      * onCreate can be called when:
@@ -37,6 +38,7 @@ export class GameRoom extends Room {
      */
     const faction = options.faction;
     const roomId = options.roomId;
+    const boardState = options.boardState;
     console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction?.factionName);
     this.userId = new Types.ObjectId(options.userId);
 
@@ -58,12 +60,12 @@ export class GameRoom extends Room {
      * CREATING A ROOM FOR A NEW GAME
      *
      */
-    if(!roomId && faction) {
+    if(!roomId && faction && boardState) {
       // Check for games already looking for players
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
 
       if (gameLookingForPlayers) {
-        // Add player to the players array and game state, set the current state and remove SEARCHING status
+        // Add player to the players array and game state, create a board (tiles and crystals), set the current state and remove SEARCHING status
         gameLookingForPlayers.players.push({
           userData: this.userId,
           faction: faction.factionName
@@ -87,11 +89,6 @@ export class GameRoom extends Room {
         console.log('Matchmaking found an open game');
         this.roomId = gameLookingForPlayers._id.toString();
 
-        /**
-         * Ideally we create the first state in the backend, but that requires duplication of the classes
-         * No it doesn't. We can create a deck when the user creates a game, down to randomizing the initial hand
-         * If a player creates a game, and there is already one searching, we simply add p2 deck to the game state and send it back (since p1's deck was already set when p1 created the game)
-         */
         // Send a message to update the game list
         this.presence.publish("gameUpdatedPresence", [options.userId, gameLookingForPlayers.players[0].userData._id.toString()]);
       }
@@ -100,7 +97,8 @@ export class GameRoom extends Room {
       if(!gameLookingForPlayers) {
         const newGame = await GameService.createGame({
           userId: options.userId,
-          faction
+          faction,
+          boardState
         });
         console.log('NEWGAME', newGame);
 
