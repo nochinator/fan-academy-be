@@ -77,13 +77,14 @@ export interface IPlayerState {
  * Tile Interface
  */
 export interface ITile {
-  row: number
-  col: number
-  tileType: ETiles,
-  x: number
-  y: number
-  occupied: boolean,
-  obstacle: boolean,
+  row: number;
+  col: number;
+  tileType: ETiles;
+  x: number;
+  y: number;
+  boardPosition: number;
+  occupied: boolean;
+  obstacle: boolean;
   hero?: IHero | undefined;
 }
 
@@ -107,7 +108,7 @@ export default interface IGame {
   currentState?: IGameState;
   winCondition?: string;
   winner?: string; // userId
-  status: EGameStatus
+  status: EGameStatus;
   createdAt: Date;
   activePlayer: Types.ObjectId | null; // userId
 

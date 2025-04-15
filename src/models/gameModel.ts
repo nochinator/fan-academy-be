@@ -215,6 +215,10 @@ const TileSchema = new Schema({
     type: Number,
     required: true
   },
+  boardPosition: {
+    type: Number,
+    required: true
+  },
   tileType: {
     type: String,
     enum: ETiles,
