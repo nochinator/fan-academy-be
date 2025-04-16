@@ -59,10 +59,11 @@ export interface IPlayerData {
  * TurnAction Interface
  */
 export interface ITurnAction {
-  activeUnit?: string; // Unit id
-  targetUnit: string; // Unit id or deck
-  action: EAction;
-  actionNumber: number; // Order in the turn
+  activeUnit: IHero | IItem;
+  targetUnit: IHero;
+  action: EAction,
+  actionNumber: number;
+  // TODO: this needs extra properties so we can replay the action (like start and end board points for example)
 }
 
 /**
@@ -105,6 +106,7 @@ export default interface IGame {
   _id: Types.ObjectId;
   players: IPlayerData[];
   gameState: IGameState[];
+  lastTurnState?: IGameState;
   currentState?: IGameState;
   winCondition?: string;
   winner?: string; // userId

@@ -77,6 +77,7 @@ export class GameRoom extends Room {
         };
 
         gameLookingForPlayers.currentState = gameLookingForPlayers.gameState[0];
+        gameLookingForPlayers.lastTurnState = gameLookingForPlayers.gameState[0];
 
         gameLookingForPlayers.status = EGameStatus.PLAYING;
 

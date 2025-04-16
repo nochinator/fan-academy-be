@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose';
 import IGame from '../interfaces/gameInterface';
-import { EAction, EFaction, ETiles } from '../enums/game.enums';
+import { EAction, EAttackType, EFaction, ETiles } from '../enums/game.enums';
 
 const { Schema, model } = mongoose;
 
@@ -72,7 +72,7 @@ const HeroSchema = new Schema({
   },
   attackType: {
     type: String,
-    enum: ['physical', 'magical'],
+    enum: EAttackType,
     required: true
   },
   power: {
@@ -171,11 +171,11 @@ const UserSchema = new Schema({
  */
 const TurnActionSchema = new Schema({
   activeUnit: {
-    type: String,
+    type: UnitOrItemSchema,
     required: true
   }, // Unit id
   targetUnit: {
-    type: String,
+    type: UnitOrItemSchema,
     required: true
   }, // Unit id or deck
   action: {
@@ -283,6 +283,10 @@ const GameSchema = new Schema({
   gameState: {
     type: [GameStateSchema],
     default: []
+  },
+  lastTurnState: {
+    type: GameStateSchema,
+    required: false
   },
   currentState: {
     type: GameStateSchema,
