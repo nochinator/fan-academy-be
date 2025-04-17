@@ -10,19 +10,36 @@ import gameRouter from './controllers/gameController';
 import AppErrorHandler from "./middleware/errorHandler";
 import IUser from "./interfaces/userInterface";
 import http from 'http';
-import gameServer from "./colyseus/colyseusServer";
 import { sessionMiddleware } from "./middleware/sessions";
 import { databaseConnection } from "./db";
+import { WebSocketTransport } from "@colyseus/ws-transport";
+import { Server } from "@colyseus/core";
+import { GameRoom } from "./colyseus/gameRoom";
+import { Lobby } from "./colyseus/lobby";
 
 declare module "express-session" {
   interface SessionData { passport: { user: string };}
-} // TODO: move this to its own file
+}
 
 const index = async () => {
   const app: Express = express();
   const server = http.createServer(app);
 
-  // Middleware // TODO: move to its own file
+  const colyseusServer = new Server({  transport: new WebSocketTransport() });
+  colyseusServer.attach({
+    transport: new WebSocketTransport({
+      server,
+      maxPayload: 1024 * 1024 * 1
+    })
+  });
+
+  // Define lobby room for real time game updates
+  colyseusServer.define('lobby', Lobby);
+
+  // Define a room for the game
+  colyseusServer.define('game_room', GameRoom);
+
+  // Middleware
   app.use(express.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cors({
@@ -31,6 +48,7 @@ const index = async () => {
   }));
 
   const dbClient = await databaseConnection();
+
   app.use(sessionMiddleware(dbClient));
   app.use(passport.initialize());
   app.use(passport.session());
@@ -58,11 +76,7 @@ const index = async () => {
   app.use('/games', gameRouter);
   app.get("/", (_req: Request, res: Response) => {
     res.send('Welcome to FA');
-  }); // TODO: no longer needed as next renders the page directly
-
-  // Attach the Colyseus serverto the HTTP server
-  gameServer.attach({ server });
-  // gameServer;
+  });
 
   // Error handler
   app.use(AppErrorHandler);

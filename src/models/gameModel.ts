@@ -281,15 +281,15 @@ const GameSchema = new Schema({
     default: []
   },
   gameState: {
-    type: [GameStateSchema],
+    type: [[GameStateSchema]],
     default: []
   },
   lastTurnState: {
-    type: GameStateSchema,
+    type: [GameStateSchema],
     required: false
   },
   currentState: {
-    type: GameStateSchema,
+    type: [GameStateSchema],
     required: false
   },
   winCondition: {

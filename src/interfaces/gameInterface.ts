@@ -105,9 +105,9 @@ export interface IGameState {
 export default interface IGame {
   _id: Types.ObjectId;
   players: IPlayerData[];
-  gameState: IGameState[];
-  lastTurnState?: IGameState;
-  currentState?: IGameState;
+  gameState: IGameState[][];
+  lastTurnState?: IGameState[];
+  currentState?: IGameState[];
   winCondition?: string;
   winner?: string; // userId
   status: EGameStatus;

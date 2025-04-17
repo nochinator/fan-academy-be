@@ -1,12 +1,10 @@
-import { Room, Client } from "colyseus";
-import { IncomingMessage } from "http";
-import { verifySession } from "../middleware/socketSessions";
 import GameService from "../services/gameService";
 import { Types } from "mongoose";
 import { EGameStatus } from "../enums/game.enums";
 import { IPlayerData, IFaction, IGameState, ITile } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { CustomError } from "../classes/customError";
+import { Client, Room } from "@colyseus/core";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -71,7 +69,7 @@ export class GameRoom extends Room {
           faction: faction.factionName
         });
 
-        gameLookingForPlayers.gameState[0].player2 = {
+        gameLookingForPlayers.gameState[0][0].player2 = {
           playerId: this.userId,
           factionData: faction
         };
@@ -113,7 +111,7 @@ export class GameRoom extends Room {
 
     this.onMessage("turnSent", async (client: Client, message: {
       _id: Types.ObjectId,
-      newTurn: IGameState,
+      newTurn: IGameState[],
       newActivePlayer: Types.ObjectId
     }) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
@@ -124,7 +122,8 @@ export class GameRoom extends Room {
 
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
         $push: { gameState: message.newTurn },
-        currentTurn: message.newTurn,
+        lastTurnState: message.newTurn,
+        currentTurn: [],
         activePlayer: message.newActivePlayer
       }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
       console.log('UPDATED GAME -> ', updatedGame);
@@ -138,7 +137,7 @@ export class GameRoom extends Room {
 
       // Retrieve user ids and publish update the users' game lists
       const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
-      this.presence.publish("gameUpdatedPresence", userIds); // TODO: make sure that we sent the whole game
+      this.presence.publish("gameUpdatedPresence", userIds); // TODO: make sure that we sent the whole game // REVIEW: still needed?
     });
   }
 
@@ -150,8 +149,8 @@ export class GameRoom extends Room {
     /**
      * check if the user is one of the two players, grant access and send newest state in the db. once connected, the 'sendTurn' or equivalent function should also broadcast the moves after the turn is sent
      */
-    console.log('ONJOIN', this.roomId, options.roomId); // RFIXME: options undefined
-    console.log('onjoin_options', options);
+    console.log('ONJOIN', this.roomId, options.roomId);
+    // console.log('onjoin_options', options);
 
     const roomId = this.roomId ? this.roomId : options.roomId;
     if (!roomId) throw new CustomError(24);
@@ -176,16 +175,17 @@ export class GameRoom extends Room {
     console.log("Room disposed");
   }
 
-  // Room auth
-  async onAuth(client: Client, _options: any, req: IncomingMessage): Promise<boolean>  {
-    const session =  await verifySession(req);
+  // Room auth // FIXME: changed from req to authContext on colyseus update
+  // async onAuth(client: Client, _options: any, authContext: AuthContext): Promise<boolean>  {
+  //   console.log('AUTHCONTEXT', JSON.stringify(authContext));
+  //   const session =  await verifySession(authContext.req);
 
-    if (session) {
-      console.log(`User authenticated`);
-      return true; // Allow access to the room
-    }
+  //   if (session) {
+  //     console.log(`User authenticated`);
+  //     return true; // Allow access to the room
+  //   }
 
-    console.log('Authentication failed');
-    return false; // Deny access
-  }
+  //   console.log('Authentication failed');
+  //   return false; // Deny access
+  // }
 }

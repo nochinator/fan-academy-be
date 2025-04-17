@@ -1,7 +1,7 @@
-import { Client, Room } from "colyseus";
+import { Client, Room } from "@colyseus/core";
 import GameService from "../services/gameService";
 
-export class Lobby extends Room{
+export class Lobby extends Room {
   onCreate(options: { userId: string }): void {
     this.presence.subscribe('gameUpdatedPresence', async (message: string[]) => {
       console.log('MESSAGE ->', message);
