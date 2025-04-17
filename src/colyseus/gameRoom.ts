@@ -4,7 +4,8 @@ import { EGameStatus } from "../enums/game.enums";
 import { IPlayerData, IFaction, IGameState, ITile } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { CustomError } from "../classes/customError";
-import { Client, Room } from "@colyseus/core";
+import { AuthContext, Client, Room } from "@colyseus/core";
+import { verifySession } from "../middleware/socketSessions";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -175,17 +176,17 @@ export class GameRoom extends Room {
     console.log("Room disposed");
   }
 
-  // Room auth // FIXME: changed from req to authContext on colyseus update
-  // async onAuth(client: Client, _options: any, authContext: AuthContext): Promise<boolean>  {
-  //   console.log('AUTHCONTEXT', JSON.stringify(authContext));
-  //   const session =  await verifySession(authContext.req);
+  // Room auth
+  async onAuth(client: Client, _options: any, authContext: AuthContext): Promise<boolean>  {
+    console.log('AUTHCONTEXT', JSON.stringify(authContext));
+    const session =  await verifySession(authContext);
 
-  //   if (session) {
-  //     console.log(`User authenticated`);
-  //     return true; // Allow access to the room
-  //   }
+    if (session) {
+      console.log(`User authenticated`);
+      return true; // Allow access to the room
+    }
 
-  //   console.log('Authentication failed');
-  //   return false; // Deny access
-  // }
+    console.log('Authentication failed');
+    return false; // Deny access
+  }
 }
