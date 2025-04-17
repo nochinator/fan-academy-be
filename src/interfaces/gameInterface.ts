@@ -9,7 +9,8 @@ export interface IItem {
   faction: EFaction;
   unitId: string; // userId_itemName_itemNumber
   itemType: EItems;
-  boardPosition: number // 45-51
+  boardPosition: number; // 45-51
+  belongsTo: number;
 }
 
 /**
@@ -33,6 +34,7 @@ export interface IHero {
   factionBuff: boolean;
   runeMetal: boolean;
   shiningHelm: boolean;
+  belongsTo: number;
 }
 
 /**

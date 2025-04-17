@@ -64,11 +64,14 @@ export class GameRoom extends Room {
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
 
       if (gameLookingForPlayers) {
-        // Add player to the players array and game state, create a board (tiles and crystals), set the current state and remove SEARCHING status
+        // Add player to the players array and game state, create a board (tiles and crystals), update units to belong to player 2, set the current state and remove SEARCHING status
         gameLookingForPlayers.players.push({
           userData: this.userId,
           faction: faction.factionName
         });
+
+        faction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
+        faction.unitsInHand.forEach(unit => unit.belongsTo = 2);
 
         gameLookingForPlayers.gameState[0][0].player2 = {
           playerId: this.userId,

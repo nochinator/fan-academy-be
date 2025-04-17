@@ -8,10 +8,6 @@ const { Schema, model } = mongoose;
  * Item Schema
  */
 const ItemSchema = new Schema({
-  // class: {
-  //   type: String,
-  //   required: true
-  // },
   faction: {
     type: String,
     required: true
@@ -27,6 +23,11 @@ const ItemSchema = new Schema({
   boardPosition: {
     type: Number,
     required: true
+  },
+  belongsTo: {
+    type: Number,
+    required: true,
+    default: 1
   }
 }, { _id: false });
 
@@ -34,10 +35,6 @@ const ItemSchema = new Schema({
  * Hero Schema
  */
 const HeroSchema = new Schema({
-  // unitClass: {
-  //   type: String,
-  //   required: true
-  // },
   unitType: {
     type: String,
     required: true
@@ -98,6 +95,11 @@ const HeroSchema = new Schema({
   shiningHelm: {
     type: Boolean,
     required: true
+  },
+  belongsTo: {
+    type: Number,
+    required: true,
+    default: 1
   }
 }, { _id: false });
 
@@ -188,9 +190,6 @@ const TurnActionSchema = new Schema({
     required: true
   }
 }, { _id: false });
-
-// (TurnActionSchema.path('activeUnit') as mongoose.Schema.Types.DocumentArray).discriminator('hero', HeroSchema);
-// (TurnActionSchema.path('activeUnit') as mongoose.Schema.Types.DocumentArray).discriminator('item', ItemSchema);
 
 /**
  * PlayerState Schema
