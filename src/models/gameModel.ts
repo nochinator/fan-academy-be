@@ -175,7 +175,7 @@ const TurnActionSchema = new Schema({
     required: true
   }, // Unit id
   targetUnit: {
-    type: UnitOrItemSchema,
+    type: HeroSchema,
     required: true
   }, // Unit id or deck
   action: {
@@ -188,6 +188,9 @@ const TurnActionSchema = new Schema({
     required: true
   }
 }, { _id: false });
+
+// (TurnActionSchema.path('activeUnit') as mongoose.Schema.Types.DocumentArray).discriminator('hero', HeroSchema);
+// (TurnActionSchema.path('activeUnit') as mongoose.Schema.Types.DocumentArray).discriminator('item', ItemSchema);
 
 /**
  * PlayerState Schema

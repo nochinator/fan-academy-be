@@ -75,7 +75,6 @@ export class GameRoom extends Room {
           factionData: faction
         };
 
-        gameLookingForPlayers.currentState = gameLookingForPlayers.gameState[0];
         gameLookingForPlayers.lastTurnState = gameLookingForPlayers.gameState[0];
 
         gameLookingForPlayers.status = EGameStatus.PLAYING;
@@ -123,7 +122,7 @@ export class GameRoom extends Room {
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
         $push: { gameState: message.newTurn },
         lastTurnState: message.newTurn,
-        currentTurn: [],
+        currentState: [],
         activePlayer: message.newActivePlayer
       }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
       console.log('UPDATED GAME -> ', updatedGame);
