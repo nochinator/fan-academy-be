@@ -120,7 +120,6 @@ export class GameRoom extends Room {
 
       // Update game document in the db with the new turn
       console.log('UPDATE message -> ', message);
-
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
         $push: { gameState: message.newTurn },
         lastTurnState: message.newTurn,
@@ -178,7 +177,6 @@ export class GameRoom extends Room {
 
   // Room auth
   async onAuth(client: Client, _options: any, authContext: AuthContext): Promise<boolean>  {
-    console.log('AUTHCONTEXT', JSON.stringify(authContext));
     const session =  await verifySession(authContext);
 
     if (session) {
