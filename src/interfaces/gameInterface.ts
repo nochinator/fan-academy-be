@@ -62,7 +62,7 @@ export interface IPlayerData {
  */
 export interface ITurnAction {
   activeUnit: IHero | IItem;
-  targetUnit: IHero;
+  targetUnit: IHero | IItem;
   action: EAction,
   actionNumber: number;
   // TODO: this needs extra properties so we can replay the action (like start and end board points for example)

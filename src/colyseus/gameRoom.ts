@@ -51,6 +51,8 @@ export class GameRoom extends Room {
       const game = await GameService.getColyseusRoom(roomId, options.userId);
       if (!game) console.log('Player not found in players array');
 
+      console.log('CREATING A ROOM FOR A GAME ALREADY IN PLAY');
+
       this.roomId = roomId; // REVIEW: should roomId be set even if player is not in the array? looks like a bug
     }
 
@@ -62,6 +64,8 @@ export class GameRoom extends Room {
     if(!roomId && faction && boardState) {
       // Check for games already looking for players
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
+
+      console.log('CREATING A ROOM FOR A NEW GAME');
 
       if (gameLookingForPlayers) {
         // Add player to the players array and game state, create a board (tiles and crystals), update units to belong to player 2, set the current state and remove SEARCHING status
@@ -127,7 +131,7 @@ export class GameRoom extends Room {
         lastTurnState: message.newTurn,
         currentState: [],
         activePlayer: message.newActivePlayer
-      }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
+      }, { new: true }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
       console.log('UPDATED GAME -> ', updatedGame);
       if (!updatedGame) throw new CustomError(24);
 

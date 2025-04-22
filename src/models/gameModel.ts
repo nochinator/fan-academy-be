@@ -175,11 +175,11 @@ const TurnActionSchema = new Schema({
   activeUnit: {
     type: UnitOrItemSchema,
     required: true
-  }, // Unit id
+  },
   targetUnit: {
-    type: HeroSchema,
+    type: UnitOrItemSchema,
     required: true
-  }, // Unit id or deck
+  },
   action: {
     type: String,
     enum: EAction,
