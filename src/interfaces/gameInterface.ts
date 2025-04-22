@@ -11,6 +11,8 @@ export interface IItem {
   itemType: EItems;
   boardPosition: number; // 45-51
   belongsTo: number;
+  canHeal: boolean;
+  dealsDamage: boolean;
 }
 
 /**
@@ -35,6 +37,7 @@ export interface IHero {
   runeMetal: boolean;
   shiningHelm: boolean;
   belongsTo: number;
+  canHeal: boolean;
 }
 
 /**

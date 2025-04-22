@@ -28,6 +28,14 @@ const ItemSchema = new Schema({
     type: Number,
     required: true,
     default: 1
+  },
+  canHeal: {
+    type: Boolean,
+    required: true
+  },
+  dealsDamage: {
+    type: Boolean,
+    required: true
   }
 }, { _id: false });
 
@@ -100,6 +108,10 @@ const HeroSchema = new Schema({
     type: Number,
     required: true,
     default: 1
+  },
+  canHeal: {
+    type: Boolean,
+    required: true
   }
 }, { _id: false });
 
