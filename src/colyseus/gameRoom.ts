@@ -133,9 +133,9 @@ export class GameRoom extends Room {
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
-        game: updatedGame // TODO: unpack the moves on the FE
-        // roomId,
-        // newActivePlayer: message.newActivePlayer
+        roomId,
+        game: updatedGame, // TODO: unpack the moves on the FE
+        newActivePlayer: message.newActivePlayer
       }, { except: client }); // broadcast to opponent only
 
       // Retrieve user ids and publish update the users' game lists
