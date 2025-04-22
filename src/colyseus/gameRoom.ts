@@ -120,8 +120,7 @@ export class GameRoom extends Room {
       newActivePlayer: Types.ObjectId
     }) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
-      // TODO: data validation for correct message
-
+      // TODO: data validation
       // Update game document in the db with the new turn
       console.log('UPDATE message -> ', message);
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
@@ -134,9 +133,10 @@ export class GameRoom extends Room {
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
-        sessionId: client.sessionId,
         game: updatedGame // TODO: unpack the moves on the FE
-      });
+        // roomId,
+        // newActivePlayer: message.newActivePlayer
+      }, { except: client }); // broadcast to opponent only
 
       // Retrieve user ids and publish update the users' game lists
       const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
