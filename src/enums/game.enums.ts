@@ -33,7 +33,7 @@ export enum EAction {
   HEAL = 'heal',
   USE = 'use', // works for potions and buffs
   SHUFFLE = 'shuffle',
-  DRAW = 'draw'
+  DRAW = 'draw' // automatic action at the end of a turn
 }
 
 export enum EItems {
