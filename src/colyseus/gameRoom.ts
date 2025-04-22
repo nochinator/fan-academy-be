@@ -82,8 +82,6 @@ export class GameRoom extends Room {
           factionData: faction
         };
 
-        gameLookingForPlayers.lastTurnState = gameLookingForPlayers.gameState[0];
-
         gameLookingForPlayers.status = EGameStatus.PLAYING;
 
         // Randomly select the starting player
@@ -128,7 +126,6 @@ export class GameRoom extends Room {
       console.log('UPDATE message -> ', message);
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
         $push: { gameState: message.newTurn },
-        lastTurnState: message.newTurn,
         currentState: [],
         activePlayer: message.newActivePlayer
       }, { new: true }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:

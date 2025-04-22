@@ -174,11 +174,11 @@ const UserSchema = new Schema({
 const TurnActionSchema = new Schema({
   activeUnit: {
     type: UnitOrItemSchema,
-    required: true
+    required: false
   },
   targetUnit: {
     type: UnitOrItemSchema,
-    required: true
+    required: false
   },
   action: {
     type: String,
@@ -285,10 +285,6 @@ const GameSchema = new Schema({
   gameState: {
     type: [[GameStateSchema]],
     default: []
-  },
-  lastTurnState: {
-    type: [GameStateSchema],
-    required: false
   },
   currentState: {
     type: [GameStateSchema],
