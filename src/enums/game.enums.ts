@@ -32,7 +32,8 @@ export enum EAction {
   SPAWN = 'spawn',
   HEAL = 'heal',
   USE = 'use', // works for potions and buffs
-  SHUFFLE = 'shuffle'
+  SHUFFLE = 'shuffle',
+  DRAW = 'draw'
 }
 
 export enum EItems {
