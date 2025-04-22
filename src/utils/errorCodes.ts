@@ -23,4 +23,22 @@ export const ErrorCodes = {
   41: 'Could not update the profile, please try again'
 };
 
+export const ErrorStatuses = {
+  1: 401,
+  10: 401,
+  11: 401,
+  12: 409,
+  13: 400,
+  23: 500,
+  24: 404,
+  25: 403,
+  26: 403,
+  27: 400,
+  28: 400,
+  29: 500,
+  30: 500,
+  40: 404,
+  41: 400
+};
+
 export type ErrorCode = keyof typeof ErrorCodes;
