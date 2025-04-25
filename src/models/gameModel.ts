@@ -43,6 +43,10 @@ const ItemSchema = new Schema({
  * Hero Schema
  */
 const HeroSchema = new Schema({
+  faction: {
+    type: String,
+    required: true
+  },
   unitType: {
     type: String,
     required: true
@@ -138,7 +142,7 @@ const UnitOrItemSchema = new Schema(
 const FactionSchema = new Schema({
   factionName: {
     type: String,
-    enum: Object.values(EFaction),
+    enum: EFaction,
     required: true
   },
   unitsInHand: {
