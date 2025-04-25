@@ -121,19 +121,21 @@ export class GameRoom extends Room {
     }) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
       // TODO: data validation
+
       // Update game document in the db with the new turn
+      // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
       console.log('UPDATE message -> ', message);
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
         $push: { gameState: message.newTurn },
         currentState: [],
         activePlayer: message.newActivePlayer
-      }, { new: true }); // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
+      }, { new: true });
       console.log('UPDATED GAME -> ', updatedGame);
       if (!updatedGame) throw new CustomError(24);
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
-        roomId,
+        roomId: message._id.toString(), // REVIEW: in some cases, class roomId is undefined
         game: updatedGame, // TODO: unpack the moves on the FE
         newActivePlayer: message.newActivePlayer
       }, { except: client }); // broadcast to opponent only
