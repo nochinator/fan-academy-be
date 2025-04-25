@@ -53,7 +53,7 @@ export class GameRoom extends Room {
 
       console.log('CREATING A ROOM FOR A GAME ALREADY IN PLAY');
 
-      this.roomId = roomId; // REVIEW: should roomId be set even if player is not in the array? looks like a bug
+      this.roomId = roomId;
     }
 
     /**
@@ -135,10 +135,11 @@ export class GameRoom extends Room {
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
-        roomId: message._id.toString(), // REVIEW: in some cases, class roomId is undefined
+        // roomId: message._id.toString(), // REVIEW: in some cases, class roomId is undefined
+        roomId: this.roomId,
         game: updatedGame, // TODO: unpack the moves on the FE
         newActivePlayer: message.newActivePlayer
-      }, { except: client }); // broadcast to opponent only
+      }, { except: client }); // broadcast to opponent only // REVIEW:
 
       // Retrieve user ids and publish update the users' game lists
       const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
