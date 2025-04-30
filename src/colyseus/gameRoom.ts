@@ -127,7 +127,7 @@ export class GameRoom extends Room {
         $push: { gameState: message.newTurn },
         currentState: [],
         activePlayer: message.newActivePlayer
-      }, { new: true });
+      }, { new: true }).populate('players.userData', "username picture");
       console.log('UPDATED GAME -> ', updatedGame);
       if (!updatedGame) throw new CustomError(24);
 
