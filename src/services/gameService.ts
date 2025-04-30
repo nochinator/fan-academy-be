@@ -92,7 +92,7 @@ const GameService = {
       'players.userData': userData
     }).populate('players.userData', "email picture");
 
-    console.log('Result', result!._id);
+    console.log('Result', result?._id);
     return result;
   },
 

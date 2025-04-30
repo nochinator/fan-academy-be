@@ -35,9 +35,7 @@ export class GameRoom extends Room {
      * -re-creating a room: the options parameter provides the roomId
      *    -checks if the user is one of the two players, then grants access and shows the state // REVIEW:
      */
-    const faction = options.faction;
-    const roomId = options.roomId;
-    const boardState = options.boardState;
+    const { faction, roomId, boardState } = options;
     console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction?.factionName);
     this.userId = new Types.ObjectId(options.userId);
 
@@ -148,25 +146,22 @@ export class GameRoom extends Room {
   }
 
   // Handle client joining
-  async onJoin(client: Client, options: {
-    roomId: string,
-    userId: string
-  }, _auth: any): Promise<void> {
-    /**
+  // async onJoin(client: Client, options: {
+  //   roomId: string,
+  //   userId: string
+  // }, _auth: any): Promise<void> {
+  /**
      * check if the user is one of the two players, grant access and send newest state in the db. once connected, the 'sendTurn' or equivalent function should also broadcast the moves after the turn is sent
      */
-    console.log('ONJOIN', this.roomId, options.roomId);
-    // console.log('onjoin_options', options);
+  // console.log('ONJOIN', this.roomId, options.roomId);
+  // // console.log('onjoin_options', options);
 
-    const roomId = this.roomId ? this.roomId : options.roomId;
-    if (!roomId) throw new CustomError(24);
+  // const game = await GameService.getColyseusRoom(this.roomId, options.userId); // REVIEW: changed from options.roomId
+  // if (!game) console.log('No game found error here2');
 
-    const game = await GameService.getColyseusRoom(roomId, options.userId);
-    if (!game) console.log('No game found error here2');
-
-    console.log(`Client ${client.sessionId} joined the room`);
-    // REVIEW: we don't need to send anything in this case, the FE can display the last game state from the db. Since it is connected it will get any new updates
-  }
+  // console.log(`Client ${client.sessionId} joined the room`);
+  // REVIEW: we don't need to send anything in this case, the FE can display the last game state from the db. Since it is connected it will get any new updates
+  // }
 
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
