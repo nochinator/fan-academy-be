@@ -75,7 +75,11 @@ const HeroSchema = new Schema({
     type: Number,
     required: true
   },
-  range: {
+  attackRange: {
+    type: Number,
+    required: true
+  },
+  healingRange: {
     type: Number,
     required: true
   },

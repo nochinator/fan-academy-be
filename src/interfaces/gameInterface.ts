@@ -28,7 +28,8 @@ export interface IHero {
   currentHealth: number;
   isKO: boolean;
   movement: number;
-  range: number;
+  attackRange: number;
+  healingRange: number;
   attackType: EAttackType;
   power: number;
   physicalDamageResistance: number;
