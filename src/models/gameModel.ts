@@ -71,6 +71,10 @@ const HeroSchema = new Schema({
     type: Boolean,
     default: false
   },
+  lastBreath: {
+    type: Boolean,
+    default: false
+  },
   movement: {
     type: Number,
     required: true
