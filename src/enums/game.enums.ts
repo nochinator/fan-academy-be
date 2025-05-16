@@ -29,11 +29,13 @@ export enum EFaction {
 export enum EAction {
   MOVE = 'move',
   ATTACK = 'attack',
-  SPAWN = 'spawn',
   HEAL = 'heal',
-  USE = 'use', // works for potions and buffs
+  SPAWN = 'spawn',
+  USE = 'use',
   SHUFFLE = 'shuffle',
-  DRAW = 'draw' // automatic action at the end of a turn
+  TELEPORT = 'teleport',
+  DRAW = 'draw', // automatic action at the end of a turn
+  PASS = 'pass' // automatic action if a player sends a turn without taking any actions
 }
 
 export enum EItems {
