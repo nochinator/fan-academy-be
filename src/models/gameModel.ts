@@ -96,6 +96,10 @@ const HeroSchema = new Schema({
     type: Number,
     required: true
   },
+  powerModifier: {
+    type: Number,
+    required: true
+  },
   physicalDamageResistance: {
     type: Number,
     default: 0
