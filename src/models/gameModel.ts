@@ -120,6 +120,10 @@ const HeroSchema = new Schema({
     type: Boolean,
     required: true
   },
+  superCharge: {
+    type: Boolean,
+    required: true
+  },
   belongsTo: {
     type: Number,
     required: true,
@@ -200,12 +204,12 @@ const UserSchema = new Schema({
  * TurnAction Schema
  */
 const TurnActionSchema = new Schema({
-  activeUnit: {
-    type: UnitOrItemSchema,
+  actorPosition: {
+    type: Number,
     required: false
   },
-  targetUnit: {
-    type: UnitOrItemSchema,
+  targetPosition: {
+    type: Number,
     required: false
   },
   action: {
