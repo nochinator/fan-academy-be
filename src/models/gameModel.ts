@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose';
 import IGame from '../interfaces/gameInterface';
-import { EAction, EAttackType, EFaction, ETiles } from '../enums/game.enums';
+import { EActionClass, EActionType, EAttackType, EFaction, ETiles } from '../enums/game.enums';
 
 const { Schema, model } = mongoose;
 
@@ -214,11 +214,12 @@ const TurnActionSchema = new Schema({
   },
   action: {
     type: String,
-    enum: EAction,
+    enum: EActionType,
     required: true
   },
-  actionNumber: {
-    type: Number,
+  actionClass: {
+    type: String,
+    enum: EActionClass,
     required: true
   }
 }, { _id: false });

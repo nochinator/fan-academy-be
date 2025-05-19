@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { EAction, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems, ETiles } from "../enums/game.enums";
+import { EActionClass, EActionType, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems, ETiles } from "../enums/game.enums";
 
 /**
  * Item Interface
@@ -70,8 +70,8 @@ export interface IPlayerData {
 export interface ITurnAction {
   actorPosition?: number;
   targetPosition?: number; // an item can be a target for shuffle
-  action: EAction,
-  actionNumber: number;
+  action: EActionType,
+  actionClass: EActionClass
 }
 
 /**

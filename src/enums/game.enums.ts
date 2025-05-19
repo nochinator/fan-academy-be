@@ -26,16 +26,25 @@ export enum EFaction {
   DARK_ELVES = 'Dark Elves'
 }
 
-export enum EAction {
+export enum EActionType {
   MOVE = 'move',
   ATTACK = 'attack',
   HEAL = 'heal',
   SPAWN = 'spawn',
+  SPAWN_PHANTOM = 'phantom',
   USE = 'use',
   SHUFFLE = 'shuffle',
   TELEPORT = 'teleport',
-  DRAW = 'draw', // automatic action at the end of a turn
-  PASS = 'pass' // automatic action if a player sends a turn without taking any actions
+
+  // Automated actions
+  DRAW = 'draw',
+  PASS = 'pass',
+  REMOVE_UNITS = 'removeUnits'
+}
+
+export enum EActionClass {
+  USER = 'user',
+  AUTO = 'automatic'
 }
 
 export enum EItems {
