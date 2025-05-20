@@ -7,6 +7,36 @@ const { Schema, model } = mongoose;
 /**
  * Item Schema
  */
+const CrystalSchema = new Schema({
+  belongsTo: {
+    type: Number,
+    required: true
+  },
+  maxHealth: {
+    type: Number,
+    required: true
+  },
+  currentHealth: {
+    type: Number,
+    required: true
+  },
+  isDestroyed: {
+    type: Boolean,
+    required: true
+  },
+  isLastCrystal: {
+    type: Boolean,
+    required: true
+  },
+  boardPosition: {
+    type: Number,
+    required: true
+  }
+}, { _id: false });
+
+/**
+ * Item Schema
+ */
 const ItemSchema = new Schema({
   faction: {
     type: String,
@@ -277,6 +307,10 @@ const TileSchema = new Schema({
   },
   hero: {
     type: HeroSchema,
+    required: false
+  },
+  crystal: {
+    type: CrystalSchema,
     required: false
   }
 }, { _id: false });

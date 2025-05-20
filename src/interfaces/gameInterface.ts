@@ -2,6 +2,18 @@ import { Types } from "mongoose";
 import { EActionClass, EActionType, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems, ETiles } from "../enums/game.enums";
 
 /**
+ * Crystal Interface
+ */
+export interface ICrystal {
+  belongsTo: number;
+  maxHealth: number;
+  currentHealth: number;
+  isDestroyed: boolean;
+  isLastCrystal: boolean;
+  boardPosition: number;
+}
+
+/**
  * Item Interface
  */
 export interface IItem {
