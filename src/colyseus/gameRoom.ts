@@ -80,6 +80,9 @@ export class GameRoom extends Room {
           factionData: faction
         };
 
+        // Map and hands setup as previous turn. Needed to start the game
+        gameLookingForPlayers.previousTurn = gameLookingForPlayers.gameState[0];
+
         gameLookingForPlayers.status = EGameStatus.PLAYING;
 
         // Randomly select the starting player
@@ -87,12 +90,17 @@ export class GameRoom extends Room {
         gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
 
         await gameLookingForPlayers.save();
-        // TODO: The return of this function should trigger the beginning of a game
+        console.log('Check if game is populated', gameLookingForPlayers.players[1].userData);
+        const game = await gameLookingForPlayers.populate('players.userData', "username picture");
+
         console.log('Matchmaking found an open game');
         this.roomId = gameLookingForPlayers._id.toString();
 
         // Send a message to update the game list
-        this.presence.publish("gameUpdatedPresence", [options.userId, gameLookingForPlayers.players[0].userData._id.toString()]);
+        this.presence.publish("newGamePresence", {
+          game,
+          userIds: [options.userId, game.players[0].userData._id.toString()]
+        });
       }
 
       // If there are no games looking for players, create one
@@ -106,7 +114,11 @@ export class GameRoom extends Room {
 
         if (newGame) this.roomId = newGame._id.toString();
 
-        this.presence.publish("gameUpdatedPresence", [options.userId]);
+        // Send a message to update the game list
+        this.presence.publish("newGamePresence", {
+          game: newGame,
+          userIds: [options.userId]
+        });
       }
     }
 
@@ -114,34 +126,43 @@ export class GameRoom extends Room {
 
     this.onMessage("turnSent", async (client: Client, message: {
       _id: Types.ObjectId,
-      newTurn: IGameState[],
+      turn: IGameState[],
       newActivePlayer: Types.ObjectId
     }) => {
       console.log(`Turn sent by client ${client.sessionId}:`, message);
       // TODO: data validation
 
       // Update game document in the db with the new turn
-      // This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition // TODO:
+      // TODO: This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition
       console.log('UPDATE message -> ', message);
+
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
-        $push: { gameState: message.newTurn },
+        $push: { gameState: message.turn },
+        previousTurn: message.turn,
         currentState: [],
         activePlayer: message.newActivePlayer
       }, { new: true }).populate('players.userData', "username picture");
+
       console.log('UPDATED GAME -> ', updatedGame);
+
       if (!updatedGame) throw new CustomError(24);
+
+      // Retrieve user ids and publish update the users' game lists
+      const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
+      this.presence.publish("gameUpdatedPresence", {
+        gameId: message._id,
+        previousTurn: message.turn,
+        newActivePlayer: message.newActivePlayer.toString(),
+        userIds
+      });
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
         // roomId: message._id.toString(), // REVIEW: in some cases, class roomId is undefined
         roomId: this.roomId,
-        game: updatedGame, // TODO: unpack the moves on the FE
+        previousTurn: message.turn, // Sending only the latest turn played instead of the whole game
         newActivePlayer: message.newActivePlayer
-      }, { except: client }); // broadcast to opponent only // REVIEW:
-
-      // Retrieve user ids and publish update the users' game lists
-      const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
-      this.presence.publish("gameUpdatedPresence", userIds); // TODO: make sure that we sent the whole game // REVIEW: still needed?
+      });
     });
   }
 

@@ -13,7 +13,7 @@ const GameService = {
     const userObjectId = new Types.ObjectId(userId);
     console.log('userId', userId);
 
-    const result = await Game.find({ 'players.userData': userObjectId }).populate('players.userData', "username picture");
+    const result = await Game.find({ 'players.userData': userObjectId }, { gameState: 0 }).populate('players.userData', "username picture");
 
     return result;
   },
@@ -76,6 +76,7 @@ const GameService = {
     });
 
     const result = await newGame.save();
+    await result.populate('players.userData', "email picture");
     if (!result) throw new CustomError(23);
 
     return result;

@@ -357,6 +357,10 @@ const GameSchema = new Schema({
     type: [GameStateSchema],
     required: false
   },
+  previousTurn: {
+    type: [GameStateSchema],
+    required: false
+  },
   winCondition: {
     type: String,
     required: false

@@ -127,6 +127,7 @@ export default interface IGame {
   players: IPlayerData[];
   gameState: IGameState[][];
   currentState?: IGameState[];
+  previousTurn?: IGameState[];
   winCondition?: string;
   winner?: string; // userId
   status: EGameStatus;
