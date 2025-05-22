@@ -36,7 +36,7 @@ export async function verifySession(req: any) {
      */
 
     if (session) {
-      console.log('Session found:', session);
+      console.log('Session found:', session._id);
       return true;
     } else {
       console.log('No session associated with this SID.');

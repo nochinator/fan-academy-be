@@ -56,15 +56,15 @@ const index = async () => {
   passport.use(googleStrategy);
 
   app.use((req: Request, _res: Response, next: NextFunction) => { // TODO: logging purposes. To be removed
-    console.log('SESSION => ', req.session);
-    console.log('USER => ', req.user);
+    // console.log('SESSION => ', req.session);
+    // console.log('USER => ', req.user);
     next();
   });
 
   app.get('/auth-check', async (req: Request, res: Response) => {
     const user = req.user as IUser;
     if (user?._id) {
-      console.log('AUTH-CHECK - User Id ->', user._id);
+      // console.log('AUTH-CHECK - User Id ->', user._id);
       res.send(user._id);
     } else {
       res.sendStatus(401);

@@ -9,6 +9,7 @@ import { verifySession } from "../middleware/socketSessions";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
+  connectedClients: Set<string> = new Set();
 
   onInit(_options: any) {
     this.maxClients = 2; // FIXME: I can't get the room limit to work
@@ -20,6 +21,7 @@ export class GameRoom extends Room {
     faction?: IFaction
     boardState?: ITile[]
   }): Promise<void> {
+    this.autoDispose = true;
     /**
      * onCreate can be called when:
      * -looking for a game.
@@ -33,7 +35,7 @@ export class GameRoom extends Room {
      *      -update the game list
      *
      * -re-creating a room: the options parameter provides the roomId
-     *    -checks if the user is one of the two players, then grants access and shows the state // REVIEW:
+     *    -checks if the user is one of the two players, then grants access and sends the state
      */
     const { faction, roomId, boardState } = options;
     console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction?.factionName);
@@ -143,7 +145,7 @@ export class GameRoom extends Room {
         activePlayer: message.newActivePlayer
       }, { new: true }).populate('players.userData', "username picture");
 
-      console.log('UPDATED GAME -> ', updatedGame);
+      // console.log('UPDATED GAME -> ', updatedGame);
 
       if (!updatedGame) throw new CustomError(24);
 
@@ -167,34 +169,64 @@ export class GameRoom extends Room {
   }
 
   // Handle client joining
-  // async onJoin(client: Client, options: {
-  //   roomId: string,
-  //   userId: string
-  // }, _auth: any): Promise<void> {
-  /**
-     * check if the user is one of the two players, grant access and send newest state in the db. once connected, the 'sendTurn' or equivalent function should also broadcast the moves after the turn is sent
-     */
-  // console.log('ONJOIN', this.roomId, options.roomId);
-  // // console.log('onjoin_options', options);
+  async onJoin(client: Client, options: {
+    roomId: string,
+    userId: string
+  }, _auth: any): Promise<void> {
+    (client as any).userId = options.userId; // TypeScript workaround
+    this.connectedClients.add((client as any).userId);
 
-  // const game = await GameService.getColyseusRoom(this.roomId, options.userId); // REVIEW: changed from options.roomId
-  // if (!game) console.log('No game found error here2');
+    console.log(`[Game] Client joined room: ${client.sessionId} - ${(client as any).userId} - ${this.roomId}`);
+    this.logConnectedClients();
+  }
 
-  // console.log(`Client ${client.sessionId} joined the room`);
-  // REVIEW: we don't need to send anything in this case, the FE can display the last game state from the db. Since it is connected it will get any new updates
-  // }
+  async requestJoin(options: any, _client: Client): Promise<boolean> {
+    const { roomId, userId } = options;
+
+    if (!roomId || !userId) {
+      console.warn("Missing roomId or userId in join request.");
+      return false;
+    }
+
+    try {
+    // Verify the game exists and the user is a participant
+      const game = await GameService.getColyseusRoom(roomId, userId);
+
+      if (!game) {
+        console.warn(`No matching game found for roomId=${roomId} and userId=${userId}`);
+        return false;
+      }
+
+      const isPlayer = game.players.some(p => p.userData.toString() === userId);
+
+      if (!isPlayer) {
+        console.warn(`User ${userId} is not a player in game ${roomId}`);
+        return false;
+      }
+
+      // Optional: Reject if room is already full
+      if (this.clients.length >= this.maxClients) {
+        console.warn(`Room ${roomId} is full.`);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.error("Error in requestJoin:", err);
+      return false;
+    }
+  }
 
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
-    console.log(`Client ${client.sessionId} left the room`);
-    if (this.clients.length === 0) {
-      console.log('Removing room due to inactivity');
-      this.disconnect(); }
+    this.connectedClients.delete((client as any).userId);
+    console.log(`[Game] Client left room: ${client.sessionId} ${(client as any).userId}`);
+    this.logConnectedClients();
   }
 
   // Handle room disposal
   onDispose(): void {
-    console.log("Room disposed");
+    console.log("Room disposed", this.roomId);
   }
 
   // Room auth
@@ -208,5 +240,9 @@ export class GameRoom extends Room {
 
     console.log('Authentication failed');
     return false; // Deny access
+  }
+
+  logConnectedClients() {
+    console.log(`[Game] Connected clients: ${Array.from(this.connectedClients).join(", ")}`);
   }
 }
