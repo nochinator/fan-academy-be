@@ -3,31 +3,32 @@ import { ObjectId } from "mongoose";
 import IGame, { IGameState } from "../interfaces/gameInterface";
 
 export class Lobby extends Room {
-  connectedClients: Set<string> = new Set();
+  connectedClients: Set<Client> = new Set();
 
   // REVIEW: I'm using joinOrCreate in the FE, but have no requestJoin in the BE
 
   onJoin(client: Client, options: { userId: string }) {
     (client as any).userId = options.userId; // TypeScript workaround
-    this.connectedClients.add((client as any).userId);
+    this.connectedClients.add(client);
     console.log(`[Lobby] Client joined: ${(client as any).userId}`);
     this.logConnectedClients();
   }
 
-  onCreate(options: { userId: string }): void {
+  onCreate(_options: { userId: string }): void {
     this.presence.subscribe('gameUpdatedPresence', (message: {
       gameId: ObjectId
       previousTurn: IGameState[],
       newActivePlayer: string,
       userIds: string[]
     }) => {
-      if (message.userIds.includes(options.userId)) {
-        console.log('Received subscribed gameUpdatedPresence message');
+      console.log('Received subscribed gameUpdatedPresence message');
 
-        this.broadcast('gameListUpdate', message);
-      } else {
-        console.log('Subscribed presence error - ids dont match');
-      }
+      const clientsToExclude: Client[] = [];
+      this.connectedClients.forEach(client => {
+        if (!message.userIds.includes((client as any).userId)) clientsToExclude.push(client);
+      });
+
+      this.broadcast('gameListUpdate', message, { except: clientsToExclude });
     });
 
     this.presence.subscribe('newGamePresence', (message: {
@@ -36,12 +37,14 @@ export class Lobby extends Room {
     }) => {
       // console.log('MESSAGE ->', message);
 
-      if (message.userIds.includes(options.userId)) {
-        console.log('Received subscribed newGamePresence message');
-        this.broadcast('newGameListUpdate', message);
-      } else {
-        console.log('Subscribed presence error - ids dont match');
-      }
+      console.log('Received subscribed newGamePresence message');
+
+      const clientsToExclude: Client[] = [];
+      this.connectedClients.forEach(client => {
+        if (!message.userIds.includes((client as any).userId)) clientsToExclude.push(client);
+      });
+
+      this.broadcast('newGameListUpdate', message, { except: clientsToExclude });
     });
   };
 
@@ -53,6 +56,8 @@ export class Lobby extends Room {
   }
 
   logConnectedClients() {
-    console.log(`[Lobby] Connected clients: ${Array.from(this.connectedClients).join(", ")}`);
+    const clients = Array.from(this.connectedClients).map(client => { return (client as any).userId; });
+
+    console.log(`[Lobby] Connected clients: ${clients}`);
   }
 }
