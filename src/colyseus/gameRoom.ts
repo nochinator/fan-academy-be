@@ -131,12 +131,12 @@ export class GameRoom extends Room {
       turn: IGameState[],
       newActivePlayer: Types.ObjectId
     }) => {
-      console.log(`Turn sent by client ${client.sessionId}:`, message);
+      console.log(`Turn sent by client ${(client as any).userId}`);
       // TODO: data validation
 
       // Update game document in the db with the new turn
       // TODO: This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition
-      console.log('UPDATE message -> ', message);
+      // console.log('UPDATE message -> ', message);
 
       const updatedGame = await Game.findByIdAndUpdate(message._id, {
         $push: { gameState: message.turn },
@@ -160,7 +160,6 @@ export class GameRoom extends Room {
 
       // Broadcast movement to all connected clients
       this.broadcast("turnPlayed", {
-        // roomId: message._id.toString(), // REVIEW: in some cases, class roomId is undefined
         roomId: this.roomId,
         previousTurn: message.turn, // Sending only the latest turn played instead of the whole game
         newActivePlayer: message.newActivePlayer

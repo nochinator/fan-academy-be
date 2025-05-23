@@ -36,7 +36,6 @@ export class Lobby extends Room {
       userIds: string[]
     }) => {
       // console.log('MESSAGE ->', message);
-
       console.log('Received subscribed newGamePresence message');
 
       const clientsToExclude: Client[] = [];
