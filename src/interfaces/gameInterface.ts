@@ -54,6 +54,7 @@ export interface IHero {
   superCharge: boolean;
   belongsTo: number;
   canHeal: boolean;
+  unitsConsumed?: number;
 }
 
 /**

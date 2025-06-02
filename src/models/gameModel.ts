@@ -162,6 +162,10 @@ const HeroSchema = new Schema({
   canHeal: {
     type: Boolean,
     required: true
+  },
+  unitsConsumed: {
+    type: Number,
+    default: 0
   }
 }, { _id: false });
 
