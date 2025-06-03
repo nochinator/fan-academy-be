@@ -45,6 +45,21 @@ export class Lobby extends Room {
 
       this.broadcast('newGameListUpdate', message, { except: clientsToExclude });
     });
+
+    this.presence.subscribe('gameOverPresence', (message: {
+      gameId: ObjectId,
+      userIds: string[]
+    }) => {
+      // console.log('MESSAGE ->', message);
+      console.log('Received subscribed gameOverPresence message');
+
+      const clientsToExclude: Client[] = [];
+      this.connectedClients.forEach(client => {
+        if (!message.userIds.includes((client as any).userId)) clientsToExclude.push(client);
+      });
+
+      this.broadcast('gameOverUpdate', message, { except: clientsToExclude });
+    });
   };
 
   // Handle client leaving

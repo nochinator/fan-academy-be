@@ -1,8 +1,23 @@
 import mongoose, { Types } from 'mongoose';
 import IGame from '../interfaces/gameInterface';
-import { EActionClass, EActionType, EAttackType, EFaction, ETiles } from '../enums/game.enums';
+import { EActionClass, EActionType, EAttackType, EFaction, ETiles, EWinConditions } from '../enums/game.enums';
 
 const { Schema, model } = mongoose;
+
+/**
+ * Game Over Schema
+ */
+const GameOverSchema = new Schema({
+  winCondition: {
+    type: String,
+    enum: EWinConditions,
+    required: true
+  },
+  winner: {
+    type: String,
+    required: true
+  }
+}, { _id: false });
 
 /**
  * Item Schema
@@ -203,13 +218,9 @@ const FactionSchema = new Schema({
     type: [UnitOrItemSchema],
     default: []
   },
-  cristalOneHealth: {
+  unitsLeft: {
     type: Number,
-    required: false // FIXME:
-  },
-  cristalTwoHealth: {
-    type: Number,
-    required: false // FIXME:
+    required: true
   }
 }, { _id: false });
 
@@ -365,12 +376,8 @@ const GameSchema = new Schema({
     type: [GameStateSchema],
     required: false
   },
-  winCondition: {
-    type: String,
-    required: false
-  },
-  winner: {
-    type: String,
+  gameOver: {
+    type: GameOverSchema,
     required: false
   },
   status: {
@@ -380,6 +387,14 @@ const GameSchema = new Schema({
   createdAt: {
     type: Date,
     required: true
+  },
+  finishedAt: {
+    type: Date,
+    required: false
+  },
+  lastPlayedAt: {
+    type: Date,
+    required: false
   },
   activePlayer: {
     type: mongoose.Schema.Types.ObjectId,

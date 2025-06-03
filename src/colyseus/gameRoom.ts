@@ -1,11 +1,11 @@
-import GameService from "../services/gameService";
-import { Types } from "mongoose";
-import { EGameStatus } from "../enums/game.enums";
-import { IPlayerData, IFaction, IGameState, ITile } from "../interfaces/gameInterface";
-import Game from "../models/gameModel";
-import { CustomError } from "../classes/customError";
 import { AuthContext, Client, Room } from "@colyseus/core";
+import { Types } from "mongoose";
+import { CustomError } from "../classes/customError";
+import { EGameStatus } from "../enums/game.enums";
+import { IFaction, IPlayerData, ITile, ITurnMessage } from "../interfaces/gameInterface";
 import { verifySession } from "../middleware/socketSessions";
+import Game from "../models/gameModel";
+import GameService from "../services/gameService";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -91,8 +91,10 @@ export class GameRoom extends Room {
         const playerIds = gameLookingForPlayers.players.map((player: IPlayerData) => player.userData._id);
         gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
 
+        // Add date for display order in FE
+        gameLookingForPlayers.lastPlayedAt = new Date(); // TODO: need to send this with every turn
+
         await gameLookingForPlayers.save();
-        console.log('Check if game is populated', gameLookingForPlayers.players[1].userData);
         const game = await gameLookingForPlayers.populate('players.userData', "username picture");
 
         console.log('Matchmaking found an open game');
@@ -126,44 +128,81 @@ export class GameRoom extends Room {
 
     console.log("Game room created! ID -> ", this.roomId);
 
-    this.onMessage("turnSent", async (client: Client, message: {
-      _id: Types.ObjectId,
-      turn: IGameState[],
-      newActivePlayer: Types.ObjectId
-    }) => {
+    this.onMessage("turnSent", async (client: Client, message: ITurnMessage) => {
       console.log(`Turn sent by client ${(client as any).userId}`);
       // TODO: data validation
 
-      // Update game document in the db with the new turn
-      // TODO: This update is only for turns. For an end of game update we will use a different message with extra fields like victory condition
-      // console.log('UPDATE message -> ', message);
+      if (message.gameOver) {
+        console.log('Game over!');
+        await this.handleGameOver(message);
+      } else {
+        await this.handleTurn(message);
+      }
+    });
+  }
 
-      const updatedGame = await Game.findByIdAndUpdate(message._id, {
-        $push: { gameState: message.turn },
-        previousTurn: message.turn,
-        currentState: [],
-        activePlayer: message.newActivePlayer
-      }, { new: true }).populate('players.userData', "username picture");
+  async handleGameOver(message: ITurnMessage): Promise<void>{
+    const finishedAt = new Date();
+    const { winCondition, winner } = message.gameOver!;
 
-      // console.log('UPDATED GAME -> ', updatedGame);
+    const updatedGame = await Game.findByIdAndUpdate(message._id, {
+      $push: { gameState: message.turn },
+      previousTurn: message.turn,
+      currentState: [],
+      gameOver: message.gameOver,
+      status: EGameStatus.FINISHED,
+      lastPlayedAt: finishedAt,
+      finishedAt
+    }, { new: true }).populate('players.userData', "username picture");
 
-      if (!updatedGame) throw new CustomError(24);
+    if (!updatedGame) throw new CustomError(24);
 
-      // Retrieve user ids and publish update the users' game lists
-      const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
-      this.presence.publish("gameUpdatedPresence", {
-        gameId: message._id,
-        previousTurn: message.turn,
-        newActivePlayer: message.newActivePlayer.toString(),
-        userIds
-      });
+    // Retrieve user ids and publish update the users' game lists
+    const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
+    this.presence.publish("gameOverPresence", {
+      gameId: message._id,
+      userIds 
+    });
 
-      // Broadcast movement to all connected clients
-      this.broadcast("turnPlayed", {
-        roomId: this.roomId,
-        previousTurn: message.turn, // Sending only the latest turn played instead of the whole game
-        newActivePlayer: message.newActivePlayer
-      });
+    // Broadcast movement to all connected clients
+    this.broadcast("lastTurnPlayed", {
+      roomId: this.roomId,
+      previousTurn: message.turn,
+      finishedAt,
+      winCondition,
+      winner,
+      userIds
+    });
+  }
+
+  async handleTurn(message: ITurnMessage): Promise<void> {
+    const lastPlayedAt = new Date();
+    const updatedGame = await Game.findByIdAndUpdate(message._id, {
+      $push: { gameState: message.turn },
+      previousTurn: message.turn,
+      currentState: [],
+      activePlayer: message.newActivePlayer,
+      lastPlayedAt
+    }, { new: true }).populate('players.userData', "username picture");
+
+    if (!updatedGame) throw new CustomError(24);
+
+    // Retrieve user ids and publish update the users' game lists
+    const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
+    this.presence.publish("gameUpdatedPresence", {
+      gameId: message._id,
+      previousTurn: message.turn,
+      newActivePlayer: message.newActivePlayer.toString(),
+      lastPlayedAt,
+      userIds
+    });
+
+    // Broadcast movement to all connected clients
+    this.broadcast("turnPlayed", {
+      roomId: this.roomId,
+      previousTurn: message.turn, // Sending only the latest turn played instead of the whole game
+      newActivePlayer: message.newActivePlayer,
+      lastPlayedAt
     });
   }
 

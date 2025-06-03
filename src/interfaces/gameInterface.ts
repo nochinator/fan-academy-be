@@ -1,5 +1,23 @@
 import { Types } from "mongoose";
-import { EActionClass, EActionType, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems, ETiles } from "../enums/game.enums";
+import { EActionClass, EActionType, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems, ETiles, EWinConditions } from "../enums/game.enums";
+
+/**
+ * Game Over Interface
+ */
+export interface IGameOver {
+  winCondition: EWinConditions,
+  winner: string
+}
+
+/**
+ * Turn message Interface
+ */
+export interface ITurnMessage {
+  _id: Types.ObjectId,
+  turn: IGameState[],
+  newActivePlayer: Types.ObjectId,
+  gameOver?: IGameOver
+}
 
 /**
  * Crystal Interface
@@ -65,8 +83,7 @@ export interface IFaction {
   factionName: EFaction;
   unitsInHand: (IHero | IItem)[];
   unitsInDeck: (IHero | IItem)[];
-  cristalOneHealth: number;
-  cristalTwoHealth: number;
+  unitsLeft: number;
 }
 
 /**
@@ -129,10 +146,11 @@ export default interface IGame {
   gameState: IGameState[][];
   currentState?: IGameState[];
   previousTurn?: IGameState[];
-  winCondition?: string;
-  winner?: string; // userId
+  gameOver?: IGameOver,
   status: EGameStatus;
   createdAt: Date;
+  finishedAt: Date;
+  lastPlayedAt: Date;
   activePlayer: Types.ObjectId | null; // userId
 
   // REVIEW: start and end dates? and one more field for last turn sent
