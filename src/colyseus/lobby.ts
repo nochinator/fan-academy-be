@@ -19,7 +19,8 @@ export class Lobby extends Room {
       gameId: ObjectId
       previousTurn: IGameState[],
       newActivePlayer: string,
-      userIds: string[]
+      userIds: string[],
+      turnNumber: number
     }) => {
       console.log('Received subscribed gameUpdatedPresence message');
       this.logConnectedClients();

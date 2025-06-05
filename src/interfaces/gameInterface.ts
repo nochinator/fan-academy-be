@@ -55,6 +55,8 @@ export interface IHero {
   unitType: EHeroes;
   unitId: string; // userId_unitName_unitNumber
   boardPosition: number;
+  row: number;
+  col: number;
   maxHealth: number;
   currentHealth: number;
   isKO: boolean;

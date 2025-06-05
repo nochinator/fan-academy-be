@@ -104,6 +104,14 @@ const HeroSchema = new Schema({
     type: Number,
     default: 51
   },
+  row: {
+    type: Number,
+    required: true
+  },
+  col: {
+    type: Number,
+    required: true
+  },
   maxHealth: {
     type: Number,
     required: true
