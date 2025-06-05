@@ -22,6 +22,7 @@ export class Lobby extends Room {
       userIds: string[]
     }) => {
       console.log('Received subscribed gameUpdatedPresence message');
+      this.logConnectedClients();
 
       const clientsToExclude: Client[] = [];
       this.connectedClients.forEach(client => {
@@ -37,6 +38,7 @@ export class Lobby extends Room {
     }) => {
       // console.log('MESSAGE ->', message);
       console.log('Received subscribed newGamePresence message');
+      this.logConnectedClients();
 
       const clientsToExclude: Client[] = [];
       this.connectedClients.forEach(client => {

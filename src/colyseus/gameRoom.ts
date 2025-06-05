@@ -68,42 +68,17 @@ export class GameRoom extends Room {
       console.log('CREATING A ROOM FOR A NEW GAME');
 
       if (gameLookingForPlayers) {
-        // Add player to the players array and game state, create a board (tiles and crystals), update units to belong to player 2, set the current state and remove SEARCHING status
-        gameLookingForPlayers.players.push({
-          userData: this.userId,
-          faction: faction.factionName
-        });
-
-        faction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
-        faction.unitsInHand.forEach(unit => unit.belongsTo = 2);
-
-        gameLookingForPlayers.gameState[0][0].player2 = {
-          playerId: this.userId,
-          factionData: faction
-        };
-
-        // Map and hands setup as previous turn. Needed to start the game
-        gameLookingForPlayers.previousTurn = gameLookingForPlayers.gameState[0];
-
-        gameLookingForPlayers.status = EGameStatus.PLAYING;
-
-        // Randomly select the starting player
-        const playerIds = gameLookingForPlayers.players.map((player: IPlayerData) => player.userData._id);
-        gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
-
-        // Add date for display order in FE
-        gameLookingForPlayers.lastPlayedAt = new Date(); // TODO: need to send this with every turn
-
-        await gameLookingForPlayers.save();
-        const game = await gameLookingForPlayers.populate('players.userData', "username picture");
-
         console.log('Matchmaking found an open game');
-        this.roomId = gameLookingForPlayers._id.toString();
+
+        const updatedGame = await GameService.addPlayerTwo(gameLookingForPlayers, faction, this.userId);
+        if (!updatedGame) throw new CustomError(24);
+
+        this.roomId = updatedGame._id.toString();
 
         // Send a message to update the game list
         this.presence.publish("newGamePresence", {
-          game,
-          userIds: [options.userId, game.players[0].userData._id.toString()]
+          game: updatedGame,
+          userIds: [options.userId, updatedGame.players[0].userData._id.toString()]
         });
       }
 
@@ -146,9 +121,8 @@ export class GameRoom extends Room {
     const { winCondition, winner } = message.gameOver!;
 
     const updatedGame = await Game.findByIdAndUpdate(message._id, {
-      $push: { gameState: message.turn },
-      previousTurn: message.turn,
-      currentState: [],
+      previousTurn: message.currentTurn,
+      turnNumber: message.turnNumber,
       gameOver: message.gameOver,
       status: EGameStatus.FINISHED,
       lastPlayedAt: finishedAt,
@@ -161,13 +135,14 @@ export class GameRoom extends Room {
     const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
     this.presence.publish("gameOverPresence", {
       gameId: message._id,
-      userIds 
+      userIds
     });
 
     // Broadcast movement to all connected clients
     this.broadcast("lastTurnPlayed", {
       roomId: this.roomId,
-      previousTurn: message.turn,
+      previousTurn: message.currentTurn,
+      turnNumber: message.turnNumber,
       finishedAt,
       winCondition,
       winner,
@@ -178,9 +153,8 @@ export class GameRoom extends Room {
   async handleTurn(message: ITurnMessage): Promise<void> {
     const lastPlayedAt = new Date();
     const updatedGame = await Game.findByIdAndUpdate(message._id, {
-      $push: { gameState: message.turn },
-      previousTurn: message.turn,
-      currentState: [],
+      previousTurn: message.currentTurn,
+      turnNumber: message.turnNumber,
       activePlayer: message.newActivePlayer,
       lastPlayedAt
     }, { new: true }).populate('players.userData', "username picture");
@@ -191,7 +165,8 @@ export class GameRoom extends Room {
     const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
     this.presence.publish("gameUpdatedPresence", {
       gameId: message._id,
-      previousTurn: message.turn,
+      previousTurn: message.currentTurn,
+      turnNumber: message.turnNumber,
       newActivePlayer: message.newActivePlayer.toString(),
       lastPlayedAt,
       userIds
@@ -200,7 +175,8 @@ export class GameRoom extends Room {
     // Broadcast movement to all connected clients
     this.broadcast("turnPlayed", {
       roomId: this.roomId,
-      previousTurn: message.turn, // Sending only the latest turn played instead of the whole game
+      previousTurn: message.currentTurn,
+      turnNumber: message.turnNumber,
       newActivePlayer: message.newActivePlayer,
       lastPlayedAt
     });

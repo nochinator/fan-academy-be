@@ -14,7 +14,8 @@ export interface IGameOver {
  */
 export interface ITurnMessage {
   _id: Types.ObjectId,
-  turn: IGameState[],
+  currentTurn: IGameState[],
+  turnNumber: number,
   newActivePlayer: Types.ObjectId,
   gameOver?: IGameOver
 }
@@ -143,15 +144,12 @@ export interface IGameState {
 export default interface IGame {
   _id: Types.ObjectId;
   players: IPlayerData[];
-  gameState: IGameState[][];
-  currentState?: IGameState[];
-  previousTurn?: IGameState[];
+  turnNumber: number,
+  previousTurn: IGameState[];
   gameOver?: IGameOver,
   status: EGameStatus;
   createdAt: Date;
   finishedAt: Date;
   lastPlayedAt: Date;
   activePlayer: Types.ObjectId | null; // userId
-
-  // REVIEW: start and end dates? and one more field for last turn sent
 }

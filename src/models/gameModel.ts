@@ -364,17 +364,13 @@ const GameSchema = new Schema({
     type: [UserSchema],
     default: []
   },
-  gameState: {
-    type: [[GameStateSchema]],
-    default: []
-  },
-  currentState: {
-    type: [GameStateSchema],
-    required: false
+  turnNumber: {
+    type: Number,
+    required: true
   },
   previousTurn: {
     type: [GameStateSchema],
-    required: false
+    required: true
   },
   gameOver: {
     type: GameOverSchema,

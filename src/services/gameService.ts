@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import Game from "../models/gameModel";
 import { EGameStatus } from "../enums/game.enums";
-import IGame, { IFaction, ITile } from "../interfaces/gameInterface";
+import IGame, { IFaction, IPlayerData, ITile } from "../interfaces/gameInterface";
 import { EmailService } from "../emails/emailService";
 import { CustomError } from "../classes/customError";
-import mongoose, { Types } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
 
 const GameService = {
   // GET ACTIONS
@@ -64,7 +64,7 @@ const GameService = {
         faction: faction.factionName,
         userData
       }],
-      gameState: [{
+      previousTurn: [{
         player1: {
           playerId: userId,
           factionData: faction
@@ -72,7 +72,8 @@ const GameService = {
         boardState
       }],
       status: EGameStatus.SEARCHING,
-      createdAt: new Date()
+      createdAt: new Date(),
+      turnNumber: 0
     });
 
     const result = await newGame.save();
@@ -80,6 +81,36 @@ const GameService = {
     if (!result) throw new CustomError(23);
 
     return result;
+  },
+
+  async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: IFaction, userId: Types.ObjectId): Promise<HydratedDocument<IGame> | null> {
+    // Add player to the players array and game state, create a board (tiles and crystals), update units to belong to player 2, set the current state and remove SEARCHING status
+    gameLookingForPlayers.players.push({
+      userData: userId,
+      faction: faction.factionName
+    });
+
+    faction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
+    faction.unitsInHand.forEach(unit => unit.belongsTo = 2);
+
+    gameLookingForPlayers.previousTurn[0].player2 = {
+      playerId: userId,
+      factionData: faction
+    };
+
+    gameLookingForPlayers.status = EGameStatus.PLAYING;
+
+    // Randomly select the starting player
+    const playerIds = gameLookingForPlayers.players.map((player: IPlayerData) => player.userData._id);
+    gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
+
+    // Add date for display order in FE
+    gameLookingForPlayers.lastPlayedAt = new Date(); // TODO: need to send this with every turn
+
+    await gameLookingForPlayers.save();
+    const game = await gameLookingForPlayers.populate('players.userData', "username picture");
+
+    return game;
   },
 
   async getColyseusRoom(roomId: string, userId: string): Promise<IGame | null> {
