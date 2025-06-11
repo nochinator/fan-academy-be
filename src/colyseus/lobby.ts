@@ -10,11 +10,13 @@ export class Lobby extends Room {
   onJoin(client: Client, options: { userId: string }) {
     (client as any).userId = options.userId; // TypeScript workaround
     this.connectedClients.add(client);
-    console.log(`[Lobby] Client joined: ${(client as any).userId}`);
+    console.log(`[Lobby ${this.roomId}] Client joined: ${(client as any).userId}`);
     this.logConnectedClients();
   }
 
   onCreate(_options: { userId: string }): void {
+    this.autoDispose = true;
+
     this.presence.subscribe('gameUpdatedPresence', (message: {
       gameId: ObjectId
       previousTurn: IGameState[],
@@ -22,7 +24,7 @@ export class Lobby extends Room {
       userIds: string[],
       turnNumber: number
     }) => {
-      console.log('Received subscribed gameUpdatedPresence message');
+      console.log(`[Lobby ${this.roomId}] Received subscribed gameUpdatedPresence message`);
       this.logConnectedClients();
 
       const clientsToExclude: Client[] = [];
@@ -38,7 +40,7 @@ export class Lobby extends Room {
       userIds: string[]
     }) => {
       // console.log('MESSAGE ->', message);
-      console.log('Received subscribed newGamePresence message');
+      console.log(`[Lobby ${this.roomId}] Received subscribed newGamePresence message`);
       this.logConnectedClients();
 
       const clientsToExclude: Client[] = [];
@@ -54,7 +56,7 @@ export class Lobby extends Room {
       userIds: string[]
     }) => {
       // console.log('MESSAGE ->', message);
-      console.log('Received subscribed gameOverPresence message');
+      console.log(`[Lobby ${this.roomId}] Received subscribed gameOverPresence message`);
 
       const clientsToExclude: Client[] = [];
       this.connectedClients.forEach(client => {
@@ -68,13 +70,18 @@ export class Lobby extends Room {
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
     this.connectedClients.delete((client as any).userId);
-    console.log(`[Lobby] Client left: ${(client as any).userId}`);
+    console.log(`[Lobby ${this.roomId}] Client left: ${(client as any).userId}`);
     this.logConnectedClients();
+  }
+
+  // Handle lobby disposal
+  onDispose(): void {
+    console.log("[Lobby] Room disposed", this.roomId);
   }
 
   logConnectedClients() {
     const clients = Array.from(this.connectedClients).map(client => { return (client as any).userId; });
 
-    console.log(`[Lobby] Connected clients: ${clients}`);
+    console.log(`[Lobby ${this.roomId}] Connected clients: ${clients}`);
   }
 }
