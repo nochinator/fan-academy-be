@@ -193,6 +193,10 @@ const HeroSchema = new Schema({
   unitsConsumed: {
     type: Number,
     default: 0
+  },
+  isDebuffed: {
+    type: Boolean,
+    default: false
   }
 }, { _id: false });
 

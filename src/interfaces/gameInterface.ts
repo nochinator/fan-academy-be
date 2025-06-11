@@ -77,6 +77,7 @@ export interface IHero {
   belongsTo: number;
   canHeal: boolean;
   unitsConsumed?: number;
+  isDebuffed: boolean;
 }
 
 /**
