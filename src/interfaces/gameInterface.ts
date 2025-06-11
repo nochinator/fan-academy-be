@@ -66,10 +66,13 @@ export interface IHero {
   attackRange: number;
   healingRange: number;
   attackType: EAttackType;
+  basePower: number;
   power: number;
   powerModifier: number;
   physicalDamageResistance: number;
   magicalDamageResistance: number;
+  basePhysicalDamageResistance: number;
+  baseMagicalDamageResistance: number;
   factionBuff: boolean;
   runeMetal: boolean;
   shiningHelm: boolean;

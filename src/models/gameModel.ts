@@ -153,17 +153,29 @@ const HeroSchema = new Schema({
     type: Number,
     required: true
   },
+  basePower: {
+    type: Number,
+    required: true
+  },
   powerModifier: {
     type: Number,
     required: true
   },
   physicalDamageResistance: {
     type: Number,
-    default: 0
+    required: true
+  },
+  basePhysicalDamageResistance: {
+    type: Number,
+    required: true
   },
   magicalDamageResistance: {
     type: Number,
-    default: 0
+    required: true
+  },
+  baseMagicalDamageResistance: {
+    type: Number,
+    required: true
   },
   factionBuff: {
     type: Boolean,
