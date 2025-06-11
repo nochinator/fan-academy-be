@@ -46,6 +46,10 @@ const CrystalSchema = new Schema({
   boardPosition: {
     type: Number,
     required: true
+  },
+  debuffLevel: {
+    type: Number,
+    required: true
   }
 }, { _id: false });
 

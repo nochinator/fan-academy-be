@@ -30,6 +30,7 @@ export interface ICrystal {
   isDestroyed: boolean;
   isLastCrystal: boolean;
   boardPosition: number;
+  debuffLevel: number;
 }
 
 /**
