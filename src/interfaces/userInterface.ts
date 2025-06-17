@@ -6,6 +6,13 @@ interface IUserPreferences {
   chat: boolean;
 }
 
+interface IUserStats {
+  totalGames: number,
+  totalWins: number,
+  councilWins: number,
+  elvesWins: number
+}
+
 interface IUser extends Express.User {
   _id: Types.ObjectId;
   username: string;
@@ -13,6 +20,7 @@ interface IUser extends Express.User {
   password?: string;
   picture?: string;
   preferences: IUserPreferences;
+  stats: IUserStats
 }
 
 export default IUser;

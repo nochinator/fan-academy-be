@@ -1,12 +1,11 @@
 import { hash } from 'bcrypt';
 import { Request, Response } from "express";
 import { NextFunction } from 'express-serve-static-core';
+import { Session } from 'express-session';
+import { CustomError } from '../classes/customError';
 import { EmailService } from '../emails/emailService';
 import IUser from "../interfaces/userInterface";
 import User from "../models/userModel";
-import { CustomError } from '../classes/customError';
-import { Session } from 'express-session';
-import { ObjectId } from 'mongoose';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
@@ -104,19 +103,17 @@ const UserService = {
     res.send('Notification sent!');
   },
 
-  // FIXME: query duplicated on gameService
-  // async gameEndNotification(gameId: string, res: Response, next: NextFunction): Promise<void> {
-  //   // TODO: create game interface and collection
-  //   const game: IGame | null = await Game.findById(gameId); // TODO: check if we use id or username as param
-  //   if (!game) throw new CustomError(24); // TODO: add check for games that are already finished
-
-  //   await EmailService.sendGameEndEmail(game, next);
-  //   res.send('Notification sent!');
+  // async getUsers(userIds?: ObjectId[]): Promise<IUser[]> {
+  //   const query = userIds ? { _id: { $in: userIds } } : {};
+  //   return await User.find(query);
   // },
 
-  async getUsers(userIds?: ObjectId[]): Promise<IUser[]> {
-    const query = userIds ? { _id: { $in: userIds } } : {};
-    return await User.find(query);
+  async getLeaderboard(): Promise<IUser[]> {
+    return await User.find({}, {
+      username: 1,
+      picture: 1,
+      stats: 1
+    });
   },
 
   async getUser(req: Request, res: Response): Promise<Response> {

@@ -1,13 +1,36 @@
 import { model, Schema } from 'mongoose';
 import IUser from '../interfaces/userInterface';
 
-const preferencesSchema = new Schema({
+const PreferencesSchema = new Schema({
   emailNotifications: Boolean,
   sound: Boolean,
   chat: Boolean
 });
 
-const userSchema = new Schema({
+const StatsSchema = new Schema({
+  totalGames: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  totalWins: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  councilWins: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  elvesWins: {
+    type: Number,
+    required: true,
+    default: 0
+  }
+});
+
+const UserSchema = new Schema({
   username: {
     type: String,
     minLength: 2,
@@ -24,9 +47,10 @@ const userSchema = new Schema({
   },
   picture: String,
   lastSeen: Date,
-  preferences: preferencesSchema
+  preferences: PreferencesSchema,
+  stats: StatsSchema
 });
 
-const User = model<IUser>('User', userSchema);
+const User = model<IUser>('User', UserSchema);
 
 export default User;

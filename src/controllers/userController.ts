@@ -7,10 +7,10 @@ import { CustomError } from "../classes/customError";
 const router = Router();
 
 // GET USERS
-router.get('/all', async (req: Request, res: Response) => {
-  const result = await UserService.getUsers();
+router.get('/leaderboard', async (req: Request, res: Response) => {
+  const result = await UserService.getLeaderboard();
   res.send(result);
-}); // NOTE: removed isAuthenticated
+}); // NOTE: removed isAuthenticated // FIXME:
 
 router.get('/find/:id', async (req: Request, res: Response) => {
   return await UserService.getUser(req, res);
@@ -97,9 +97,5 @@ router.post('/password-reset', async (req: Request, res: Response, next: NextFun
 router.get('/turn-notification', async(_req: Request, res: Response, next: NextFunction) => {
   return await UserService.turnNotification('66bba04c412d8d4987d52c9b', '123', res, next);
 }); // TODO: remove when done testing
-
-// router.get('/game-end-notification', async(req: Request, res: Response, next: NextFunction) => {
-//   return await UserService.gameEndNotification(req.body.gameId, res, next);
-// }); // TODO: remove when done testing
 
 export default router;

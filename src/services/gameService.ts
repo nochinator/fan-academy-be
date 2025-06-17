@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import Game from "../models/gameModel";
+import { HydratedDocument, Types } from "mongoose";
+import { CustomError } from "../classes/customError";
+import { EmailService } from "../emails/emailService";
 import { EGameStatus } from "../enums/game.enums";
 import IGame, { IFaction, IPlayerData, ITile } from "../interfaces/gameInterface";
-import { EmailService } from "../emails/emailService";
-import { CustomError } from "../classes/customError";
-import mongoose, { HydratedDocument, Types } from "mongoose";
+import Game from "../models/gameModel";
 
 const GameService = {
   // GET ACTIONS
@@ -24,7 +24,7 @@ const GameService = {
     return res.send(result);
   },
 
-  async matchmaking(playerId: string): Promise<(mongoose.Document<unknown, unknown, IGame> & IGame & { _id: Types.ObjectId; } & { __v: number; }) | null> {
+  async matchmaking(playerId: string): Promise<HydratedDocument<IGame> | null> {
     const userId = new Types.ObjectId(playerId);
 
     const result = await Game.findOne({
@@ -34,7 +34,7 @@ const GameService = {
 
     console.log('MATCHMAKING RESULT', JSON.stringify(result?._id));
 
-    return result; // TODO: should return just the roomId
+    return result;
   },
 
   async getGame(req: Request, res: Response): Promise<Response> {
