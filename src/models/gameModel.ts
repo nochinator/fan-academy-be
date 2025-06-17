@@ -269,7 +269,7 @@ const UserSchema = new Schema({
   faction: {
     type: String,
     enum: Object.values(EFaction),
-    required: true
+    required: false
   }
 }, { _id: false });
 
@@ -364,7 +364,7 @@ const TileSchema = new Schema({
 const GameStateSchema = new Schema({
   player1: {
     type: PlayerStateSchema,
-    required: true
+    required: false
   },
   player2: {
     type: PlayerStateSchema,

@@ -17,6 +17,7 @@ export const ErrorCodes = {
 
   // Generic
   30: 'Database query error',
+  31: 'Missing query parameters',
 
   // User
   40: 'User not found',
@@ -37,6 +38,7 @@ export const ErrorStatuses = {
   28: 400,
   29: 500,
   30: 500,
+  31: 500,
   40: 404,
   41: 400
 };

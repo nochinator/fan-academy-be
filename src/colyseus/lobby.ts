@@ -1,6 +1,7 @@
 import { Client, Room } from "@colyseus/core";
 import { ObjectId } from "mongoose";
 import IGame, { IGameState } from "../interfaces/gameInterface";
+import GameService from "../services/gameService";
 
 export class Lobby extends Room {
   connectedClients: Set<Client> = new Set();
@@ -17,6 +18,7 @@ export class Lobby extends Room {
   onCreate(_options: { userId: string }): void {
     this.autoDispose = true;
 
+    // Updating an existing game
     this.presence.subscribe('gameUpdatedPresence', (message: {
       gameId: ObjectId
       previousTurn: IGameState[],
@@ -35,6 +37,7 @@ export class Lobby extends Room {
       this.broadcast('gameListUpdate', message, { except: clientsToExclude });
     });
 
+    // Updating with a new game (2 players) // REVIEW: Also using this for direct challenges
     this.presence.subscribe('newGamePresence', (message: {
       game: IGame,
       userIds: string[]
@@ -51,6 +54,7 @@ export class Lobby extends Room {
       this.broadcast('newGameListUpdate', message, { except: clientsToExclude });
     });
 
+    // Updating on a game ending
     this.presence.subscribe('gameOverPresence', (message: {
       gameId: ObjectId,
       userIds: string[]
@@ -64,6 +68,35 @@ export class Lobby extends Room {
       });
 
       this.broadcast('gameOverUpdate', message, { except: clientsToExclude });
+    });
+
+    // Deleting a challenge
+    this.presence.subscribe('gameDeletedPresence', (message: {
+      gameId: ObjectId,
+      userIds: string[]
+    }) => {
+      // console.log('MESSAGE ->', message);
+      console.log(`[Lobby ${this.roomId}] Received subscribed gameDeletedPresence message`);
+
+      const clientsToExclude: Client[] = [];
+      this.connectedClients.forEach(client => {
+        if (!message.userIds.includes((client as any).userId)) clientsToExclude.push(client);
+      });
+
+      this.broadcast('gameDeletedUpdate', message, { except: clientsToExclude });
+    });
+
+    this.onMessage("gameDeletedMessage", async (client: Client, message: {
+      userId: string,
+      gameId: string
+    }) => {
+      console.log('gameDeletedMessage logs', message);
+      const result = await GameService.deleteGame(message.userId, message.gameId);
+
+      this.presence.publish('gameDeletedPresence', {
+        gameId: message.gameId,
+        userIds: result
+      });
     });
   };
 

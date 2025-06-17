@@ -2,9 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { HydratedDocument, Types } from "mongoose";
 import { CustomError } from "../classes/customError";
 import { EmailService } from "../emails/emailService";
-import { EGameStatus } from "../enums/game.enums";
-import IGame, { IFaction, IPlayerData, ITile } from "../interfaces/gameInterface";
+import { EFaction, EGameStatus } from "../enums/game.enums";
+import IGame, { IPlayerData } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
+import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
+import { matchMaker } from "@colyseus/core";
 
 const GameService = {
   // GET ACTIONS
@@ -49,54 +51,71 @@ const GameService = {
   },
 
   // POST ACTIONS
-  async createGame(options: {
+  async createGame(params: {
     userId: string,
-    faction: IFaction
-    boardState: ITile[]
-  }): Promise<IGame | null> {
-    const { userId, faction, boardState } = options;
+    faction: EFaction,
+    opponentId?: string
+  }): Promise<HydratedDocument<IGame>> {
+    const { userId, faction, opponentId } = params;
 
-    const userData = new Types.ObjectId(userId);
+    const userObjId = new Types.ObjectId(userId);
     const gameId = new Types.ObjectId();
+
     const newGame = new Game({
       _id: gameId,
-      players: [{
-        faction: faction.factionName,
-        userData
-      }],
-      previousTurn: [{
-        player1: {
-          playerId: userId,
-          factionData: faction
+      players: [
+        {
+          faction,
+          userData: userObjId
         },
-        boardState
-      }],
-      status: EGameStatus.SEARCHING,
-      createdAt: new Date(),
-      turnNumber: 0
+        ...opponentId ? [{ userData: new Types.ObjectId(opponentId) }] : []
+      ],
+      turnNumber: 0,
+      status: opponentId ? EGameStatus.CHALLENGE : EGameStatus.SEARCHING,
+      createdAt: new Date()
     });
 
     const result = await newGame.save();
-    await result.populate('players.userData', "email picture");
+    await result.populate('players.userData', "username picture");
     if (!result) throw new CustomError(23);
 
+    if (result.status === EGameStatus.CHALLENGE) {
+      matchMaker.presence.publish('newGamePresence', {
+        game: result,
+        userIds: [userId, opponentId]
+      });
+    }
     return result;
   },
 
-  async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: IFaction, userId: Types.ObjectId): Promise<HydratedDocument<IGame> | null> {
-    // Add player to the players array and game state, create a board (tiles and crystals), update units to belong to player 2, set the current state and remove SEARCHING status
+  async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: EFaction, userId: Types.ObjectId): Promise<HydratedDocument<IGame> | null> {
     gameLookingForPlayers.players.push({
       userData: userId,
-      faction: faction.factionName
+      faction
+    });
+    gameLookingForPlayers.previousTurn.push({});
+
+    // Create the player decks
+    gameLookingForPlayers.players.forEach((player, index) => {
+      const playerFaction = createNewGameFactionState(player.userData.toString(), player.faction!);
+
+      if (index === 1) {
+        playerFaction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
+        playerFaction.unitsInHand.forEach(unit => unit.belongsTo = 2);
+
+        gameLookingForPlayers.previousTurn[0].player2 = {
+          playerId: userId,
+          factionData: { ...playerFaction }
+        };
+      } else {
+        gameLookingForPlayers.previousTurn[0].player1 = {
+          playerId: userId,
+          factionData: { ...playerFaction }
+        };
+      }
     });
 
-    faction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
-    faction.unitsInHand.forEach(unit => unit.belongsTo = 2);
-
-    gameLookingForPlayers.previousTurn[0].player2 = {
-      playerId: userId,
-      factionData: faction
-    };
+    gameLookingForPlayers.previousTurn[0].boardState = createNewGameBoardState();
 
     gameLookingForPlayers.status = EGameStatus.PLAYING;
 
@@ -128,21 +147,24 @@ const GameService = {
     return result;
   },
 
-  async deleteGame(userId: string | undefined, gameId: string | undefined): Promise<IGame | null> {
+  async deleteGame(userId: string, gameId: string): Promise<string[]> {
     const gameObjectId = new Types.ObjectId(gameId);
     const userObjectId = new Types.ObjectId(userId);
 
     const game: IGame | null = await Game.findOne({
       _id: gameObjectId,
       players: { $elemMatch: { userData: { $eq: userObjectId } } },
-      status: EGameStatus.SEARCHING
+      $or: [
+        { status: EGameStatus.SEARCHING },
+        { status: EGameStatus.CHALLENGE }
+      ]
     });
 
     if (!game) throw new CustomError(24);
+    const deletedGame = await Game.findByIdAndDelete(game._id);
+    if (!deletedGame) throw new CustomError(24); // REVIEW
 
-    const result = await Game.findByIdAndDelete(game._id);
-    if (!result) throw new CustomError(24);
-
+    const result = deletedGame.players.map(player => { return player.userData.toString() ;});
     return result;
   },
 

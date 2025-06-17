@@ -2,6 +2,17 @@ import { Types } from "mongoose";
 import { EActionClass, EActionType, EAttackType, EClass, EFaction, EGameStatus, EHeroes, EItems, ETiles, EWinConditions } from "../enums/game.enums";
 
 /**
+ * Coordinates Interface
+ */
+export type ICoordinates = {
+  x: number,
+  y: number,
+  row?: number,
+  col?: number
+  boardPosition?: number
+};
+
+/**
  * Game Over Interface
  */
 export interface IGameOver {
@@ -99,7 +110,7 @@ export interface IFaction {
  */
 export interface IPlayerData {
   userData: Types.ObjectId;
-  faction: EFaction;
+  faction?: EFaction; // Need to be optional for challenges
 }
 
 /**
@@ -121,6 +132,21 @@ export interface IPlayerState {
 }
 
 /**
+ * Crystal Interface
+ */
+export interface ICrystal {
+  belongsTo: number;
+  maxHealth: number;
+  currentHealth: number;
+  isDestroyed: boolean;
+  isLastCrystal: boolean;
+  boardPosition: number;
+  debuffLevel: number;
+  row: number;
+  col: number;
+}
+
+/**
  * Tile Interface
  */
 export interface ITile {
@@ -133,15 +159,16 @@ export interface ITile {
   occupied: boolean;
   obstacle: boolean;
   hero?: IHero | undefined;
+  crystal?: ICrystal | undefined
 }
 
 /**
  * GameState Interface
  */
 export interface IGameState {
-  player1: IPlayerState;
+  player1?: IPlayerState;
   player2?: IPlayerState;
-  boardState: ITile[];
+  boardState?: ITile[];
   action?: ITurnAction;
 }
 
@@ -156,7 +183,7 @@ export default interface IGame {
   gameOver?: IGameOver,
   status: EGameStatus;
   createdAt: Date;
-  finishedAt: Date;
-  lastPlayedAt: Date;
-  activePlayer: Types.ObjectId | null; // userId
+  finishedAt?: Date;
+  lastPlayedAt?: Date;
+  activePlayer?: Types.ObjectId; // userId
 }

@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { isAuthenticated } from "../middleware/isAuthenticated";
 import GameService from "../services/gameService";
+import { CustomError } from "../classes/customError";
+import { EFaction } from "../enums/game.enums";
 
 const router = Router();
 
@@ -35,13 +37,22 @@ router.get('/get', isAuthenticated, async (req: Request, res: Response): Promise
   return GameService.getGame(req, res);
 });
 
-// Terminate a game - used for both conceding a game or cancelling a game searching for players
-router.post('/delete', isAuthenticated,  async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
-  // TODO: create a isAuthorized MW to check if a user can send moves / concede / cancel games
+/**
+ *
+ * POST
+ *
+ */
+router.post('/newgame', isAuthenticated, async(req: Request, res: Response, _next: NextFunction): Promise<Response> => {
   const userId = req.query.userId?.toString();
-  const gameId = req.query.gameId?.toString();
+  const faction = req.query.faction?.toString() as EFaction;
+  const opponentId = req.query.opponentId?.toString();
 
-  const response = await GameService.deleteGame(userId, gameId);
+  if (!userId || !faction || !opponentId) throw new CustomError(23);
+  const response = await GameService.createGame({
+    userId,
+    faction,
+    opponentId
+  });
   return res.send(response);
 });
 

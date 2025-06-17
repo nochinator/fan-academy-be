@@ -1,8 +1,8 @@
 import { AuthContext, Client, Room } from "@colyseus/core";
 import { Types } from "mongoose";
 import { CustomError } from "../classes/customError";
-import { EGameStatus } from "../enums/game.enums";
-import { IFaction, IPlayerData, ITile, ITurnMessage } from "../interfaces/gameInterface";
+import { EFaction, EGameStatus } from "../enums/game.enums";
+import { IPlayerData, ITurnMessage } from "../interfaces/gameInterface";
 import { verifySession } from "../middleware/socketSessions";
 import Game from "../models/gameModel";
 import GameService from "../services/gameService";
@@ -17,9 +17,10 @@ export class GameRoom extends Room {
 
   async onCreate(options: {
     userId: string,
+    faction: EFaction
     roomId?: string,
-    faction?: IFaction
-    boardState?: ITile[]
+    opponentId?: string
+    // boardState?: ITile[]
   }): Promise<void> {
     this.autoDispose = true;
     /**
@@ -37,8 +38,8 @@ export class GameRoom extends Room {
      * -re-creating a room: the options parameter provides the roomId
      *    -checks if the user is one of the two players, then grants access and sends the state
      */
-    const { faction, roomId, boardState } = options;
-    console.log('ON CREATE ROOM ID AND FACTION NAME', roomId, faction?.factionName);
+    const { faction, roomId, opponentId } = options;
+    console.log('ON CREATE ROOM - ID AND FACTION NAME', roomId, faction);
     this.userId = new Types.ObjectId(options.userId);
 
     /**
@@ -61,7 +62,7 @@ export class GameRoom extends Room {
      * CREATING A ROOM FOR A NEW GAME
      *
      */
-    if(!roomId && faction && boardState) {
+    if(!roomId) {
       // Check for games already looking for players
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
 
@@ -87,7 +88,7 @@ export class GameRoom extends Room {
         const newGame = await GameService.createGame({
           userId: options.userId,
           faction,
-          boardState
+          opponentId
         });
         console.log('NEWGAME', newGame);
 
