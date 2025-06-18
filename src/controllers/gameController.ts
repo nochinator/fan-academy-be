@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
-import { isAuthenticated } from "../middleware/isAuthenticated";
-import GameService from "../services/gameService";
 import { CustomError } from "../classes/customError";
 import { EFaction } from "../enums/game.enums";
+import { isAuthenticated } from "../middleware/isAuthenticated";
+import GameService from "../services/gameService";
 
 const router = Router();
 
@@ -34,7 +34,11 @@ router.get('/matchmaking', isAuthenticated, async (req: Request, res: Response, 
 
 // Get a specific game
 router.get('/get', isAuthenticated, async (req: Request, res: Response): Promise<Response> => {
-  return GameService.getGame(req, res);
+  const userId = req.query.userId?.toString();
+  const roomId = req.query.roomId?.toString();
+  if (!userId || !roomId) throw new CustomError(23);
+  const result = await  GameService.getGame(userId, roomId);
+  return res.send(result);
 });
 
 /**

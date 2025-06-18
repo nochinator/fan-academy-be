@@ -649,7 +649,6 @@ export function calculateAllCenterPoints(): ICoordinates[] {
     y: 720
   });
 
-  console.log(centerPoints);
   return centerPoints;
 }
 

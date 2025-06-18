@@ -39,15 +39,15 @@ const GameService = {
     return result;
   },
 
-  async getGame(req: Request, res: Response): Promise<Response> {
-    const userId = new Types.ObjectId(req.query.userId?.toString());
-    const roomId = new Types.ObjectId(req.query.roomId?.toString());
+  async getGame(userId: string, roomId: string): Promise<HydratedDocument<IGame> | null> {
+    const userObjId = new Types.ObjectId(userId);
+    const roomObjId = new Types.ObjectId(roomId);
     const result = await Game.findOne({
-      _id: roomId,
-      "players.userData": userId
+      _id: roomObjId,
+      "players.userData": userObjId
     });
     // if (!result) throw new CustomError(24); // REVIEW: do we need to throw here? I should just pass it to the FE
-    return res.send(result);
+    return result;
   },
 
   // POST ACTIONS
@@ -89,10 +89,10 @@ const GameService = {
   },
 
   async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: EFaction, userId: Types.ObjectId): Promise<HydratedDocument<IGame> | null> {
-    gameLookingForPlayers.players.push({
+    gameLookingForPlayers.players[1] = {
       userData: userId,
       faction
-    });
+    };
     gameLookingForPlayers.previousTurn.push({});
 
     // Create the player decks
