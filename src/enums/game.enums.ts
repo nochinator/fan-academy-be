@@ -52,7 +52,7 @@ export enum EItems {
   // Generic
   SHINING_HELM = 'shiningHelm',
   RUNE_METAL = 'runeMetal',
-  SUPERCHARGE = 'supercharge',
+  SUPERCHARGE = 'superCharge',
 
   // Council
   DRAGON_SCALE = 'dragonScale',
