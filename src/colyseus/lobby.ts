@@ -1,9 +1,9 @@
 import { Client, Room } from "@colyseus/core";
-import { ObjectId, Types } from "mongoose";
+import { ObjectId } from "mongoose";
+import { CustomError } from "../classes/customError";
 import { EFaction } from "../enums/game.enums";
 import IGame, { IGameState } from "../interfaces/gameInterface";
 import GameService from "../services/gameService";
-import { CustomError } from "../classes/customError";
 
 export class Lobby extends Room {
   connectedClients: Set<Client> = new Set();
@@ -106,13 +106,12 @@ export class Lobby extends Room {
       const gameId = message.gameId;
       const faction = message.faction as EFaction;
 
-      if (!userId) throw new CustomError(23);
-      const userObjectId = new Types.ObjectId(userId);
+      if (!userId || !gameId || !faction) throw new CustomError(23);
 
       const game = await GameService.getGame(userId, gameId);
       if (!game) throw new CustomError(24);
 
-      const result = await GameService.addPlayerTwo(game, faction as EFaction, userObjectId);
+      const result = await GameService.addPlayerTwo(game, faction as EFaction, userId);
 
       const userIds = result?.players.map(player => { return player.userData._id.toString();});
       this.presence.publish('newGamePresence', {

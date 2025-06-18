@@ -88,28 +88,30 @@ const GameService = {
     return result;
   },
 
-  async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: EFaction, userId: Types.ObjectId): Promise<HydratedDocument<IGame> | null> {
+  async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: EFaction, userId: string): Promise<HydratedDocument<IGame> | null> {
+    const userObjectId = new Types.ObjectId(userId);
+
     gameLookingForPlayers.players[1] = {
-      userData: userId,
+      userData: userObjectId,
       faction
     };
     gameLookingForPlayers.previousTurn.push({});
 
     // Create the player decks
     gameLookingForPlayers.players.forEach((player, index) => {
-      const playerFaction = createNewGameFactionState(player.userData.toString(), player.faction!);
+      const playerFaction = createNewGameFactionState(player.userData._id.toString(), player.faction!);
 
       if (index === 1) {
         playerFaction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
         playerFaction.unitsInHand.forEach(unit => unit.belongsTo = 2);
 
         gameLookingForPlayers.previousTurn[0].player2 = {
-          playerId: userId,
+          playerId: player.userData,
           factionData: { ...playerFaction }
         };
       } else {
         gameLookingForPlayers.previousTurn[0].player1 = {
-          playerId: userId,
+          playerId: player.userData,
           factionData: { ...playerFaction }
         };
       }

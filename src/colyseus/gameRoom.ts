@@ -70,7 +70,7 @@ export class GameRoom extends Room {
       if (gameLookingForPlayers) {
         console.log('Matchmaking found an open game');
 
-        const updatedGame = await GameService.addPlayerTwo(gameLookingForPlayers, faction, this.userId);
+        const updatedGame = await GameService.addPlayerTwo(gameLookingForPlayers, faction, options.userId);
         if (!updatedGame) throw new CustomError(24);
 
         this.roomId = updatedGame._id.toString();
