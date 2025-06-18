@@ -8,8 +8,6 @@ import { CustomError } from "../classes/customError";
 export class Lobby extends Room {
   connectedClients: Set<Client> = new Set();
 
-  // REVIEW: I'm using joinOrCreate in the FE, but have no requestJoin in the BE
-
   onJoin(client: Client, options: { userId: string }) {
     (client as any).userId = options.userId; // TypeScript workaround
     this.connectedClients.add(client);
@@ -18,8 +16,6 @@ export class Lobby extends Room {
   }
 
   onCreate(_options: { userId: string }): void {
-    this.autoDispose = true;
-
     // Updating an existing game
     this.presence.subscribe('gameUpdatedPresence', (message: {
       gameId: ObjectId
@@ -31,8 +27,6 @@ export class Lobby extends Room {
     }) => {
       console.log(`[Lobby ${this.roomId}] Received subscribed gameUpdatedPresence message`);
       this.logConnectedClients();
-
-      console.log('MESSAGE SENT:', message);
 
       const clientsToExclude: Client[] = [];
       this.connectedClients.forEach(client => {
@@ -47,7 +41,6 @@ export class Lobby extends Room {
       game: IGame,
       userIds: string[]
     }) => {
-      // console.log('MESSAGE ->', message);
       console.log(`[Lobby ${this.roomId}] Received subscribed newGamePresence message`);
       this.logConnectedClients();
 
@@ -80,7 +73,6 @@ export class Lobby extends Room {
       gameId: ObjectId,
       userIds: string[]
     }) => {
-      // console.log('MESSAGE ->', message);
       console.log(`[Lobby ${this.roomId}] Received subscribed gameDeletedPresence message`);
 
       const clientsToExclude: Client[] = [];
@@ -132,14 +124,19 @@ export class Lobby extends Room {
 
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
-    this.connectedClients.delete(client);
     console.log(`[Lobby ${this.roomId}] Client left: ${(client as any).userId}`);
+    this.connectedClients.delete(client);
     this.logConnectedClients();
   }
 
   // Handle lobby disposal
   onDispose(): void {
     console.log("[Lobby] Room disposed", this.roomId);
+
+    this.presence.unsubscribe('gameUpdatedPresence');
+    this.presence.unsubscribe('newGamePresence');
+    this.presence.unsubscribe('gameOverPresence');
+    this.presence.unsubscribe('gameDeletedPresence');
   }
 
   logConnectedClients() {

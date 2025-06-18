@@ -22,7 +22,6 @@ export class GameRoom extends Room {
     opponentId?: string
     // boardState?: ITile[]
   }): Promise<void> {
-    this.autoDispose = true;
     /**
      * onCreate can be called when:
      * -looking for a game.
