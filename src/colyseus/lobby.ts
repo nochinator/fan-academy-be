@@ -26,10 +26,13 @@ export class Lobby extends Room {
       previousTurn: IGameState[],
       newActivePlayer: string,
       userIds: string[],
-      turnNumber: number
+      turnNumber: number,
+      lastPlayedAt: Date
     }) => {
       console.log(`[Lobby ${this.roomId}] Received subscribed gameUpdatedPresence message`);
       this.logConnectedClients();
+
+      console.log('MESSAGE SENT:', message);
 
       const clientsToExclude: Client[] = [];
       this.connectedClients.forEach(client => {
@@ -129,7 +132,7 @@ export class Lobby extends Room {
 
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
-    this.connectedClients.delete((client as any).userId);
+    this.connectedClients.delete(client);
     console.log(`[Lobby ${this.roomId}] Client left: ${(client as any).userId}`);
     this.logConnectedClients();
   }

@@ -257,7 +257,7 @@ export class GameRoom extends Room {
     return false; // Deny access
   }
 
-  logConnectedClients() {
+  logConnectedClients(): void {
     console.log(`[Game] Connected clients: ${Array.from(this.connectedClients).join(", ")}`);
   }
 }
