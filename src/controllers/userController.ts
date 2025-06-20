@@ -8,8 +8,11 @@ const router = Router();
 
 // GET USERS
 router.get('/leaderboard', async (req: Request, res: Response) => {
-  const result = await UserService.getLeaderboard();
-  res.send(result);
+  const rawPage = parseInt(req.query.page as string) || 1;
+  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+
+  const result = await UserService.getLeaderboard(page);
+  res.send(result); // REVIEW: modify FE
 }); // NOTE: removed isAuthenticated // FIXME:
 
 router.get('/find/:id', async (req: Request, res: Response) => {

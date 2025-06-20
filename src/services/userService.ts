@@ -108,12 +108,30 @@ const UserService = {
   //   return await User.find(query);
   // },
 
-  async getLeaderboard(): Promise<IUser[]> {
-    return await User.find({}, {
+  async getLeaderboard(page: number): Promise<{
+    players: IUser[],
+    totalPages: number,
+    currentPage: number
+  }> {
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    const players =  await User.find({}, {
       username: 1,
       picture: 1,
       stats: 1
-    });
+    }).sort({
+      'stats.totalWins': -1,
+      'stats.totalGames': 1 
+    }).skip(skip).limit(limit);
+
+    const totalPlayers = await User.countDocuments();
+
+    return {
+      players,
+      totalPages: Math.ceil(totalPlayers / limit),
+      currentPage: page
+    };
   },
 
   async getUser(req: Request, res: Response): Promise<Response> {
