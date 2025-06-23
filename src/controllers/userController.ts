@@ -12,7 +12,7 @@ router.get('/leaderboard', async (req: Request, res: Response) => {
   const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
 
   const result = await UserService.getLeaderboard(page);
-  res.send(result); // REVIEW: modify FE
+  res.send(result);
 }); // NOTE: removed isAuthenticated // FIXME:
 
 router.get('/find/:id', async (req: Request, res: Response) => {

@@ -122,7 +122,7 @@ const UserService = {
       stats: 1
     }).sort({
       'stats.totalWins': -1,
-      'stats.totalGames': 1 
+      'stats.totalGames': 1
     }).skip(skip).limit(limit);
 
     const totalPlayers = await User.countDocuments();
