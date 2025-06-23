@@ -22,7 +22,7 @@ const UserService = {
       username,
       email,
       password: hashedPassword,
-      picture: '/assets/images/profilePics/Avatar_1stGame-hd.jpg', // TODO: link to default profile pic
+      picture: '/assets/images/profilePics/crystal.jpg', // TODO: link to default profile pic
       currentGames: [],
       gameHistory: [],
       preferences: {
