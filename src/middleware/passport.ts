@@ -1,8 +1,6 @@
 import { compare } from 'bcrypt';
 import passport from 'passport';
-import { Strategy as GoogleStrategy, Profile, VerifyCallback } from 'passport-google-oauth20';
 import { Strategy as LocalStrategy, VerifyFunction } from 'passport-local';
-import { GOOGLE_CLIENT_ID, GOOGLE_SECRET } from '../config';
 import IUser from '../interfaces/userInterface';
 import User from '../models/userModel';
 
@@ -27,35 +25,6 @@ const localVerifyCallback: VerifyFunction = async (username, password, cb): Prom
 
 const localStrategy = new LocalStrategy(localVerifyCallback);
 
-// GOOGLE OAUTH STRATEGY
-const googleVerifyCallback = async (req: Express.Request, accessToken: string, refreshToken: string, profile: Profile, cb: VerifyCallback): Promise<void> => {
-  try {
-    const user: IUser | null = await User.findOne({ googleId: profile.id });
-    if (user) {
-      cb(null, user);
-    } else {
-      // If no user is found, create one using the Google account email and display name
-      const newUser = new User({
-        username: profile.displayName,
-        email: profile._json.email,
-        googleId: profile.id,
-        picture: profile._json.picture
-      });
-      const currentUser: IUser = await newUser.save();
-      cb(null, currentUser);
-    }
-  } catch (err) {
-    cb(err);
-  }
-};
-
-const googleStrategy = new GoogleStrategy({
-  clientID: GOOGLE_CLIENT_ID!,
-  clientSecret: GOOGLE_SECRET!,
-  callbackURL: 'http://localhost:3003/users/login/google/callback',
-  passReqToCallback: true
-}, googleVerifyCallback);
-
 // USER SERIALIZATION
 passport.serializeUser((user, cb) => {
   console.log('SERIALIZE', user); // TODO: remove
@@ -73,4 +42,4 @@ passport.deserializeUser(async (userId, cb) => {
   }
 });
 
-export { googleStrategy, localStrategy };
+export { localStrategy };

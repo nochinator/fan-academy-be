@@ -1,21 +1,21 @@
+import { Server } from "@colyseus/core";
+import { WebSocketTransport } from "@colyseus/ws-transport";
 import bodyParser from "body-parser";
 import cors from "cors";
 import express, { Express, NextFunction, Request, Response } from "express";
-import passport from "passport";
 import "express-async-errors"; // Error MW patch
-import { googleStrategy, localStrategy } from "./middleware/passport";
-import { PORT } from './config';
-import userRouter from './controllers/userController';
-import gameRouter from './controllers/gameController';
-import AppErrorHandler from "./middleware/errorHandler";
-import IUser from "./interfaces/userInterface";
 import http from 'http';
-import { sessionMiddleware } from "./middleware/sessions";
-import { databaseConnection } from "./db";
-import { WebSocketTransport } from "@colyseus/ws-transport";
-import { Server } from "@colyseus/core";
+import passport from "passport";
 import { GameRoom } from "./colyseus/gameRoom";
 import { Lobby } from "./colyseus/lobby";
+import { PORT } from './config';
+import gameRouter from './controllers/gameController';
+import userRouter from './controllers/userController';
+import { databaseConnection } from "./db";
+import IUser from "./interfaces/userInterface";
+import AppErrorHandler from "./middleware/errorHandler";
+import { localStrategy } from "./middleware/passport";
+import { sessionMiddleware } from "./middleware/sessions";
 
 declare module "express-session" {
   interface SessionData { passport: { user: string };}
@@ -53,7 +53,6 @@ const index = async () => {
   app.use(passport.initialize());
   app.use(passport.session());
   passport.use(localStrategy);
-  passport.use(googleStrategy);
 
   app.use((req: Request, _res: Response, next: NextFunction) => { // TODO: logging purposes. To be removed
     // console.log('SESSION => ', req.session);

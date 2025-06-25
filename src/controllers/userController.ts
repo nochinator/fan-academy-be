@@ -29,17 +29,6 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction): 
 });
 
 // LOGIN
-router.get('/login/google',
-  passport.authenticate('google', {
-    failureRedirect: '/users/login',
-    scope: [ 'email', 'profile' ]
-  }));
-
-router.get('/login/google/callback',
-  passport.authenticate('google', {
-    successRedirect: '/users/all',
-    failureRedirect: '/users/login'
-  })); // TODO: Am I using this in the end?
 
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", (err: any, user: Express.User | false, _info?: { message?: string }): void => {
