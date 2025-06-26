@@ -19,9 +19,9 @@ router.get('/find/:id', async (req: Request, res: Response) => {
   return await UserService.getUser(req, res);
 }); // NOTE: removed isAuthenticated
 
-// router.get('/me', async (req: Request, res: Response) => {
-//   return await UserService.getMe(req, res);
-// });
+router.get('/profile', async (req: Request, res: Response) => {
+  return await UserService.getProfile(req, res);
+});
 
 // SIGN UP
 router.post('/signup', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -57,25 +57,11 @@ router.get('/logout', async (req: Request, res: Response): Promise<Response | Se
 });
 
 // PROFILE UPDATE
-router.post('/update/:id', async (req: Request, res: Response): Promise<Response> => {
+router.post('/update', async (req: Request, res: Response): Promise<Response> => {
   return await UserService.updateProfile(req, res);
 });
 
-// ACCOUNT DELETION // TODO: add popup asking user to type 'delete' in the FE in order for this to be called
-router.get('/delete', async (req: Request, res: Response) => {
-  const form = `<div class="delete-container">
-  <h2>Delete account</h2>
-  <form action="/users/delete" method="POST">
-      <label for="userId">UserId:</label>
-      <input type="text" id="userId" name="userId" required>
-
-      <button type="submit">Delete</button>
-  </form>
-</div>`;
-
-  res.send(form);
-});
-
+// ACCOUNT DELETION
 router.post('/delete', async (req: Request, res: Response, next: NextFunction): Promise<Session> => {
   return await UserService.deleteUser(req, res, next);
 });

@@ -2,7 +2,7 @@ import { Server } from "@colyseus/core";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import bodyParser from "body-parser";
 import cors from "cors";
-import express, { Express, NextFunction, Request, Response } from "express";
+import express, { Express, Request, Response } from "express";
 import "express-async-errors"; // Error MW patch
 import http from 'http';
 import passport from "passport";
@@ -54,11 +54,11 @@ const index = async () => {
   app.use(passport.session());
   passport.use(localStrategy);
 
-  app.use((req: Request, _res: Response, next: NextFunction) => { // TODO: logging purposes. To be removed
-    // console.log('SESSION => ', req.session);
-    // console.log('USER => ', req.user);
-    next();
-  });
+  // app.use((req: Request, _res: Response, next: NextFunction) => { // TODO: logging purposes. To be removed
+  //   // console.log('SESSION => ', req.session);
+  //   // console.log('USER => ', req.user);
+  //   next();
+  // });
 
   app.get('/auth-check', async (req: Request, res: Response) => {
     const user = req.user as IUser;

@@ -48,16 +48,25 @@ const UserService = {
   },
 
   async updateProfile(req: Request, res: Response): Promise<Response>{
-    const { id } = req.params;
-    const { username, email, password, picture, preferences } = req.body;
+    const user = req.user as IUser; // User data is populated by Passport
+    const { email, password, picture, emailNotifications, chat } = req.body;
 
-    const result = await User.findByIdAndUpdate(id, {
-      username,
-      email,
-      password,
-      picture,
-      preferences
-    }, { new: true });
+    const updateFields: any = {};
+
+    // Top-level fields
+    if (email) updateFields.email = email;
+    if (password) updateFields.password = password;
+    if (picture) updateFields.picture = picture;
+
+    // Nested preferences
+    if (emailNotifications || chat) {
+      updateFields.preferences = {};
+      if (emailNotifications) updateFields.preferences.emailNotifications = emailNotifications;
+      if (chat) updateFields.preferences.chat = chat;
+    }
+
+    const result = await User.findByIdAndUpdate(user._id, updateFields, { new: true });
+
     if (!result) throw new CustomError(41);
 
     return res.send(result);
@@ -141,18 +150,18 @@ const UserService = {
     if (!user) throw new CustomError(40);
 
     return res.send(user);
+  },
+
+  async getProfile(req: Request, res: Response): Promise<Response> {
+    const user = req.user as IUser; // User data is populated by Passport
+    // console.log('UUUUUUSER', user);
+    if (!user._id) { throw new CustomError(10); }
+
+    const result = await User.findById(user._id, { password: 0 });
+    if (!result) { throw new CustomError(40); }
+
+    return res.send(result);
   }
-
-  // async getMe(req: Request, res: Response): Promise<Response> {
-  //   const user = req.user as IUser;
-  //   console.log('UUUUUUSER', user);
-  //   if (!user._id) { throw new CustomError(10); }
-
-  //   const result = await User.findById(user._id);
-  //   if (!result) { throw new CustomError(40); }
-
-  //   return res.send(result);
-  // }
 };
 
 export default UserService;
