@@ -55,7 +55,13 @@ const UserService = {
     const updateFields: any = {};
 
     // Top-level fields
-    if (email) updateFields.email = email;
+    if (email) {
+      updateFields.email = email;
+      // Check if the email is already in use
+      const emailAlreadyExists: IUser | null = await User.findOne({ email });
+      if (emailAlreadyExists) throw new CustomError(12);
+    }
+
     if (password) updateFields.password = password;
     if (picture) updateFields.picture = picture;
 
