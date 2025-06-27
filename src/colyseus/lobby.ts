@@ -119,6 +119,24 @@ export class Lobby extends Room {
         userIds
       });
     });
+
+    // Deleting a user
+    this.presence.subscribe('userDeletedPresence', (message: {
+      userIds: string[],
+      gameIds: string[]
+    }) => {
+      console.log(`[Lobby ${this.roomId}] Received subscribed userDeletedPresence message`);
+      console.log('MESSAGE', message);
+
+      const clientsToExclude: Client[] = [];
+      this.connectedClients.forEach(client => {
+        if (!message.userIds.includes((client as any).userId)) clientsToExclude.push(client);
+      });
+
+      this.logConnectedClients();
+      console.log('clientsTOExclude', clientsToExclude);
+      this.broadcast('userDeletedUpdate', message, { except: clientsToExclude });
+    });
   };
 
   // Handle client leaving
@@ -136,6 +154,7 @@ export class Lobby extends Room {
     this.presence.unsubscribe('newGamePresence');
     this.presence.unsubscribe('gameOverPresence');
     this.presence.unsubscribe('gameDeletedPresence');
+    this.presence.unsubscribe('userDeletedPresence');
   }
 
   logConnectedClients() {

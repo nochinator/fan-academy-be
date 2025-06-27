@@ -2,9 +2,21 @@ import { model, Schema } from 'mongoose';
 import IUser from '../interfaces/userInterface';
 
 const PreferencesSchema = new Schema({
-  emailNotifications: Boolean,
-  sound: Boolean,
-  chat: Boolean
+  emailNotifications: {
+    type: Boolean,
+    required: true,
+    default: true
+  },
+  sound: {
+    type: Boolean,
+    required: true,
+    default: true
+  },
+  chat: {
+    type: Boolean,
+    required: true,
+    default: true
+  }
 });
 
 const StatsSchema = new Schema({

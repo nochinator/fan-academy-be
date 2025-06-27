@@ -4,8 +4,12 @@ import { NextFunction } from 'express-serve-static-core';
 import { Session } from 'express-session';
 import { CustomError } from '../classes/customError';
 import { EmailService } from '../emails/emailService';
+import { IPopulatedUserData } from '../interfaces/gameInterface';
 import IUser from "../interfaces/userInterface";
+import Game from "../models/gameModel";
 import User from "../models/userModel";
+import { EGameStatus } from '../enums/game.enums';
+import { matchMaker } from '@colyseus/core';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
@@ -22,14 +26,11 @@ const UserService = {
       username,
       email,
       password: hashedPassword,
-      picture: '/assets/images/profilePics/crystal.jpg', // TODO: link to default profile pic
+      picture: '/assets/images/profilePics/crystalIcon.jpg', // TODO: link to default profile pic
       currentGames: [],
       gameHistory: [],
-      preferences: {
-        emailNotifications: true,
-        sound: true,
-        chat: true
-      }
+      preferences: {},
+      stats: {}
     });
     const user =  await newUser.save();
     if (!user) throw new CustomError(30);
@@ -89,18 +90,59 @@ const UserService = {
     res.redirect('/users/login');
   },
 
-  async deleteUser(req: Request, res: Response, next: NextFunction): Promise<Session> {
-    const deletedUser: IUser | undefined | null = await User.findOneAndDelete({ _id: req.body.userId });
-    if (!deletedUser) throw new CustomError(40);
+  async deleteUser(user: IUser, next: NextFunction): Promise<void> {
+    try {
+      // Send email to user
+      // await EmailService.sendAccountDeletionEmail(user.email, next); // REVIEW:
 
-    await EmailService.sendAccountDeletionEmail(deletedUser?.email, next);
-    return req.session.destroy(err => {
-      if (err) {
-        next(err);
-      } else {
-        res.redirect('/users/login');
+      console.log('UUUUSER', user);
+
+      // Find and remove open games / and challenges, and inform the other players
+      const userIdsToUpdate = new Set<string>();
+      const userEmailsToUpdate = new Set<string>();
+      const gamesToDelete = new Set<string>();
+      const affectedGames = await Game.find({ 'players.userData': user._id }).populate('players.userData', "email");
+
+      console.log('AFFECTED GAMES', affectedGames);
+
+      if (affectedGames.length) {
+        affectedGames.forEach(game => {
+          if (game.status === EGameStatus.SEARCHING || game.status === EGameStatus.FINISHED) return;
+
+          console.log('AFFECTED GAME PLAYERS', game.players);
+
+          gamesToDelete.add(game._id.toString());
+
+          const opponent = game.players.find(player => player.userData._id.toString() !== user._id.toString() )?.userData as unknown as IPopulatedUserData;
+          console.log('OPPONENT EMAIL', opponent);
+
+          if (opponent?.email) userEmailsToUpdate.add(opponent.email);
+          if (opponent?._id) userIdsToUpdate.add(opponent._id.toString());
+        });
+
+        await Game.deleteMany({ 'players.userData': user._id });
       }
-    });
+
+      const deletedUser: IUser | undefined | null = await User.findOneAndDelete({ _id: user._id });
+      if (!deletedUser) throw new CustomError(40);
+
+      console.log('DELETED USER', deletedUser);
+
+      console.log('USERS TO UPDATE AND SIZE', userIdsToUpdate, userIdsToUpdate.size);
+      if (userIdsToUpdate.size > 0) {
+        console.log('OPPONENTS', userIdsToUpdate);
+        // TODO: send emails to other people playing with him, if they have a confirmed email
+
+        // Send a message to update the game list of the affected players
+        matchMaker.presence.publish('userDeletedPresence', {
+          userIds: [...userIdsToUpdate],
+          gameIds: [...gamesToDelete]
+        });
+      }
+    } catch(err) {
+      console.log(err);
+      next(err);
+    }
   },
 
   async turnNotification(userId: string, gameId: string, res: Response, next: NextFunction): Promise<void> {

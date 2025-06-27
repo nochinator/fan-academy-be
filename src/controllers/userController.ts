@@ -3,6 +3,7 @@ import passport from "passport";
 import UserService from "../services/userService";
 import { Session } from "express-session";
 import { CustomError } from "../classes/customError";
+import IUser from "../interfaces/userInterface";
 
 const router = Router();
 
@@ -63,7 +64,18 @@ router.post('/update', async (req: Request, res: Response): Promise<Response> =>
 
 // ACCOUNT DELETION
 router.post('/delete', async (req: Request, res: Response, next: NextFunction): Promise<Session> => {
-  return await UserService.deleteUser(req, res, next);
+  const user = req.user as IUser;
+  if (!user) throw new CustomError(26);
+
+  await UserService.deleteUser(user, next); // REVIEW:
+
+  return req.session.destroy(err => {
+    if (err) {
+      next(err);
+    } else {
+      res.send({ deleted: true });
+    }
+  });
 });
 
 // EMAIL RECOVERY

@@ -114,6 +114,16 @@ export interface IPlayerData {
 }
 
 /**
+ * Populated player interface
+ */
+export interface IPopulatedUserData {
+  _id: Types.ObjectId;
+  username?: string;
+  picture?: string;
+  email?: string;
+};
+
+/**
  * TurnAction Interface
  */
 export interface ITurnAction {

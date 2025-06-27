@@ -2,12 +2,21 @@ import mongoose from "mongoose";
 import User from "../models/userModel";
 import { faker } from '@faker-js/faker';
 import * as config from '../config';
+import { hash } from "bcrypt";
 
-const createFakeUser = () => ({
+const createFakeUser = (password: string) => ({
   username: faker.internet.username({
     firstName: 'U',
     lastName: 'U'
   }),
+  email: faker.internet.email(),
+  password,
+  picture: '/assets/images/profilePics/crystalIcon.jpg',
+  preferences: {
+    emailNotifications: true,
+    sound: true,
+    chat: true
+  },
   stats: {
     totalGames: faker.number.int({
       min: 10,
@@ -29,10 +38,11 @@ const createFakeUser = () => ({
 });
 
 const seedUsers = async () => {
+  const hashedPassword = await hash('12345657p', 10);
   await mongoose.connect(config.MONGODB_URI!);
-  const NUM_USERS = 250;
-  // await mongoose.connection.dropCollection('users').catch(() => {});
-  const users = Array.from({ length: NUM_USERS }, createFakeUser);
+  const NUM_USERS = 10;
+  await mongoose.connection.dropCollection('users').catch(() => {});
+  const users = Array.from({ length: NUM_USERS }, ()=> createFakeUser(hashedPassword));
   await User.insertMany(users);
   console.log(`${NUM_USERS} fake users added.`);
   mongoose.connection.close();
