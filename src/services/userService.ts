@@ -13,7 +13,6 @@ import { matchMaker } from '@colyseus/core';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
-    console.log('BODY', req.body); // TODO: remove
     const { username, email, password } = req.body;
 
     // Check if the username or email are already in use
@@ -27,7 +26,7 @@ const UserService = {
         username,
         email,
         password: hashedPassword,
-        picture: '/assets/images/profilePics/crystalIcon.jpg', // TODO: link to default profile pic
+        picture: '/assets/images/profilePics/crystalIcon.jpg',
         currentGames: [],
         gameHistory: [],
         preferences: {},

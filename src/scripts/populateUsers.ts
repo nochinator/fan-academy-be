@@ -38,7 +38,7 @@ const createFakeUser = (password: string) => ({
 });
 
 const seedUsers = async () => {
-  const hashedPassword = await hash('12345657p', 10);
+  const hashedPassword = await hash(config.FAKE_PASSWORD!, 10);
   await mongoose.connect(config.MONGODB_URI!);
   const NUM_USERS = 10;
   await mongoose.connection.dropCollection('users').catch(() => {});

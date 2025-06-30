@@ -4,11 +4,12 @@ import UserService from "../services/userService";
 import { Session } from "express-session";
 import { CustomError } from "../classes/customError";
 import IUser from "../interfaces/userInterface";
+import { isAuthenticated } from "../middleware/isAuthenticated";
 
 const router = Router();
 
 // GET USERS
-router.get('/leaderboard', async (req: Request, res: Response) => {
+router.get('/leaderboard', isAuthenticated, async (req: Request, res: Response) => {
   const rawPage = parseInt(req.query.page as string) || 1;
   const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
 
