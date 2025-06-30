@@ -8,7 +8,7 @@ import http from 'http';
 import passport from "passport";
 import { GameRoom } from "./colyseus/gameRoom";
 import { Lobby } from "./colyseus/lobby";
-import { PORT } from './config';
+import { FE_URL, LOCALHOST_BE, LOCALHOST_FE, PORT } from './config';
 import gameRouter from './controllers/gameController';
 import userRouter from './controllers/userController';
 import { databaseConnection } from "./db";
@@ -45,7 +45,7 @@ const index = async () => {
   app.use(sanitizeInput);
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: [LOCALHOST_BE!, LOCALHOST_FE!, FE_URL!],
     credentials: true
   }));
 
@@ -55,12 +55,6 @@ const index = async () => {
   app.use(passport.initialize());
   app.use(passport.session());
   passport.use(localStrategy);
-
-  // app.use((req: Request, _res: Response, next: NextFunction) => { // TODO: logging purposes. To be removed
-  //   // console.log('SESSION => ', req.session);
-  //   // console.log('USER => ', req.user);
-  //   next();
-  // });
 
   app.get('/auth-check', async (req: Request, res: Response) => {
     const user = req.user as IUser;
@@ -82,8 +76,9 @@ const index = async () => {
   // Error handler
   app.use(AppErrorHandler);
 
-  server.listen(PORT, () => {
-    console.log(`[server]: Server is running at http://localhost:${PORT}`);
+  const port = process.env.PORT || PORT;
+  server.listen(port, () => {
+    console.log(`[server]: Server is running`);
   });
 };
 
