@@ -16,6 +16,7 @@ import IUser from "./interfaces/userInterface";
 import AppErrorHandler from "./middleware/errorHandler";
 import { localStrategy } from "./middleware/passport";
 import { sessionMiddleware } from "./middleware/sessions";
+import { sanitizeInput } from "./middleware/sanitizeInput";
 
 declare module "express-session" {
   interface SessionData { passport: { user: string };}
@@ -41,6 +42,7 @@ const index = async () => {
 
   // Middleware
   app.use(express.json());
+  app.use(sanitizeInput);
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cors({
     origin: ['http://localhost:3000', 'http://localhost:5173'],

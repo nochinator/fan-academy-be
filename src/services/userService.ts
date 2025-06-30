@@ -14,38 +14,43 @@ import { matchMaker } from '@colyseus/core';
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
     console.log('BODY', req.body); // TODO: remove
-    const { username, email, password } = req.body; // TODO: sanitize fields
+    const { username, email, password } = req.body;
 
     // Check if the username or email are already in use
     const userAlreadyExists: IUser[] = await User.find({ $or: [ { username }, { email }] });
     if (userAlreadyExists.length) throw new CustomError(12);
 
     // If the user doesn't exist, create a new user with an encrypted password
-    const hashedPassword = await hash(password, 10);
-    const newUser = new User({
-      username,
-      email,
-      password: hashedPassword,
-      picture: '/assets/images/profilePics/crystalIcon.jpg', // TODO: link to default profile pic
-      currentGames: [],
-      gameHistory: [],
-      preferences: {},
-      stats: {}
-    });
-    const user =  await newUser.save();
-    if (!user) throw new CustomError(30);
+    try {
+      const hashedPassword = await hash(password, 10);
+      const newUser = new User({
+        username,
+        email,
+        password: hashedPassword,
+        picture: '/assets/images/profilePics/crystalIcon.jpg', // TODO: link to default profile pic
+        currentGames: [],
+        gameHistory: [],
+        preferences: {},
+        stats: {}
+      });
+      const user =  await newUser.save();
+      if (!user) throw new CustomError(30);
 
-    // Send email confirmation email
-    await EmailService.sendAccountConfirmationEmail(username, email, next);
+      // Send email confirmation email
+      await EmailService.sendAccountConfirmationEmail(username, email, next);
 
-    // Manually log in the user
-    req.login(user, (loginErr: any) => {
-      if (loginErr) { return next(loginErr); }
+      // Manually log in the user
+      req.login(user, (loginErr: any) => {
+        if (loginErr) { return next(loginErr); }
 
-      res.status(200).json({
-        message: "Login successful",
-        user
-      });});
+        res.status(200).json({
+          message: "Login successful",
+          user
+        });});
+    } catch(err: any) {
+      console.log('Error', err);
+      next(err.message);
+    }
   },
 
   async updateProfile(req: Request, res: Response): Promise<Response>{
