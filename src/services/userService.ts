@@ -1,15 +1,14 @@
+import { matchMaker } from '@colyseus/core';
 import { hash } from 'bcrypt';
 import { Request, Response } from "express";
 import { NextFunction } from 'express-serve-static-core';
 import { Session } from 'express-session';
 import { CustomError } from '../classes/customError';
-import { EmailService } from '../emails/emailService';
+import { EGameStatus } from '../enums/game.enums';
 import { IPopulatedUserData } from '../interfaces/gameInterface';
 import IUser from "../interfaces/userInterface";
 import Game from "../models/gameModel";
 import User from "../models/userModel";
-import { EGameStatus } from '../enums/game.enums';
-import { matchMaker } from '@colyseus/core';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
@@ -36,7 +35,7 @@ const UserService = {
       if (!user) throw new CustomError(30);
 
       // Send email confirmation email
-      await EmailService.sendAccountConfirmationEmail(username, email, next);
+      // await EmailService.sendAccountConfirmationEmail(username, email, next);
 
       // Manually log in the user
       req.login(user, (loginErr: any) => {

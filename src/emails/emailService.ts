@@ -46,31 +46,17 @@ export const EmailService = {
     };
   },
 
-  async sendAccountConfirmationEmail(username: string, email: string, next: NextFunction): Promise<void> {
-    // Create confirmation link // TODO:
-    const confirmationLink = 'confirmation.com';
-    await this.sendEmail({
-      templateId: 1,
-      email,
-      params: {
-        username,
-        confirmationLink
-      }
-    }, next);
-  },
-
-  async sendPasswordResetEmail(email: string, username: string, next: NextFunction): Promise<void> {
-    // Create recovery link // TODO:
-    const resetLink = 'recovery.com';
-    await this.sendEmail({
-      templateId: 2,
-      email,
-      params: {
-        username,
-        resetLink
-      }
-    }, next);
-  },
+  // async sendAccountConfirmationEmail(username: string, email: string, next: NextFunction): Promise<void> {
+  //   const confirmationLink = 'confirmation.com';
+  //   await this.sendEmail({
+  //     templateId: 1,
+  //     email,
+  //     params: {
+  //       username,
+  //       confirmationLink
+  //     }
+  //   }, next);
+  // },
 
   async sendTurnNotificationEmail(email: string, username: string, gameId: string, next: NextFunction): Promise<void> {
     // Create recovery link // TODO:
