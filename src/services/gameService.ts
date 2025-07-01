@@ -20,12 +20,6 @@ const GameService = {
     return result;
   },
 
-  async getOpenGames(res: Response): Promise<Response> {
-    const result = await Game.find({ status: EGameStatus.SEARCHING  });
-
-    return res.send(result);
-  },
-
   async matchmaking(playerId: string): Promise<HydratedDocument<IGame> | null> {
     const userId = new Types.ObjectId(playerId);
 

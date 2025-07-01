@@ -17,11 +17,6 @@ router.get('/playing', isAuthenticated, async (req: Request, res: Response, _nex
   return res.send(response);
 });
 
-// Get games looking for players
-router.get('/open', isAuthenticated, async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
-  return GameService.getOpenGames(res);
-}); // REVIEW: not used at the moment (data included in /playing)
-
 // Get the oldest game looking for a player, if any
 router.get('/matchmaking', isAuthenticated, async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
   const playerId = req.query.userId?.toString();

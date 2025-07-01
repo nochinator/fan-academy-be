@@ -15,13 +15,13 @@ router.get('/leaderboard', isAuthenticated, async (req: Request, res: Response) 
 
   const result = await UserService.getLeaderboard(page);
   res.send(result);
-}); // NOTE: removed isAuthenticated // FIXME:
+});
 
-router.get('/find/:id', async (req: Request, res: Response) => {
-  return await UserService.getUser(req, res);
-}); // NOTE: removed isAuthenticated
+// router.get('/find/:id', async (req: Request, res: Response) => {
+//   return await UserService.getUser(req, res);
+// });
 
-router.get('/profile', async (req: Request, res: Response) => {
+router.get('/profile', isAuthenticated, async (req: Request, res: Response) => {
   return await UserService.getProfile(req, res);
 });
 
@@ -31,7 +31,6 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction): 
 });
 
 // LOGIN
-
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", (err: any, user: Express.User | false, _info?: { message?: string }): void => {
     try {
@@ -59,12 +58,12 @@ router.get('/logout', async (req: Request, res: Response): Promise<Response | Se
 });
 
 // PROFILE UPDATE
-router.post('/update', async (req: Request, res: Response): Promise<Response> => {
+router.post('/update', isAuthenticated, async (req: Request, res: Response): Promise<Response> => {
   return await UserService.updateProfile(req, res);
 });
 
 // ACCOUNT DELETION
-router.post('/delete', async (req: Request, res: Response, next: NextFunction): Promise<Session> => {
+router.post('/delete', isAuthenticated, async (req: Request, res: Response, next: NextFunction): Promise<Session> => {
   const user = req.user as IUser;
   if (!user) throw new CustomError(26);
 
@@ -78,15 +77,5 @@ router.post('/delete', async (req: Request, res: Response, next: NextFunction): 
     }
   });
 });
-
-// EMAIL RECOVERY
-router.post('/password-reset', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  await UserService.passwordReset(req, res, next);
-});
-
-// NOTIFICATIONS
-router.get('/turn-notification', async(_req: Request, res: Response, next: NextFunction) => {
-  return await UserService.turnNotification('66bba04c412d8d4987d52c9b', '123', res, next);
-}); // TODO: remove when done testing
 
 export default router;

@@ -92,14 +92,6 @@ const UserService = {
     });
   },
 
-  async passwordReset(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const user: IUser | null = await User.findOne({ email: req.body.email  });
-    if (!user) throw new CustomError(40);
-
-    await EmailService.sendPasswordResetEmail(user.email, user.username, next);
-    res.redirect('/users/login');
-  },
-
   async deleteUser(user: IUser, next: NextFunction): Promise<void> {
     try {
       // Send email to user
@@ -155,15 +147,6 @@ const UserService = {
     }
   },
 
-  async turnNotification(userId: string, gameId: string, res: Response, next: NextFunction): Promise<void> {
-    const user: IUser | null = await User.findById(userId); // TODO: check if we use id or username as param
-    if (!user) throw new CustomError(40);
-
-    if (user.preferences.emailNotifications) await EmailService.sendTurnNotificationEmail(user.email, user.username, gameId, next);
-
-    res.send('Notification sent!');
-  },
-
   // async getUsers(userIds?: ObjectId[]): Promise<IUser[]> {
   //   const query = userIds ? { _id: { $in: userIds } } : {};
   //   return await User.find(query);
@@ -193,15 +176,6 @@ const UserService = {
       totalPages: Math.ceil(totalPlayers / limit),
       currentPage: page
     };
-  },
-
-  async getUser(req: Request, res: Response): Promise<Response> {
-    const { userId } = req.body; // FIXME: I have req.params somewhere, choose one
-
-    const user =  await User.findById(userId);
-    if (!user) throw new CustomError(40);
-
-    return res.send(user);
   },
 
   async getProfile(req: Request, res: Response): Promise<Response> {
