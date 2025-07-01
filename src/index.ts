@@ -8,7 +8,6 @@ import http from 'http';
 import passport from "passport";
 import { GameRoom } from "./colyseus/gameRoom";
 import { Lobby } from "./colyseus/lobby";
-import { FE_URL, LOCALHOST_BE, LOCALHOST_FE, PORT } from './config';
 import gameRouter from './controllers/gameController';
 import userRouter from './controllers/userController';
 import { databaseConnection } from "./db";
@@ -23,6 +22,7 @@ declare module "express-session" {
 }
 
 const index = async () => {
+  console.log('SECRET', process.env.secret);
   const app: Express = express();
   const server = http.createServer(app);
 
@@ -45,7 +45,7 @@ const index = async () => {
   app.use(sanitizeInput);
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(cors({
-    origin: [LOCALHOST_BE!, LOCALHOST_FE!, FE_URL!],
+    origin: [process.env.LOCALHOST_BE!, process.env.LOCALHOST_FE!, process.env.FE_URL!],
     credentials: true
   }));
 
@@ -75,8 +75,7 @@ const index = async () => {
   // Error handler
   app.use(AppErrorHandler);
 
-  const port = process.env.PORT || PORT;
-  server.listen(port, () => {
+  server.listen(process.env.PORT || '3003', () => {
     console.log(`[server]: Server is running`);
   });
 };

@@ -1,21 +1,20 @@
 import * as Brevo from '@getbrevo/brevo';
-import { BREVO_API_KEY, EMAIL_TEST_ADDRESS } from '../config';
-import IGame from '../interfaces/gameInterface';
 import { NextFunction } from "express";
+import IGame from '../interfaces/gameInterface';
 
 const apiInstance = new Brevo.TransactionalEmailsApi();
 
 apiInstance.setApiKey(
   Brevo.TransactionalEmailsApiApiKeys.apiKey,
-  BREVO_API_KEY!
+  process.env.BREVO_API_KEY!
 );
 
 const emailVars = {
   sender: {
-    email: EMAIL_TEST_ADDRESS, // TODO: implement domain email addresses
+    email: process.env.EMAIL_SENDER,
     name: 'Fan Academy'
   },
-  replyTo: { email: EMAIL_TEST_ADDRESS }
+  replyTo: { email: process.env.EMAIL_TEST_ADDRESS }
 };
 
 export const EmailService = {
