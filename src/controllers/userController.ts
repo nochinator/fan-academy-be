@@ -53,8 +53,8 @@ router.post("/login", (req: Request, res: Response, next: NextFunction) => {
 });
 
 // LOGOUT
-router.get('/logout', async (req: Request, res: Response): Promise<Response | Session> => {
-  return await UserService.logout(req, res);
+router.post('/logout', isAuthenticated, async (req: Request, res: Response, next: NextFunction): Promise<Response | Session> => {
+  return await UserService.logout(req, res, next);
 });
 
 // PROFILE UPDATE
@@ -67,7 +67,7 @@ router.post('/delete', isAuthenticated, async (req: Request, res: Response, next
   const user = req.user as IUser;
   if (!user) throw new CustomError(26);
 
-  await UserService.deleteUser(user, next); // REVIEW:
+  await UserService.deleteUser(user, next);
 
   return req.session.destroy(err => {
     if (err) {

@@ -82,8 +82,16 @@ const UserService = {
     return res.send(result);
   },
 
-  async logout(req: Request, res: Response): Promise<Response | Session> {
+  async logout(req: Request, res: Response, next: NextFunction): Promise<Response | Session> {
     if (!req.session)  throw new CustomError(10);
+
+    return req.session.destroy(err => {
+      if (err) {
+        next(err);
+      } else {
+        res.send({ logout: true });
+      }
+    });
 
     return req.session.destroy(err => {
       if (err) { throw new CustomError(13); }
