@@ -25,7 +25,7 @@ const UserService = {
         username,
         email,
         password: hashedPassword,
-        picture: '/assets/images/profilePics/crystalIcon.jpg',
+        picture: 'crystalIcon',
         currentGames: [],
         gameHistory: [],
         preferences: {},
