@@ -69,6 +69,7 @@ export interface IHero {
   boardPosition: number;
   row: number;
   col: number;
+  baseHealth: number;
   maxHealth: number;
   currentHealth: number;
   isKO: boolean;

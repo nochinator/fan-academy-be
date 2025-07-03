@@ -227,15 +227,16 @@ function createGenericCouncilData(data: Partial<IHero>): {
 
 export function createCouncilArcherData(data: Partial<IHero>): IHero {
   // Melee damage = 1/2 power
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 300;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.ARCHER,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 3,
     healingRange: 0,
@@ -252,15 +253,16 @@ export function createCouncilArcherData(data: Partial<IHero>): IHero {
 }
 
 export function createCouncilWizardData(data: Partial<IHero>): IHero {
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 10;
 
   return {
     unitType: EHeroes.WIZARD,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 2,
     healingRange: 0,
@@ -277,15 +279,16 @@ export function createCouncilWizardData(data: Partial<IHero>): IHero {
 }
 
 export function createCouncilKnightData(data: Partial<IHero>): IHero {
-  const maxHealth = 1000;
+  const baseHealth = 1000;
   const power = 200;
   const physicalDamageResistance = 20;
   const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.KNIGHT,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 1,
     healingRange: 0,
@@ -303,15 +306,16 @@ export function createCouncilKnightData(data: Partial<IHero>): IHero {
 
 export function createCouncilClericData(data: Partial<IHero>): IHero {
   // Heals for x3, revives for x2 power
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.CLERIC,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 2,
     healingRange: 2,
@@ -330,15 +334,16 @@ export function createCouncilClericData(data: Partial<IHero>): IHero {
 export function createCouncilNinjaData(data: Partial<IHero>): IHero {
   // Melee is x2 power
   // Can teleport
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.NINJA,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 3,
     attackRange: 2,
     healingRange: 0,
@@ -391,15 +396,16 @@ function createGenericElvesData(data: Partial<IHero>): {
 }
 
 export function createElvesImpalerData(data: Partial<IHero>): IHero {
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 300;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.IMPALER,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 2,
     healingRange: 0,
@@ -417,15 +423,16 @@ export function createElvesImpalerData(data: Partial<IHero>): IHero {
 
 export function createElvesPriestessData(data: Partial<IHero>): IHero {
   // Heals for x2, revives for 1/2 power
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.PRIESTESS,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 2, // TODO: applies debuff
     healingRange: 3,
@@ -444,15 +451,16 @@ export function createElvesPriestessData(data: Partial<IHero>): IHero {
 
 export function createElvesVoidMonkData(data: Partial<IHero>): IHero {
   // AOE damage in cone (above, below and behind hit unit) for 66.6% of power
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 200;
   const physicalDamageResistance = 20;
   const magicalDamageResistance = 20;
 
   return {
     unitType: EHeroes.VOIDMONK,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 3,
     attackRange: 1,
     healingRange: 0,
@@ -470,15 +478,16 @@ export function createElvesVoidMonkData(data: Partial<IHero>): IHero {
 
 export function createElvesNecromancerData(data: Partial<IHero>): IHero {
   // Transforms KO units (friend or foe) into phantoms
-  const maxHealth = 800;
+  const baseHealth = 800;
   const power = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.NECROMANCER,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 3,
     healingRange: 0,
@@ -497,15 +506,16 @@ export function createElvesNecromancerData(data: Partial<IHero>): IHero {
 export function createElvesWraithData(data: Partial<IHero>): IHero {
   // Can consume up to 3 KO'd units to level up: +150 hp and +50 power per unit
   // Can be deployed on a KO'd unit (does not consume it)
-  const maxHealth = 650;
+  const baseHealth = 650;
   const power = 250;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 10;
 
   return {
     unitType: EHeroes.WRAITH,
-    maxHealth: data.maxHealth ?? maxHealth,
-    currentHealth: data.currentHealth ?? maxHealth,
+    baseHealth: data.baseHealth ?? baseHealth,
+    maxHealth: data.maxHealth ?? baseHealth,
+    currentHealth: data.currentHealth ?? baseHealth,
     movement: 3,
     attackRange: 1,
     healingRange: 0,
@@ -526,6 +536,7 @@ export function createElvesPhantomData(data: Partial<IHero>): IHero {
   // Cannot be equipped, buffed or healed, disappears if KO'd
   return {
     unitType: EHeroes.PHANTOM,
+    baseHealth: 100,
     maxHealth: 100,
     currentHealth: data.currentHealth ?? 100,
     movement: 3,

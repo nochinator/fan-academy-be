@@ -116,6 +116,10 @@ const HeroSchema = new Schema({
     type: Number,
     required: true
   },
+  baseHealth: {
+    type: Number,
+    required: true
+  },
   maxHealth: {
     type: Number,
     required: true
