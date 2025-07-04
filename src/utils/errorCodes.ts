@@ -21,7 +21,10 @@ export const ErrorCodes = {
 
   // User
   40: 'User not found',
-  41: 'Could not update the profile, please try again'
+  41: 'Could not update the profile, please try again',
+
+  // Email
+  50: 'Email error'
 };
 
 export const ErrorStatuses = {
@@ -40,7 +43,8 @@ export const ErrorStatuses = {
   30: 500,
   31: 500,
   40: 404,
-  41: 400
+  41: 400,
+  50: 500
 };
 
 export type ErrorCode = keyof typeof ErrorCodes;

@@ -1,3 +1,7 @@
+import { configDotenv } from "dotenv";
+
+configDotenv({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
+
 import { Server } from "@colyseus/core";
 import { WebSocketTransport } from "@colyseus/ws-transport";
 import bodyParser from "body-parser";
@@ -16,14 +20,12 @@ import AppErrorHandler from "./middleware/errorHandler";
 import { localStrategy } from "./middleware/passport";
 import { sessionMiddleware } from "./middleware/sessions";
 import { sanitizeInput } from "./middleware/sanitizeInput";
-import { configDotenv } from "dotenv";
 
 declare module "express-session" {
   interface SessionData { passport: { user: string };}
 }
 
 const index = async () => {
-  configDotenv({ path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env' });
   console.log('USING ENV:', process.env.NODE_ENV);
   const app: Express = express();
   const server = http.createServer(app);

@@ -117,6 +117,10 @@ export interface IPlayerData {
 /**
  * Populated player interface
  */
+export interface IPopulatedPlayerData {
+  userData: IPopulatedUserData;
+  faction?: EFaction;
+}
 export interface IPopulatedUserData {
   _id: Types.ObjectId;
   username?: string;

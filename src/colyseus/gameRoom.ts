@@ -2,11 +2,12 @@ import { AuthContext, Client, Room } from "@colyseus/core";
 import { Types } from "mongoose";
 import { CustomError } from "../classes/customError";
 import { EFaction, EGameStatus } from "../enums/game.enums";
-import { IPlayerData, ITurnMessage } from "../interfaces/gameInterface";
+import { IPlayerData, IPopulatedPlayerData, ITurnMessage } from "../interfaces/gameInterface";
 import { verifySession } from "../middleware/socketSessions";
 import Game from "../models/gameModel";
 import User from '../models/userModel';
 import GameService from "../services/gameService";
+import { EmailService } from "../emails/emailService";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -128,7 +129,7 @@ export class GameRoom extends Room {
       status: EGameStatus.FINISHED,
       lastPlayedAt: finishedAt,
       finishedAt
-    }, { new: true }).populate('players.userData', "username picture");
+    }, { new: true }).populate('players.userData', "username picture email");
 
     if (!updatedGame) throw new CustomError(24);
 
@@ -154,8 +155,8 @@ export class GameRoom extends Room {
     });
 
     // Update users stats
-    const userWon = updatedGame.players.find(player => player.userData._id.toString() === winner);
-    const userLost = updatedGame.players.find(player => player.userData._id.toString() !== winner);
+    const userWon = updatedGame.players.find(player => player.userData._id.toString() === winner) as unknown as IPopulatedPlayerData;
+    const userLost = updatedGame.players.find(player => player.userData._id.toString() !== winner) as unknown as IPopulatedPlayerData;
 
     console.log('USERWON', userWon);
     console.log('USERLOST', userLost);
@@ -176,6 +177,9 @@ export class GameRoom extends Room {
     const updateLoser = await User.findByIdAndUpdate(userLost.userData._id, { $inc: { 'stats.totalGames': 1 } });
 
     if (!updateWinner || !updateLoser) throw new CustomError(24);
+
+    // Send gameover emails
+    await EmailService.sendGameOverEmail(userWon, userLost, winCondition);
   }
 
   async handleTurn(message: ITurnMessage): Promise<void> {

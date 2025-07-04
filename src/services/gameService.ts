@@ -1,12 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { matchMaker } from "@colyseus/core";
 import { HydratedDocument, Types } from "mongoose";
 import { CustomError } from "../classes/customError";
-import { EmailService } from "../emails/emailService";
 import { EFaction, EGameStatus } from "../enums/game.enums";
 import IGame, { IPlayerData } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
-import { matchMaker } from "@colyseus/core";
 
 const GameService = {
   // GET ACTIONS
@@ -162,31 +160,31 @@ const GameService = {
 
     const result = deletedGame.players.map(player => { return player.userData.toString() ;});
     return result;
-  },
-
-  async endGame(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const { gameId, winner, winCondition, lastTurn } = req.body;
-
-    const update: any = {
-      winner,
-      winCondition,
-      gameStatus: EGameStatus.FINISHED
-    };
-
-    if (lastTurn) {
-      update.$push = { gameState: lastTurn };
-      update.currentTurn = lastTurn;
-    }
-
-    // Update game document
-    const game: IGame | null = await Game.findOneAndUpdate({ filter: { _id: gameId } }, { update });
-    if (!game) throw new CustomError(24);
-
-    // Send end game notificaton emails
-    await EmailService.sendGameEndEmail(game, next);
-
-    res.redirect('/');
   }
+
+  // async endGame(req: Request, res: Response, next: NextFunction): Promise<void> {
+  //   const { gameId, winner, winCondition, lastTurn } = req.body;
+
+  //   const update: any = {
+  //     winner,
+  //     winCondition,
+  //     gameStatus: EGameStatus.FINISHED
+  //   };
+
+  //   if (lastTurn) {
+  //     update.$push = { gameState: lastTurn };
+  //     update.currentTurn = lastTurn;
+  //   }
+
+  //   // Update game document
+  //   const game: IGame | null = await Game.findOneAndUpdate({ filter: { _id: gameId } }, { update });
+  //   if (!game) throw new CustomError(24);
+
+  //   // Send end game notificaton emails
+  //   await EmailService.sendGameEndEmail(game, next);
+
+  //   res.redirect('/');
+  // }
 };
 
 export default GameService;

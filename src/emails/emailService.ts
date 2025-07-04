@@ -1,6 +1,7 @@
 import * as Brevo from '@getbrevo/brevo';
-import { NextFunction } from "express";
-import IGame from '../interfaces/gameInterface';
+import { EWinConditions } from '../enums/game.enums';
+import { IPopulatedPlayerData } from '../interfaces/gameInterface';
+import { CustomError } from '../classes/customError';
 
 const apiInstance = new Brevo.TransactionalEmailsApi();
 
@@ -10,11 +11,12 @@ apiInstance.setApiKey(
 );
 
 const emailVars = {
+  to: [{ email: process.env.EMAIL_ADDRESS }],
   sender: {
     email: process.env.EMAIL_SENDER,
     name: 'Fan Academy'
   },
-  replyTo: { email: process.env.EMAIL_TEST_ADDRESS }
+  replyTo: { email: process.env.EMAIL_ADDRESS }
 };
 
 export const EmailService = {
@@ -22,31 +24,33 @@ export const EmailService = {
     templateId: number,
     email: string | string[],
     params: object,
-  }, next: NextFunction): Promise<void> {
+  }): Promise<void> {
     const sendTo = Array.isArray(emailData.email)
       ? emailData.email.map((mail) => ({ email: mail }))
       : [{ email: emailData.email }];
 
     console.log("PARAMS =>", emailData.params);
 
-    const smtpEmail = new Brevo.SendSmtpEmail();
-    const sendSmtpEmail = Object.assign(smtpEmail, {
-      ...emailVars,
-      to: sendTo,
-      templateId: emailData.templateId,
-      params: emailData.params
-    });
-
     try {
+      const smtpEmail = new Brevo.SendSmtpEmail();
+      const sendSmtpEmail = Object.assign(smtpEmail, {
+        ...emailVars,
+        bcc: sendTo,
+        templateId: emailData.templateId,
+        params: emailData.params
+      });
+
+      console.log('sendSmtpEmail', sendSmtpEmail);
+
       const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
       console.log('API called successfully. Returned data: ' + JSON.stringify(result));
     } catch(err) {
       console.log(err);
-      next(err);
+      throw new CustomError(50, `${err}`);
     };
   },
 
-  // async sendAccountConfirmationEmail(username: string, email: string, next: NextFunction): Promise<void> {
+  // async sendAccountConfirmationEmail(username: string, email: string): Promise<void> {
   //   const confirmationLink = 'confirmation.com';
   //   await this.sendEmail({
   //     templateId: 1,
@@ -55,61 +59,37 @@ export const EmailService = {
   //       username,
   //       confirmationLink
   //     }
-  //   }, next);
+  //   })
   // },
 
-  async sendTurnNotificationEmail(email: string, username: string, gameId: string, next: NextFunction): Promise<void> {
-    // Create recovery link // TODO:
-    const gameLink = `testlink/games/${gameId}`;
+  async sendTurnNotificationEmail(email: string, username: string, _gameId: string): Promise<void> {
     await this.sendEmail({
       templateId: 3,
       email,
+      params: { username }
+    });
+  },
+
+  async sendGameOverEmail(winner: IPopulatedPlayerData, loser: IPopulatedPlayerData, winCondition: EWinConditions): Promise<void> {
+    await this.sendEmail({
+      templateId: 4,
+      email: [winner.userData.email!, loser.userData.email!],
       params: {
-        username,
-        gameLink
+        user1: winner.userData.username,
+        user1Faction: winner.faction,
+        user2: loser.userData.username,
+        user2Faction: loser.faction,
+        winCondition
       }
-    }, next);
+    });
   },
 
-  // REVIEW: include link back to the game for a rematch?
-  // TODO: refactor FIXME:
-  async sendGameEndEmail(_game: IGame, _next: NextFunction): Promise<void> {
-    // const { players, winCondition, winner } = game;
-
-    // const userData = await UserService.getUsers([players[0].userData, players[1].userData]);
-
-    // const user1 = {
-    //   username: userData[0].username,
-    //   faction: players[0].faction
-    // };
-
-    // const user2 = {
-    //   username: userData[1].username,
-    //   faction: players[1].faction
-    // };
-
-    // const winnerUsername = userData.find(user => {
-    //   user._id.toString() === winner;
-    // })?.username
-    // ;
-    // await this.sendEmail({
-    //   templateId: 4,
-    //   email: [userData[0].email, userData[1].email],
-    //   params: {
-    //     user1,
-    //     user2,
-    //     winCondition,
-    //     winner: winnerUsername
-    //   }
-    // }, next);
-  },
-
-  async sendAccountDeletionEmail(email: string, next: NextFunction): Promise<void> {
+  async sendAccountDeletionEmail(email: string): Promise<void> {
     const contactLink = 'localhost/contact';
     await this.sendEmail({
       templateId: 5,
       email,
       params: { contactLink }
-    }, next);
+    });
   }
 };
