@@ -36,7 +36,7 @@ export class Lobby extends Room {
       this.broadcast('gameListUpdate', message, { except: clientsToExclude });
     });
 
-    // Updating with a new game (2 players) // REVIEW: Also using this for direct challenges
+    // Updating with a new game (2 players)
     this.presence.subscribe('newGamePresence', (message: {
       game: IGame,
       userIds: string[]
@@ -54,8 +54,11 @@ export class Lobby extends Room {
 
     // Updating on a game ending
     this.presence.subscribe('gameOverPresence', (message: {
-      gameId: ObjectId,
-      userIds: string[]
+      gameId: ObjectId
+      previousTurn: IGameState[],
+      userIds: string[],
+      turnNumber: number,
+      lastPlayedAt: Date
     }) => {
       // console.log('MESSAGE ->', message);
       console.log(`[Lobby ${this.roomId}] Received subscribed gameOverPresence message`);

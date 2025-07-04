@@ -5,6 +5,7 @@ import { EFaction, EGameStatus } from "../enums/game.enums";
 import { IPlayerData, ITurnMessage } from "../interfaces/gameInterface";
 import { verifySession } from "../middleware/socketSessions";
 import Game from "../models/gameModel";
+import User from '../models/userModel';
 import GameService from "../services/gameService";
 
 export class GameRoom extends Room {
@@ -135,7 +136,10 @@ export class GameRoom extends Room {
     const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
     this.presence.publish("gameOverPresence", {
       gameId: message._id,
-      userIds
+      previousTurn: message.currentTurn,
+      userIds,
+      turnNumber: message.turnNumber,
+      lastPlayedAt: finishedAt
     });
 
     // Broadcast movement to all connected clients
@@ -148,6 +152,30 @@ export class GameRoom extends Room {
       winner,
       userIds
     });
+
+    // Update users stats
+    const userWon = updatedGame.players.find(player => player.userData._id.toString() === winner);
+    const userLost = updatedGame.players.find(player => player.userData._id.toString() !== winner);
+
+    console.log('USERWON', userWon);
+    console.log('USERLOST', userLost);
+
+    if (!userWon || !userLost) throw new CustomError(24);
+
+    const updateWinner = await User.findByIdAndUpdate(
+      userWon.userData._id,
+      {
+        $inc: {
+          'stats.totalGames': 1,
+          'stats.totalWins': 1,
+          ...userWon.faction === EFaction.COUNCIL ? { 'stats.councilWins': 1 } : { 'stats.elvesWins': 1 }
+        }
+      }
+    );
+
+    const updateLoser = await User.findByIdAndUpdate(userLost.userData._id, { $inc: { 'stats.totalGames': 1 } });
+
+    if (!updateWinner || !updateLoser) throw new CustomError(24);
   }
 
   async handleTurn(message: ITurnMessage): Promise<void> {
