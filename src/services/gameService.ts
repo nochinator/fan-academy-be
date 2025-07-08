@@ -9,13 +9,25 @@ import { createNewGameBoardState, createNewGameFactionState } from "../utils/new
 const GameService = {
   // GET ACTIONS
   async getCurrentGames(userId: string): Promise<IGame[] | null> {
-    // const result = await Game.find({ users: req.body.userId  });
     const userObjectId = new Types.ObjectId(userId);
     console.log('userId', userId);
 
-    const result = await Game.find({ 'players.userData': userObjectId }, { gameState: 0 }).populate('players.userData', "username picture");
+    const openGames = await Game.find({
+      'players.userData': userObjectId,
+      status: { $ne: EGameStatus.FINISHED }
+    })
+      .sort({ lastPlayedAt: 1 })
+      .populate('players.userData', "username picture");
 
-    return result;
+    const finishedGames = await Game.find({
+      'players.userData': userObjectId,
+      status: EGameStatus.FINISHED
+    })
+      .sort({ lastPlayedAt: 1 })
+      .limit(5)
+      .populate('players.userData', "username picture");
+
+    return [...openGames, ...finishedGames];
   },
 
   async matchmaking(playerId: string): Promise<HydratedDocument<IGame> | null> {

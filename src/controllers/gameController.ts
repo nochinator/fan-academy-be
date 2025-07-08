@@ -10,8 +10,6 @@ const router = Router();
 router.get('/playing', isAuthenticated, async (req: Request, res: Response, _next: NextFunction): Promise<Response> => {
   const userId = req.query.userId?.toString();
 
-  // TODO: throw error if no user Id
-
   const response = await GameService.getCurrentGames(userId!);
 
   return res.send(response);
