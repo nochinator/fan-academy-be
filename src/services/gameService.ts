@@ -64,7 +64,8 @@ const GameService = {
       ],
       turnNumber: 0,
       status: opponentId ? EGameStatus.CHALLENGE : EGameStatus.SEARCHING,
-      createdAt: new Date()
+      createdAt: new Date(),
+      lastPlayedAt: new Date()
     });
 
     const result = await newGame.save();
