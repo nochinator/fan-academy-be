@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
 import passport from "passport";
-import UserService from "../services/userService";
-import { Session } from "express-session";
 import { CustomError } from "../classes/customError";
 import IUser from "../interfaces/userInterface";
-import { isAuthenticated } from "../middleware/isAuthenticated";
+import { generateToken, isAuthenticated } from "../middleware/jwt";
+import UserService from "../services/userService";
 
 const router = Router();
 
@@ -17,10 +16,6 @@ router.get('/leaderboard', isAuthenticated, async (req: Request, res: Response) 
   res.send(result);
 });
 
-// router.get('/find/:id', async (req: Request, res: Response) => {
-//   return await UserService.getUser(req, res);
-// });
-
 router.get('/profile', isAuthenticated, async (req: Request, res: Response) => {
   return await UserService.getProfile(req, res);
 });
@@ -32,29 +27,29 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction): 
 
 // LOGIN
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
-  passport.authenticate("local", (err: any, user: Express.User | false, _info?: { message?: string }): void => {
+  passport.authenticate("local", { session: false }, (err: any, user: Express.User | false, _info?: { message?: string }) => {
+    if (err || !user) {
+      return res.status(401).json({ error: "Invalid login" });
+    }
+
+    console.log('USER', user);
+
     try {
-      if (err) { throw new CustomError(1); }
-
-      // Manually log in the user
-      req.login(user, (loginErr: any) => {
-        if (loginErr) { return next(loginErr); }
-
-        res.status(200).json({
-          message: "Login successful",
-          user
-        });
+      const typedUser = user as IUser;
+      const token = generateToken({
+        _id: typedUser._id.toString(),
+        username: typedUser.username
       });
-    } catch(err) {
-      console.log(err);
-      next(err);
+
+      res.send({
+        token,
+        userId: typedUser._id
+      });
+    } catch (err) {
+      console.error("Token generation error:", err);
+      return next(err);
     }
   })(req, res, next);
-});
-
-// LOGOUT
-router.post('/logout', isAuthenticated, async (req: Request, res: Response, next: NextFunction): Promise<Response | Session> => {
-  return await UserService.logout(req, res, next);
 });
 
 // PROFILE UPDATE
@@ -63,19 +58,13 @@ router.post('/update', isAuthenticated, async (req: Request, res: Response): Pro
 });
 
 // ACCOUNT DELETION
-router.post('/delete', isAuthenticated, async (req: Request, res: Response, next: NextFunction): Promise<Session> => {
+router.post('/delete', isAuthenticated, async (req: Request, res: Response, next: NextFunction): Promise<boolean> => {
   const user = req.user as IUser;
   if (!user) throw new CustomError(26);
 
   await UserService.deleteUser(user, next);
 
-  return req.session.destroy(err => {
-    if (err) {
-      next(err);
-    } else {
-      res.send({ deleted: true });
-    }
-  });
+  return true;
 });
 
 export default router;

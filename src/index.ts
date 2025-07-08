@@ -17,13 +17,8 @@ import userRouter from './controllers/userController';
 import { databaseConnection } from "./db";
 import IUser from "./interfaces/userInterface";
 import AppErrorHandler from "./middleware/errorHandler";
-import { localStrategy } from "./middleware/passport";
-import { sessionMiddleware } from "./middleware/sessions";
+import { jwtStrategy, localStrategy } from "./middleware/passport";
 import { sanitizeInput } from "./middleware/sanitizeInput";
-
-declare module "express-session" {
-  interface SessionData { passport: { user: string };}
-}
 
 const index = async () => {
   console.log('USING ENV:', process.env.NODE_ENV);
@@ -53,21 +48,18 @@ const index = async () => {
     credentials: true
   }));
 
-  const dbClient = await databaseConnection();
+  await databaseConnection();
 
-  app.use(sessionMiddleware(dbClient));
   app.use(passport.initialize());
-  app.use(passport.session());
   passport.use(localStrategy);
+  passport.use(jwtStrategy);
 
-  app.get('/auth-check', async (req: Request, res: Response) => {
-    const user = req.user as IUser;
-    if (user?._id) {
+  app.get('/auth-check', passport.authenticate('jwt', { session: false }),
+    (req: Request, res: Response) => {
+      const user = req.user as IUser;
       res.send(user._id);
-    } else {
-      res.sendStatus(401);
     }
-  });
+  );
 
   // Routes
   app.use('/users', userRouter);

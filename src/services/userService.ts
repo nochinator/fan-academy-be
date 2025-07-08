@@ -2,13 +2,13 @@ import { matchMaker } from '@colyseus/core';
 import { hash } from 'bcrypt';
 import { Request, Response } from "express";
 import { NextFunction } from 'express-serve-static-core';
-import { Session } from 'express-session';
 import { CustomError } from '../classes/customError';
 import { EGameStatus } from '../enums/game.enums';
 import { IPopulatedUserData } from '../interfaces/gameInterface';
 import IUser from "../interfaces/userInterface";
 import Game from "../models/gameModel";
 import User from "../models/userModel";
+import { generateToken } from '../middleware/jwt';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
@@ -37,14 +37,17 @@ const UserService = {
       // Send email confirmation email
       // await EmailService.sendAccountConfirmationEmail(username, email, next);
 
-      // Manually log in the user
-      req.login(user, (loginErr: any) => {
-        if (loginErr) { return next(loginErr); }
+      // After user is saved successfully
+      const token = generateToken({
+        _id: user._id.toString(),
+        username: user.username
+      });
 
-        res.status(200).json({
-          message: "Login successful",
-          user
-        });});
+      res.status(201).json({
+        message: "User created successfully",
+        token,
+        userId: user._id
+      });
     } catch(err: any) {
       console.log('Error', err);
       next(err.message);
@@ -82,29 +85,10 @@ const UserService = {
     return res.send(result);
   },
 
-  async logout(req: Request, res: Response, next: NextFunction): Promise<Response | Session> {
-    if (!req.session)  throw new CustomError(10);
-
-    return req.session.destroy(err => {
-      if (err) {
-        next(err);
-      } else {
-        res.send({ logout: true });
-      }
-    });
-
-    return req.session.destroy(err => {
-      if (err) { throw new CustomError(13); }
-      res.status(200).json({ message: "Logout successful" });
-    });
-  },
-
   async deleteUser(user: IUser, next: NextFunction): Promise<void> {
     try {
       // Send email to user
       // await EmailService.sendAccountDeletionEmail(user.email, next); // REVIEW:
-
-      console.log('UUUUSER', user);
 
       // Find and remove open games / and challenges, and inform the other players
       const userIdsToUpdate = new Set<string>();
@@ -154,11 +138,6 @@ const UserService = {
     }
   },
 
-  // async getUsers(userIds?: ObjectId[]): Promise<IUser[]> {
-  //   const query = userIds ? { _id: { $in: userIds } } : {};
-  //   return await User.find(query);
-  // },
-
   async getLeaderboard(page: number): Promise<{
     players: IUser[],
     totalPages: number,
@@ -187,7 +166,7 @@ const UserService = {
 
   async getProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user as IUser; // User data is populated by Passport
-    // console.log('UUUUUUSER', user);
+    console.log('USERR', user);
     if (!user._id) { throw new CustomError(10); }
 
     const result = await User.findById(user._id, { password: 0 });

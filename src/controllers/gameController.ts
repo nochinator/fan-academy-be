@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { CustomError } from "../classes/customError";
 import { EFaction } from "../enums/game.enums";
-import { isAuthenticated } from "../middleware/isAuthenticated";
 import GameService from "../services/gameService";
+import { isAuthenticated } from "../middleware/jwt";
 
 const router = Router();
 

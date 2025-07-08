@@ -1,22 +1,19 @@
 import { compare } from 'bcrypt';
-import passport from 'passport';
+import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { Strategy as LocalStrategy, VerifyFunction } from 'passport-local';
 import IUser from '../interfaces/userInterface';
 import User from '../models/userModel';
 
-// LOCAL STRATEGY
 const localVerifyCallback: VerifyFunction = async (username, password, cb): Promise<void> => {
-  console.log('LOCAL_VERIFY', username, password);
   try {
     const user: IUser | null = await User.findOne({ username });
 
     if (user && user.password) {
       const passwordCheck = await compare(password, user.password);
-      // TODO: Change the errors to redirect to login again, and share the error text
-      if (!passwordCheck) { return cb('Error1.', false); }
+      if (!passwordCheck) return cb(null, false);
       cb(null, user);
     } else {
-      cb('Error2', false);
+      cb(null, false);
     }
   } catch (err) {
     cb(err);
@@ -25,21 +22,22 @@ const localVerifyCallback: VerifyFunction = async (username, password, cb): Prom
 
 const localStrategy = new LocalStrategy(localVerifyCallback);
 
-// USER SERIALIZATION
-passport.serializeUser((user, cb) => {
-  console.log('SERIALIZE', user); // TODO: remove
-  const typedUser = user as IUser;
-  cb(null, typedUser._id);
-});
+// JWT STRATEGY
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET! // make sure it's set
+};
 
-passport.deserializeUser(async (userId, cb) => {
+const jwtVerify = async (payload: any, done: any) => {
   try {
-    console.log('DESERIALIZE', userId); // TODO: remove
-    const user = await User.findById(userId);
-    cb(null, user); // REVIEW: does it need a check for !user ?
+    const user = await User.findById(payload._id);
+    if (!user) return done(null, false);
+    return done(null, user);
   } catch (err) {
-    cb(err);
+    done(err, false);
   }
-});
+};
 
-export { localStrategy };
+const jwtStrategy = new JwtStrategy(jwtOptions, jwtVerify);
+
+export { jwtStrategy, localStrategy };

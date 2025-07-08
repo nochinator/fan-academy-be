@@ -1,13 +1,13 @@
+import { JWT, JwtPayload } from "@colyseus/auth";
 import { AuthContext, Client, Room } from "@colyseus/core";
 import { Types } from "mongoose";
 import { CustomError } from "../classes/customError";
+import { EmailService } from "../emails/emailService";
 import { EFaction, EGameStatus } from "../enums/game.enums";
 import { IPlayerData, IPopulatedPlayerData, ITurnMessage } from "../interfaces/gameInterface";
-import { verifySession } from "../middleware/socketSessions";
 import Game from "../models/gameModel";
 import User from '../models/userModel';
 import GameService from "../services/gameService";
-import { EmailService } from "../emails/emailService";
 
 export class GameRoom extends Room {
   userId: Types.ObjectId;
@@ -19,7 +19,8 @@ export class GameRoom extends Room {
 
   async onCreate(options: {
     userId: string,
-    faction: EFaction
+    faction: EFaction,
+    token: string,
     roomId?: string,
     opponentId?: string
     // boardState?: ITile[]
@@ -40,6 +41,7 @@ export class GameRoom extends Room {
      *    -checks if the user is one of the two players, then grants access and sends the state
      */
     const { faction, roomId, opponentId } = options;
+
     console.log('ON CREATE ROOM - ID AND FACTION NAME', roomId, faction);
     this.userId = new Types.ObjectId(options.userId);
 
@@ -217,20 +219,21 @@ export class GameRoom extends Room {
   // Handle client joining
   async onJoin(client: Client, options: {
     roomId: string,
-    userId: string
+    userId: string,
+    token: string
   }, _auth: any): Promise<void> {
     (client as any).userId = options.userId; // TypeScript workaround
     this.connectedClients.add((client as any).userId);
 
-    console.log(`[Game] Client joined room: ${client.sessionId} - ${(client as any).userId} - ${this.roomId}`);
+    console.log(`[Game] Client joined room: ${(client as any).userId} - ${this.roomId}`);
     this.logConnectedClients();
   }
 
   async requestJoin(options: any, _client: Client): Promise<boolean> {
-    const { roomId, userId } = options;
+    const { roomId, userId, token } = options;
 
-    if (!roomId || !userId) {
-      console.warn("Missing roomId or userId in join request.");
+    if (!roomId || !userId || !token) {
+      console.warn("Missing parameter in join request.");
       return false;
     }
 
@@ -266,7 +269,7 @@ export class GameRoom extends Room {
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
     this.connectedClients.delete((client as any).userId);
-    console.log(`[Game] Client left room: ${client.sessionId} ${(client as any).userId}`);
+    console.log(`[Game] Client left room: ${(client as any).userId}`);
     this.logConnectedClients();
   }
 
@@ -276,16 +279,20 @@ export class GameRoom extends Room {
   }
 
   // Room auth
-  async onAuth(client: Client, _options: any, authContext: AuthContext): Promise<boolean>  {
-    const session =  await verifySession(authContext);
+  static async onAuth(_token: string, options: any, _context: AuthContext): Promise<JwtPayload | boolean>  {
+    try {
+      const user = await JWT.verify(options.token) as JwtPayload;
 
-    if (session) {
-      console.log(`User authenticated`);
-      return true; // Allow access to the room
+      if (user) {
+        console.log(`User authenticated`);
+        return user;
+      }
+
+      console.log('Authentication failed');
+      return false;
+    } catch (err) {
+      throw new Error("Invalid or expired token");
     }
-
-    console.log('Authentication failed');
-    return false; // Deny access
   }
 
   logConnectedClients(): void {
