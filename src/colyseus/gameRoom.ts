@@ -145,17 +145,6 @@ export class GameRoom extends Room {
       lastPlayedAt: finishedAt
     });
 
-    // Broadcast movement to all connected clients
-    this.broadcast("lastTurnPlayed", {
-      roomId: this.roomId,
-      previousTurn: message.currentTurn,
-      turnNumber: message.turnNumber,
-      finishedAt,
-      winCondition,
-      winner,
-      userIds
-    });
-
     // Update users stats
     const userWon = updatedGame.players.find(player => player.userData._id.toString() === winner) as unknown as IPopulatedPlayerData;
     const userLost = updatedGame.players.find(player => player.userData._id.toString() !== winner) as unknown as IPopulatedPlayerData;
@@ -204,15 +193,6 @@ export class GameRoom extends Room {
       newActivePlayer: message.newActivePlayer.toString(),
       lastPlayedAt,
       userIds
-    });
-
-    // Broadcast movement to all connected clients
-    this.broadcast("turnPlayed", {
-      roomId: this.roomId,
-      previousTurn: message.currentTurn,
-      turnNumber: message.turnNumber,
-      newActivePlayer: message.newActivePlayer,
-      lastPlayedAt
     });
   }
 
