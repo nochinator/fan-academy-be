@@ -50,17 +50,23 @@ export const EmailService = {
     };
   },
 
-  // async sendAccountConfirmationEmail(username: string, email: string): Promise<void> {
-  //   const confirmationLink = 'confirmation.com';
-  //   await this.sendEmail({
-  //     templateId: 1,
-  //     email,
-  //     params: {
-  //       username,
-  //       confirmationLink
-  //     }
-  //   })
-  // },
+  async sendAccountConfirmationEmail(data: {
+    username: string,
+    email: string,
+    emailConfirmationLink: string
+  }): Promise<void> {
+    const { username, email, emailConfirmationLink } = data;
+    const confirmationLink = `https://fan-academy-be.onrender.com/users/emailconfirm?token=${emailConfirmationLink}`;
+
+    await this.sendEmail({
+      templateId: 1,
+      email,
+      params: {
+        username,
+        confirmationLink
+      }
+    });
+  },
 
   async sendTurnNotificationEmail(email: string, username: string, _gameId: string): Promise<void> {
     await this.sendEmail({

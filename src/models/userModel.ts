@@ -7,11 +7,6 @@ const PreferencesSchema = new Schema({
     required: true,
     default: true
   },
-  sound: {
-    type: Boolean,
-    required: true,
-    default: true
-  },
   chat: {
     type: Boolean,
     required: true,
@@ -60,7 +55,16 @@ const UserSchema = new Schema({
   picture: String,
   lastSeen: Date,
   preferences: PreferencesSchema,
-  stats: StatsSchema
+  stats: StatsSchema,
+  emailConfirmationLink: {
+    type: String,
+    required: false
+  },
+  confirmedEmail: {
+    type: Boolean,
+    required: true,
+    default: false
+  }
 });
 
 const User = model<IUser>('User', UserSchema);

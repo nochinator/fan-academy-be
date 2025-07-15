@@ -9,6 +9,8 @@ import IUser from "../interfaces/userInterface";
 import Game from "../models/gameModel";
 import User from "../models/userModel";
 import { generateToken } from '../middleware/jwt';
+import { getConfirmationLink } from '../utils/tokenGeneration';
+import { EmailService } from '../emails/emailService';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
@@ -19,6 +21,7 @@ const UserService = {
     if (userAlreadyExists.length) throw new CustomError(12);
 
     // If the user doesn't exist, create a new user with an encrypted password
+    const emailConfirmationLink = getConfirmationLink();
     try {
       const hashedPassword = await hash(password, 10);
       const newUser = new User({
@@ -29,15 +32,21 @@ const UserService = {
         currentGames: [],
         gameHistory: [],
         preferences: {},
-        stats: {}
+        stats: {},
+        emailConfirmationLink
       });
       const user =  await newUser.save();
       if (!user) throw new CustomError(30);
 
       // Send email confirmation email
-      // await EmailService.sendAccountConfirmationEmail(username, email, next);
 
-      // After user is saved successfully
+      await EmailService.sendAccountConfirmationEmail({
+        username,
+        email,
+        emailConfirmationLink
+      });
+
+      // Generate JSON token afterthe user is successfully saved to the db
       const token = generateToken({
         _id: user._id.toString(),
         username: user.username
@@ -52,6 +61,19 @@ const UserService = {
       console.log('Error', err);
       next(err.message);
     }
+  },
+
+  async confirmEmail(token: string, next: NextFunction): Promise<boolean> {
+    try {
+      const userMatch = await User.findOneAndUpdate({ emailConfirmationLink: token }, {
+        emailConfirmationLink: null,
+        confirmedEmail: true 
+      });
+      if (userMatch) return true;
+    } catch (err) {
+      next(err);
+    }
+    return false;
   },
 
   async updateProfile(req: Request, res: Response): Promise<Response>{

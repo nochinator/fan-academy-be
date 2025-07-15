@@ -2,15 +2,14 @@ import { Types } from "mongoose";
 
 interface IUserPreferences {
   emailNotifications: boolean;
-  sound: boolean;
   chat: boolean;
 }
 
 interface IUserStats {
-  totalGames: number,
-  totalWins: number,
-  councilWins: number,
-  elvesWins: number
+  totalGames: number;
+  totalWins: number;
+  councilWins: number;
+  elvesWins: number;
 }
 
 interface IUser extends Express.User {
@@ -20,7 +19,9 @@ interface IUser extends Express.User {
   password?: string;
   picture?: string;
   preferences: IUserPreferences;
-  stats: IUserStats
+  stats: IUserStats;
+  emailConfirmationLink: string;
+  confirmedEmail: boolean;
 }
 
 export default IUser;

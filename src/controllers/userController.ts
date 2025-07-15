@@ -67,4 +67,21 @@ router.post('/delete', isAuthenticated, async (req: Request, res: Response, next
   return true;
 });
 
+// EMAIL CONFIRMATION
+router.get('/emailconfirm', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const token = req.query.token?.toString();
+  if (!token) {
+    // res.status(400).send('Missing token.');
+    next('Invalid token. Please try again');
+    return;
+  }
+
+  try {
+    const emailConfirmed = await UserService.confirmEmail(token, next);
+    if (emailConfirmed) res.redirect('https://fan-academy.onrender.com');
+  } catch(err) {
+    next(err);
+  }
+});
+
 export default router;
