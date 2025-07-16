@@ -30,7 +30,8 @@ export function createCouncilFactionData(userId: string): IFaction {
 }
 
 function createCouncilDeck(userId: string): (IHero | IItem)[] {
-  const deck = [];
+  const unitsDeck = [];
+  const itemsDeck = [];
 
   for (let index = 0; index < 3; index++) {
     const archer = createCouncilArcherData( { unitId: `${userId}_archer_${index}` });
@@ -58,7 +59,8 @@ function createCouncilDeck(userId: string): (IHero | IItem)[] {
       itemType: EItems.DRAGON_SCALE
     });
 
-    deck.push(archer, knight, wizard, cleric, shiningHelm, runeMetal, factionBuff);
+    unitsDeck.push(archer, knight, wizard, cleric);
+    itemsDeck.push(shiningHelm, runeMetal, factionBuff);
   }
 
   for (let index = 0; index < 2; index++) {
@@ -84,14 +86,14 @@ function createCouncilDeck(userId: string): (IHero | IItem)[] {
       itemType: EItems.SUPERCHARGE
     });
 
-    deck.push(healingPotion, inferno, superCharge);
+    itemsDeck.push(healingPotion, inferno, superCharge);
   }
 
   // Unique unit
   const ninja = createCouncilNinjaData( { unitId: `${userId}_ninja` });
-  deck.push(ninja);
+  unitsDeck.push(ninja);
 
-  const shuffledDeck = shuffleArray(deck);
+  const shuffledDeck = shuffleDeck(unitsDeck, itemsDeck);
 
   return shuffledDeck;
 }
@@ -111,7 +113,8 @@ export function createElvesFactionData(userId: string): IFaction {
 }
 
 function createElvesDeck(userId: string): (IHero | IItem)[] {
-  const deck = [];
+  const unitsDeck = [];
+  const itemsDeck = [];
 
   for (let index = 0; index < 3; index++) {
     const impaler = createElvesImpalerData( { unitId: `${userId}_impaler_${index}` });
@@ -139,7 +142,8 @@ function createElvesDeck(userId: string): (IHero | IItem)[] {
       itemType: EItems.SOUL_STONE
     });
 
-    deck.push(impaler, voidMonk, necromancer, priestess, shiningHelm, runeMetal, factionBuff);
+    unitsDeck.push(impaler, voidMonk, necromancer, priestess);
+    itemsDeck.push(shiningHelm, runeMetal, factionBuff);
   }
 
   for (let index = 0; index < 2; index++) {
@@ -171,14 +175,14 @@ function createElvesDeck(userId: string): (IHero | IItem)[] {
       itemType: EItems.SUPERCHARGE
     });
 
-    deck.push(manaVial, soulHarvest, superCharge);
+    itemsDeck.push(manaVial, soulHarvest, superCharge);
   }
 
   // Unique unit
   const wraith = createElvesWraithData( { unitId: `${userId}_wraith` });
-  deck.push(wraith);
+  unitsDeck.push(wraith);
 
-  const shuffledDeck = shuffleArray(deck);
+  const shuffledDeck = shuffleDeck(unitsDeck, itemsDeck);
 
   return shuffledDeck;
 }
@@ -573,15 +577,6 @@ export function shuffleArray(array: (IHero | IItem)[]): (IHero | IItem)[] {
     const j = Math.floor(Math.random() * (i + 1)); // Random index from 0 to i
     [array[i], array[j]] = [array[j], array[i]]; // Swap elements
   }
-
-  array.forEach((unit, index) => {
-    if (index < 6) {
-      unit.boardPosition = 45 + index; // First 6 units get positions 45 to 50 on the board (the player's hand)
-    } else {
-      unit.boardPosition = 51; // Remaining units get 51 (deck, hidden)
-    }
-  });
-
   return array;
 }
 
@@ -712,4 +707,22 @@ export function createTileData(data: ITile): ITile {
     hero: data.hero ?? hero,
     crystal: data.crystal ?? crystal
   };
+}
+
+function shuffleDeck(unitsDeck: IHero[], itemsDeck: IItem[]) {
+  const shuffledUnits = shuffleArray(unitsDeck);
+
+  const startingHeroes: (IHero | IItem)[] = shuffledUnits.splice(0, 3);
+  const shuffledDeck = shuffleArray([...shuffledUnits, ...itemsDeck]);
+
+  const mappedDeck = [...startingHeroes, ...shuffledDeck].map((elem, index) => {
+    if (index < 6) {
+      elem.boardPosition = 45 + index; // First 6 units get positions 45 to 50 on the board (the player's hand)
+    } else {
+      elem.boardPosition = 51; // Remaining units get 51 (deck, hidden)
+    }
+    return elem;
+  });
+
+  return mappedDeck;
 }
