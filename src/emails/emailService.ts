@@ -23,13 +23,14 @@ export const EmailService = {
   async sendEmail(emailData: {
     templateId: number,
     email: string | string[],
-    params: object,
+    params?: object,
   }): Promise<void> {
     const sendTo = Array.isArray(emailData.email)
       ? emailData.email.map((mail) => ({ email: mail }))
       : [{ email: emailData.email }];
 
     console.log("PARAMS =>", emailData.params);
+    const emailParams = emailData.params ?? { placeHolder: '' };
 
     try {
       const smtpEmail = new Brevo.SendSmtpEmail();
@@ -37,7 +38,7 @@ export const EmailService = {
         ...emailVars,
         bcc: sendTo,
         templateId: emailData.templateId,
-        params: emailData.params
+        params: emailParams
       });
 
       console.log('sendSmtpEmail', sendSmtpEmail);
@@ -68,11 +69,22 @@ export const EmailService = {
     });
   },
 
-  async sendTurnNotificationEmail(email: string, username: string, _gameId: string): Promise<void> {
+  async sendTurnNotificationEmail(email: string, username: string): Promise<void> {
     await this.sendEmail({
       templateId: 3,
       email,
       params: { username }
+    });
+  },
+
+  async sendChallengeNotificationEmail(email: string, username: string, opponent: string): Promise<void> {
+    await this.sendEmail({
+      templateId: 6,
+      email,
+      params: {
+        username,
+        opponent
+      }
     });
   },
 
@@ -91,11 +103,16 @@ export const EmailService = {
   },
 
   async sendAccountDeletionEmail(email: string): Promise<void> {
-    const contactLink = 'localhost/contact';
     await this.sendEmail({
       templateId: 5,
-      email,
-      params: { contactLink }
+      email
+    });
+  },
+
+  async sendGameDeletionEmail(email: string[]): Promise<void> {
+    await this.sendEmail({
+      templateId: 7,
+      email
     });
   }
 };

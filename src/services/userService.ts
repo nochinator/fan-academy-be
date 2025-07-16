@@ -67,7 +67,7 @@ const UserService = {
     try {
       const userMatch = await User.findOneAndUpdate({ emailConfirmationLink: token }, {
         emailConfirmationLink: null,
-        confirmedEmail: true 
+        confirmedEmail: true
       });
       if (userMatch) return true;
     } catch (err) {
@@ -109,30 +109,23 @@ const UserService = {
 
   async deleteUser(user: IUser, next: NextFunction): Promise<void> {
     try {
-      // Send email to user
-      // await EmailService.sendAccountDeletionEmail(user.email, next); // REVIEW:
-
       // Find and remove open games / and challenges, and inform the other players
       const userIdsToUpdate = new Set<string>();
       const userEmailsToUpdate = new Set<string>();
       const gamesToDelete = new Set<string>();
-      const affectedGames = await Game.find({ 'players.userData': user._id }).populate('players.userData', "email");
-
-      console.log('AFFECTED GAMES', affectedGames);
+      const affectedGames = await Game.find({ 'players.userData': user._id }).populate('players.userData', 'email confirmedEmail username');
 
       if (affectedGames.length) {
         affectedGames.forEach(game => {
           if (game.status === EGameStatus.SEARCHING || game.status === EGameStatus.FINISHED) return;
 
-          console.log('AFFECTED GAME PLAYERS', game.players);
-
           gamesToDelete.add(game._id.toString());
 
-          const opponent = game.players.find(player => player.userData._id.toString() !== user._id.toString() )?.userData as unknown as IPopulatedUserData;
-          console.log('OPPONENT EMAIL', opponent);
+          const opponent = game.players.find(player => player.userData._id.toString() !== user._id.toString() );
+          const opponentUserData = opponent?.userData as unknown as IPopulatedUserData;
 
-          if (opponent?.email) userEmailsToUpdate.add(opponent.email);
-          if (opponent?._id) userIdsToUpdate.add(opponent._id.toString());
+          if (opponentUserData?.email && opponentUserData.confirmedEmail) userEmailsToUpdate.add(opponentUserData.email);
+          if (opponentUserData?._id) userIdsToUpdate.add(opponentUserData._id.toString());
         });
 
         await Game.deleteMany({ 'players.userData': user._id });
@@ -140,13 +133,11 @@ const UserService = {
 
       const deletedUser: IUser | undefined | null = await User.findOneAndDelete({ _id: user._id });
       if (!deletedUser) throw new CustomError(40);
+      // Send email to user
+      await EmailService.sendAccountDeletionEmail(deletedUser.email);
 
-      console.log('DELETED USER', deletedUser);
-
-      console.log('USERS TO UPDATE AND SIZE', userIdsToUpdate, userIdsToUpdate.size);
       if (userIdsToUpdate.size > 0) {
-        console.log('OPPONENTS', userIdsToUpdate);
-        // TODO: send emails to other people playing with him, if they have a confirmed email
+        await EmailService.sendGameDeletionEmail([...userEmailsToUpdate]);
 
         // Send a message to update the game list of the affected players
         matchMaker.presence.publish('userDeletedPresence', {

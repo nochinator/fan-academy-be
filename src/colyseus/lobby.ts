@@ -10,6 +10,7 @@ export class Lobby extends Room {
 
   onJoin(client: Client, options: { userId: string }) {
     (client as any).userId = options.userId; // TypeScript workaround
+    this.presence.set(`user:${options.userId}`, 'online');
     this.connectedClients.add(client);
     console.log(`[Lobby ${this.roomId}] Client joined: ${(client as any).userId}`);
     this.logConnectedClients();
@@ -145,6 +146,7 @@ export class Lobby extends Room {
   // Handle client leaving
   onLeave(client: Client, _consented: boolean): void {
     console.log(`[Lobby ${this.roomId}] Client left: ${(client as any).userId}`);
+    this.presence.del(`user:${(client as any).userId}`);
     this.connectedClients.delete(client);
     this.logConnectedClients();
   }

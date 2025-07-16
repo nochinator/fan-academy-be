@@ -1,10 +1,10 @@
 import { JWT, JwtPayload } from "@colyseus/auth";
-import { AuthContext, Client, Room } from "@colyseus/core";
+import { AuthContext, Client, matchMaker, Room } from "@colyseus/core";
 import { Types } from "mongoose";
 import { CustomError } from "../classes/customError";
 import { EmailService } from "../emails/emailService";
 import { EFaction, EGameStatus } from "../enums/game.enums";
-import { IPlayerData, IPopulatedPlayerData, ITurnMessage } from "../interfaces/gameInterface";
+import { IPlayerData, IPopulatedPlayerData, IPopulatedUserData, ITurnMessage } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import User from '../models/userModel';
 import GameService from "../services/gameService";
@@ -13,9 +13,7 @@ export class GameRoom extends Room {
   userId: Types.ObjectId;
   connectedClients: Set<string> = new Set();
 
-  onInit(_options: any) {
-    this.maxClients = 2; // FIXME: I can't get the room limit to work
-  }
+  onInit(_options: any) {}
 
   async onCreate(options: {
     userId: string,
@@ -80,10 +78,24 @@ export class GameRoom extends Room {
         this.roomId = updatedGame._id.toString();
 
         // Send a message to update the game list
+        const playerOneId = updatedGame.players[0].userData._id.toString();
         this.presence.publish("newGamePresence", {
           game: updatedGame,
-          userIds: [options.userId, updatedGame.players[0].userData._id.toString()]
+          userIds: [options.userId, playerOneId]
         });
+
+        // Send email to player 1 if they are the first player
+        if (updatedGame.activePlayer?.toString() === playerOneId) {
+          const userData = updatedGame.players[0].userData as unknown as IPopulatedUserData;
+
+          const isOnline = await matchMaker.presence.get(`user:${playerOneId}`);
+
+          const acceptsEmails = userData.preferences?.emailNotifications;
+
+          const confirmedEmail = userData?.confirmedEmail;
+
+          if (!isOnline && acceptsEmails && confirmedEmail!) await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
+        }
       }
 
       // If there are no games looking for players, create one
@@ -131,7 +143,7 @@ export class GameRoom extends Room {
       status: EGameStatus.FINISHED,
       lastPlayedAt: finishedAt,
       finishedAt
-    }, { new: true }).populate('players.userData', "username picture email");
+    }, { new: true }).populate('players.userData', "username picture email confirmedEmail");
 
     if (!updatedGame) throw new CustomError(24);
 
@@ -148,9 +160,6 @@ export class GameRoom extends Room {
     // Update users stats
     const userWon = updatedGame.players.find(player => player.userData._id.toString() === winner) as unknown as IPopulatedPlayerData;
     const userLost = updatedGame.players.find(player => player.userData._id.toString() !== winner) as unknown as IPopulatedPlayerData;
-
-    console.log('USERWON', userWon);
-    console.log('USERLOST', userLost);
 
     if (!userWon || !userLost) throw new CustomError(24);
 

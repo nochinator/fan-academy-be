@@ -2,9 +2,10 @@ import { matchMaker } from "@colyseus/core";
 import { HydratedDocument, Types } from "mongoose";
 import { CustomError } from "../classes/customError";
 import { EFaction, EGameStatus } from "../enums/game.enums";
-import IGame, { IPlayerData } from "../interfaces/gameInterface";
+import IGame, { IPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
+import { EmailService } from "../emails/emailService";
 
 const GameService = {
   // GET ACTIONS
@@ -81,7 +82,7 @@ const GameService = {
     });
 
     const result = await newGame.save();
-    await result.populate('players.userData', "username picture");
+    await result.populate('players.userData', "username picture email preferences");
     if (!result) throw new CustomError(23);
 
     if (result.status === EGameStatus.CHALLENGE) {
@@ -89,6 +90,16 @@ const GameService = {
         game: result,
         userIds: [userId, opponentId]
       });
+
+      // Send email to challenged user if they are not online but have notifications enabled
+      const challengedUser = result.players[1].userData as unknown as IPopulatedUserData;
+      const challenger = result.players[0].userData as unknown as IPopulatedUserData;
+
+      const isOnline = await matchMaker.presence.get(`user:${opponentId}`);
+
+      const acceptsEmails = challengedUser.preferences?.emailNotifications;
+
+      if (!isOnline && acceptsEmails) await EmailService.sendChallengeNotificationEmail(challengedUser.email!, challengedUser.username!, challenger.username!);
     }
     return result;
   },
@@ -134,7 +145,7 @@ const GameService = {
     gameLookingForPlayers.lastPlayedAt = new Date(); // TODO: need to send this with every turn
 
     await gameLookingForPlayers.save();
-    const game = await gameLookingForPlayers.populate('players.userData', "username picture");
+    const game = await gameLookingForPlayers.populate('players.userData', "username picture preferences email confirmedEmail");
 
     return game;
   },
@@ -148,7 +159,7 @@ const GameService = {
     const result = await Game.findOne({
       _id: gameId,
       'players.userData': userData
-    }).populate('players.userData', "email picture");
+    }).populate('players.userData', "email picture preferences");
 
     console.log('Result', result?._id);
     return result;
@@ -175,29 +186,6 @@ const GameService = {
     return result;
   }
 
-  // async endGame(req: Request, res: Response, next: NextFunction): Promise<void> {
-  //   const { gameId, winner, winCondition, lastTurn } = req.body;
-
-  //   const update: any = {
-  //     winner,
-  //     winCondition,
-  //     gameStatus: EGameStatus.FINISHED
-  //   };
-
-  //   if (lastTurn) {
-  //     update.$push = { gameState: lastTurn };
-  //     update.currentTurn = lastTurn;
-  //   }
-
-  //   // Update game document
-  //   const game: IGame | null = await Game.findOneAndUpdate({ filter: { _id: gameId } }, { update });
-  //   if (!game) throw new CustomError(24);
-
-  //   // Send end game notificaton emails
-  //   await EmailService.sendGameEndEmail(game, next);
-
-  //   res.redirect('/');
-  // }
 };
 
 export default GameService;

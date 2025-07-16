@@ -1,11 +1,11 @@
 import { Types } from "mongoose";
 
-interface IUserPreferences {
+export interface IUserPreferences {
   emailNotifications: boolean;
   chat: boolean;
 }
 
-interface IUserStats {
+export interface IUserStats {
   totalGames: number;
   totalWins: number;
   councilWins: number;
