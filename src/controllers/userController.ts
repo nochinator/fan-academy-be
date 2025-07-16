@@ -58,13 +58,13 @@ router.post('/update', isAuthenticated, async (req: Request, res: Response): Pro
 });
 
 // ACCOUNT DELETION
-router.post('/delete', isAuthenticated, async (req: Request, res: Response, next: NextFunction): Promise<boolean> => {
+router.post('/delete', isAuthenticated, async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
   const user = req.user as IUser;
   if (!user) throw new CustomError(26);
 
   await UserService.deleteUser(user, next);
 
-  return true;
+  return res.send({ success: true });
 });
 
 // EMAIL CONFIRMATION
