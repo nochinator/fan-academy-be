@@ -28,9 +28,7 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction): 
 // LOGIN
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", { session: false }, (err: any, user: Express.User | false, _info?: { message?: string }) => {
-    if (err || !user) {
-      return res.status(401).json({ error: "Invalid login" });
-    }
+    if (err || !user) next(new CustomError(11));
 
     console.log('USER', user);
 
