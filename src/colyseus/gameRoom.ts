@@ -121,7 +121,6 @@ export class GameRoom extends Room {
 
     this.onMessage("turnSent", async (client: Client, message: ITurnMessage) => {
       console.log(`Turn sent by client ${(client as any).userId}`);
-      // TODO: data validation
 
       if (message.gameOver) {
         console.log('Game over!');
@@ -189,9 +188,25 @@ export class GameRoom extends Room {
       turnNumber: message.turnNumber,
       activePlayer: message.newActivePlayer,
       lastPlayedAt
-    }, { new: true }).populate('players.userData', "username picture");
+    }, { new: true }).populate('players.userData', "username picture preferences email confirmedEmail");
 
     if (!updatedGame) throw new CustomError(24);
+
+    // Send a notification if the new active player is offline and can receive emails
+    const playerToNotify = updatedGame.players.find((player) =>
+      player.userData._id.toString() === updatedGame.activePlayer?.toString());
+
+    if (playerToNotify) {
+      const userData = playerToNotify.userData as unknown as IPopulatedUserData;
+
+      const isOnline = await matchMaker.presence.get(`user:${updatedGame.activePlayer}`);
+
+      const acceptsEmails = userData.preferences?.emailNotifications;
+
+      const confirmedEmail = userData?.confirmedEmail;
+
+      if (!isOnline && acceptsEmails && confirmedEmail!) await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
+    }
 
     // Retrieve user ids and publish update the users' game lists
     const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
