@@ -37,7 +37,7 @@ const index = async () => {
   colyseusServer.define('lobby', Lobby);
 
   // Define a room for the game
-  colyseusServer.define('game_room', GameRoom);
+  colyseusServer.define('game_room', GameRoom).filterBy(['mongoId']).enableRealtimeListing();
 
   // Middleware
   app.use(express.json());

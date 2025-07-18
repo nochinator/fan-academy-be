@@ -221,11 +221,11 @@ export class GameRoom extends Room {
   }
 
   // Handle client joining
-  async onJoin(client: Client, options: {
+  onJoin(client: Client, options: {
     roomId: string,
     userId: string,
     token: string
-  }, _auth: any): Promise<void> {
+  }, _auth: any): void {
     (client as any).userId = options.userId; // TypeScript workaround
     this.connectedClients.add((client as any).userId);
 
