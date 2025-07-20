@@ -133,7 +133,8 @@ export class GameRoom extends Room {
 
   async handleGameOver(message: ITurnMessage): Promise<void>{
     const finishedAt = new Date();
-    const { winCondition, winner } = message.gameOver!;
+    // const { winCondition, winner } = message.gameOver!; // FIXME: revert once gameOver bug is fixed
+    const { winner } = message.gameOver!;
 
     const updatedGame = await Game.findByIdAndUpdate(message._id, {
       previousTurn: message.currentTurn,
@@ -178,7 +179,7 @@ export class GameRoom extends Room {
     if (!updateWinner || !updateLoser) throw new CustomError(24);
 
     // Send gameover emails
-    await EmailService.sendGameOverEmail(userWon, userLost, winCondition);
+    // await EmailService.sendGameOverEmail(userWon, userLost, winCondition); // FIXME: revert once gameOver bug is solved
   }
 
   async handleTurn(message: ITurnMessage): Promise<void> {
