@@ -508,12 +508,12 @@ export function createElvesNecromancerData(data: Partial<IHero>): IHero {
 }
 
 export function createElvesWraithData(data: Partial<IHero>): IHero {
-  // Can consume up to 3 KO'd units to level up: +150 hp and +50 power per unit
+  // Can consume up to 3 KO'd units to level up: +100 hp and +50 power per unit
   // Can be deployed on a KO'd unit (does not consume it)
-  const baseHealth = 650;
+  const baseHealth = 800;
   const power = 250;
   const physicalDamageResistance = 0;
-  const magicalDamageResistance = 10;
+  const magicalDamageResistance = 0;
 
   return {
     unitType: EHeroes.WRAITH,
