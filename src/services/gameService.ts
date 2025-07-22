@@ -18,7 +18,7 @@ const GameService = {
       status: { $ne: EGameStatus.FINISHED }
     })
       .sort({ lastPlayedAt: 1 })
-      .populate('players.userData', "username picture");
+      .populate('players.userData', 'username picture').populate('chatLogs');
 
     const finishedGames = await Game.find({
       'players.userData': userObjectId,
@@ -26,7 +26,7 @@ const GameService = {
     })
       .sort({ lastPlayedAt: 1 })
       .limit(5)
-      .populate('players.userData', "username picture");
+      .populate('players.userData', 'username picture').populate('chatLogs');
 
     return [...openGames, ...finishedGames];
   },
@@ -37,7 +37,7 @@ const GameService = {
     const result = await Game.findOne({
       players: { $elemMatch: { userData: { $ne: userId } } },
       status: EGameStatus.SEARCHING
-    }).sort({ createdAt: 1 }).populate('players.userData', "username picture");
+    }).sort({ createdAt: 1 }).populate('players.userData', 'username picture');
 
     console.log('MATCHMAKING RESULT', JSON.stringify(result?._id));
 
@@ -51,7 +51,6 @@ const GameService = {
       _id: roomObjId,
       "players.userData": userObjId
     });
-    // if (!result) throw new CustomError(24); // REVIEW: do we need to throw here? I should just pass it to the FE
     return result;
   },
 
@@ -59,7 +58,7 @@ const GameService = {
   async createGame(params: {
     userId: string,
     faction: EFaction,
-    opponentId?: string
+    opponentId?: string,
   }): Promise<HydratedDocument<IGame>> {
     const { userId, faction, opponentId } = params;
 
@@ -78,11 +77,12 @@ const GameService = {
       turnNumber: 0,
       status: opponentId ? EGameStatus.CHALLENGE : EGameStatus.SEARCHING,
       createdAt: new Date(),
-      lastPlayedAt: new Date()
+      lastPlayedAt: new Date(),
+      chatLogs: gameId
     });
 
     const result = await newGame.save();
-    await result.populate('players.userData', "username picture email preferences");
+    await result.populate('players.userData', 'username picture email preferences');
     if (!result) throw new CustomError(23);
 
     if (result.status === EGameStatus.CHALLENGE) {
@@ -145,7 +145,7 @@ const GameService = {
     gameLookingForPlayers.lastPlayedAt = new Date(); // TODO: need to send this with every turn
 
     await gameLookingForPlayers.save();
-    const game = await gameLookingForPlayers.populate('players.userData', "username picture preferences email confirmedEmail");
+    const game = (await gameLookingForPlayers.populate('players.userData', 'username picture preferences email confirmedEmail')).populate('chatLogs');
 
     return game;
   },
@@ -159,7 +159,7 @@ const GameService = {
     const result = await Game.findOne({
       _id: gameId,
       'players.userData': userData
-    }).populate('players.userData', "email picture preferences");
+    }).populate('players.userData', 'email picture preferences');
 
     console.log('Result', result?._id);
     return result;

@@ -4,7 +4,7 @@ import xss from 'xss';
 /**
  * Recursively sanitize all strings in an object.
  */
-function sanitize(value: any): any {
+export function sanitize(value: any): any {
   if (typeof value === 'string') {
     return xss(value);
   } else if (Array.isArray(value)) {

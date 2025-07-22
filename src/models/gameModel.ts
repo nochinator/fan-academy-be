@@ -427,7 +427,13 @@ const GameSchema = new Schema({
   activePlayer: {
     type: mongoose.Schema.Types.ObjectId,
     required: false
-  } // userId
+  }, // userId
+  chatLogs: {
+    type: Types.ObjectId,
+    ref: 'ChatLog',
+    required: false
+  }
+
 });
 
 export default model<IGame>('Game', GameSchema);

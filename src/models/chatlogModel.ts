@@ -2,7 +2,7 @@ import { model, Schema } from "mongoose";
 import { IChatLog } from "../interfaces/chatlogInterface";
 
 const chatMessageSchema = new Schema({
-  userId: {
+  username: {
     type: String,
     require: true
   },
@@ -17,13 +17,10 @@ const chatMessageSchema = new Schema({
 });
 
 const chatLogSchema = new Schema({
-  gameId: {
-    type: String,
-    required: false
-  },
   messages: {
-    type: [chatMessageSchema], // EWinConditions
-    required: false
+    type: [chatMessageSchema],
+    default: [],
+    id: false
   }
 });
 

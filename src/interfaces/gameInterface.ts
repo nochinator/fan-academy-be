@@ -205,4 +205,5 @@ export default interface IGame {
   finishedAt?: Date;
   lastPlayedAt?: Date;
   activePlayer?: Types.ObjectId; // userId
+  chatLogs?: Types.ObjectId
 }

@@ -1,16 +1,16 @@
 import { JWT, JwtPayload } from "@colyseus/auth";
 import { AuthContext, Client, matchMaker, Room } from "@colyseus/core";
-import { Types } from "mongoose";
 import { CustomError } from "../classes/customError";
 import { EmailService } from "../emails/emailService";
 import { EFaction, EGameStatus } from "../enums/game.enums";
 import { IPlayerData, IPopulatedPlayerData, IPopulatedUserData, ITurnMessage } from "../interfaces/gameInterface";
+import { sanitize } from "../middleware/sanitizeInput";
+import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import User from '../models/userModel';
 import GameService from "../services/gameService";
 
 export class GameRoom extends Room {
-  userId: Types.ObjectId;
   connectedClients: Set<string> = new Set();
 
   onInit(_options: any) {}
@@ -41,8 +41,6 @@ export class GameRoom extends Room {
     const { faction, roomId, opponentId } = options;
 
     console.log('ON CREATE ROOM - ID AND FACTION NAME', roomId, faction);
-    this.userId = new Types.ObjectId(options.userId);
-
     /**
      *
      * CREATING A ROOM FOR A GAME ALREADY IN PLAY
@@ -76,6 +74,10 @@ export class GameRoom extends Room {
         if (!updatedGame) throw new CustomError(24);
 
         this.roomId = updatedGame._id.toString();
+
+        // Create a chat log for the game
+        const chatLog = new ChatLog({ _id: updatedGame._id });
+        await chatLog.save();
 
         // Send a message to update the game list
         const playerOneId = updatedGame.players[0].userData._id.toString();
@@ -128,6 +130,43 @@ export class GameRoom extends Room {
       } else {
         await this.handleTurn(message);
       }
+    });
+
+    this.onMessage("ping", () => {
+      this.broadcast('pong');
+    });
+
+    this.onMessage("chatMessage", async (client: Client, message: {
+      _id: string,
+      message: string,
+      token: string
+    }) => {
+      console.log(`Chat sent by client ${client.auth._id}`);
+      console.log(this.roomId);
+      const sanitizedMessage = sanitize(message.message);
+
+      // Update the chat log on the db, or create one if none exists
+      const messageToPush = {
+        username: client.auth.username,
+        message: sanitizedMessage,
+        createdAt: new Date()
+      };
+
+      const updatedChatlog = await ChatLog.findByIdAndUpdate(this.roomId, { $push: { messages: messageToPush } });
+
+      if (!updatedChatlog) {
+        // Create a chat log for the game
+        const chatLog = new ChatLog({
+          _id: this.roomId,
+          messages: [messageToPush]
+        });
+        await chatLog.save();
+      }
+
+      this.broadcast('chatMessageReceived', {
+        username: client.auth.username,
+        message: sanitizedMessage
+      } );
     });
   }
 
@@ -289,7 +328,7 @@ export class GameRoom extends Room {
       const user = await JWT.verify(options.token) as JwtPayload;
 
       if (user) {
-        console.log(`User authenticated`);
+        console.log(`User authenticated`, user);
         return user;
       }
 
