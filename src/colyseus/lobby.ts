@@ -141,6 +141,12 @@ export class Lobby extends Room {
       console.log('clientsTOExclude', clientsToExclude);
       this.broadcast('userDeletedUpdate', message, { except: clientsToExclude });
     });
+
+    // Keep connection alive
+    this.onMessage("ping", (client: Client) => {
+      console.log(`Received lobby ping from user ${(client as any).userId}`);
+      this.broadcast('pong');
+    });
   };
 
   // Handle client leaving

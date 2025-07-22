@@ -132,7 +132,8 @@ export class GameRoom extends Room {
       }
     });
 
-    this.onMessage("ping", () => {
+    this.onMessage("ping", (client: Client) => {
+      console.log(`Received game ping from user ${(client as any).userId}`);
       this.broadcast('pong');
     });
 
