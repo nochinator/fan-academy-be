@@ -103,7 +103,6 @@ export interface IFaction {
   factionName: EFaction;
   unitsInHand: (IHero | IItem)[];
   unitsInDeck: (IHero | IItem)[];
-  unitsLeft: number;
 }
 
 /**

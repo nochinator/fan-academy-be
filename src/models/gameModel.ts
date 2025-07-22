@@ -245,10 +245,6 @@ const FactionSchema = new Schema({
   unitsInDeck: {
     type: [UnitOrItemSchema],
     default: []
-  },
-  unitsLeft: {
-    type: Number,
-    required: true
   }
 }, { _id: false });
 

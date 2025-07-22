@@ -18,14 +18,12 @@ export function createCouncilFactionData(userId: string): IFaction {
   const unitsInDeck = createCouncilDeck(userId);
   const unitsInHand =  unitsInDeck.splice(0, 6);
   const factionName = EFaction.COUNCIL;
-  const unitsLeft = 13;
 
   return {
     userId,
     factionName,
     unitsInDeck,
-    unitsInHand,
-    unitsLeft
+    unitsInHand
   };
 }
 
@@ -102,13 +100,11 @@ export function createElvesFactionData(userId: string): IFaction {
   const unitsInDeck = createElvesDeck(userId);
   const unitsInHand =  unitsInDeck.splice(0, 6);
   const factionName = EFaction.DARK_ELVES;
-  const unitsLeft = 13;
   return {
     userId,
     factionName,
     unitsInDeck,
-    unitsInHand,
-    unitsLeft
+    unitsInHand
   };
 }
 
