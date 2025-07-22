@@ -205,10 +205,10 @@ function createGenericCouncilData(data: Partial<IHero>): {
   superCharge: boolean,
   belongsTo: number,
   lastBreath: boolean,
-  powerModifier: number,
   row: number,
   col: number,
-  isDebuffed: boolean
+  isDebuffed: boolean,
+  attackTile: boolean
 } {
   return {
     class: EClass.HERO,
@@ -222,17 +222,17 @@ function createGenericCouncilData(data: Partial<IHero>): {
     shiningHelm: data.shiningHelm ?? false,
     superCharge: data.superCharge ?? false,
     belongsTo: data.belongsTo ?? 1,
-    powerModifier: data.powerModifier ?? 0,
     row: data.row ?? 0,
     col: data.col ?? 0,
-    isDebuffed: data.isDebuffed ?? false
+    isDebuffed: data.isDebuffed ?? false,
+    attackTile: data.attackTile ?? false
   };
 }
 
 export function createCouncilArcherData(data: Partial<IHero>): IHero {
   // Melee damage = 1/2 power
   const baseHealth = 800;
-  const power = 300;
+  const basePower = 300;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
@@ -245,8 +245,7 @@ export function createCouncilArcherData(data: Partial<IHero>): IHero {
     attackRange: 3,
     healingRange: 0,
     attackType: EAttackType.PHYSICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -258,7 +257,7 @@ export function createCouncilArcherData(data: Partial<IHero>): IHero {
 
 export function createCouncilWizardData(data: Partial<IHero>): IHero {
   const baseHealth = 800;
-  const power = 200;
+  const basePower = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 10;
 
@@ -271,8 +270,7 @@ export function createCouncilWizardData(data: Partial<IHero>): IHero {
     attackRange: 2,
     healingRange: 0,
     attackType: EAttackType.MAGICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -284,7 +282,7 @@ export function createCouncilWizardData(data: Partial<IHero>): IHero {
 
 export function createCouncilKnightData(data: Partial<IHero>): IHero {
   const baseHealth = 1000;
-  const power = 200;
+  const basePower = 200;
   const physicalDamageResistance = 20;
   const magicalDamageResistance = 0;
 
@@ -297,8 +295,7 @@ export function createCouncilKnightData(data: Partial<IHero>): IHero {
     attackRange: 1,
     healingRange: 0,
     attackType: EAttackType.PHYSICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -311,7 +308,7 @@ export function createCouncilKnightData(data: Partial<IHero>): IHero {
 export function createCouncilClericData(data: Partial<IHero>): IHero {
   // Heals for x3, revives for x2 power
   const baseHealth = 800;
-  const power = 200;
+  const basePower = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
@@ -324,8 +321,7 @@ export function createCouncilClericData(data: Partial<IHero>): IHero {
     attackRange: 2,
     healingRange: 2,
     attackType: EAttackType.MAGICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -339,7 +335,7 @@ export function createCouncilNinjaData(data: Partial<IHero>): IHero {
   // Melee is x2 power
   // Can teleport
   const baseHealth = 800;
-  const power = 200;
+  const basePower = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
@@ -352,8 +348,7 @@ export function createCouncilNinjaData(data: Partial<IHero>): IHero {
     attackRange: 2,
     healingRange: 0,
     attackType: EAttackType.PHYSICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -375,10 +370,10 @@ function createGenericElvesData(data: Partial<IHero>): {
   superCharge: boolean,
   belongsTo: number,
   lastBreath: boolean,
-  powerModifier: number,
   row: number,
   col: number,
-  isDebuffed: boolean
+  isDebuffed: boolean,
+  attackTile: boolean
 } {
   return {
     class: EClass.HERO,
@@ -392,16 +387,16 @@ function createGenericElvesData(data: Partial<IHero>): {
     shiningHelm: data.shiningHelm ?? false,
     superCharge: data.superCharge ?? false,
     belongsTo: data.belongsTo ?? 1,
-    powerModifier: data.powerModifier ?? 0,
     row: data.row ?? 0,
     col: data.col ?? 0,
-    isDebuffed: data.isDebuffed ?? false
+    isDebuffed: data.isDebuffed ?? false,
+    attackTile: data.attackTile ?? false
   };
 }
 
 export function createElvesImpalerData(data: Partial<IHero>): IHero {
   const baseHealth = 800;
-  const power = 300;
+  const basePower = 300;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
@@ -414,8 +409,7 @@ export function createElvesImpalerData(data: Partial<IHero>): IHero {
     attackRange: 2,
     healingRange: 0,
     attackType: EAttackType.PHYSICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -428,7 +422,7 @@ export function createElvesImpalerData(data: Partial<IHero>): IHero {
 export function createElvesPriestessData(data: Partial<IHero>): IHero {
   // Heals for x2, revives for 1/2 power
   const baseHealth = 800;
-  const power = 200;
+  const basePower = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
@@ -441,14 +435,12 @@ export function createElvesPriestessData(data: Partial<IHero>): IHero {
     attackRange: 2, // TODO: applies debuff
     healingRange: 3,
     attackType: EAttackType.MAGICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
     magicalDamageResistance: data.magicalDamageResistance ?? magicalDamageResistance,
-    canHeal: true
-    ,
+    canHeal: true,
     ...createGenericElvesData(data)
   };
 }
@@ -456,7 +448,7 @@ export function createElvesPriestessData(data: Partial<IHero>): IHero {
 export function createElvesVoidMonkData(data: Partial<IHero>): IHero {
   // AOE damage in cone (above, below and behind hit unit) for 66.6% of power
   const baseHealth = 800;
-  const power = 200;
+  const basePower = 200;
   const physicalDamageResistance = 20;
   const magicalDamageResistance = 20;
 
@@ -469,8 +461,7 @@ export function createElvesVoidMonkData(data: Partial<IHero>): IHero {
     attackRange: 1,
     healingRange: 0,
     attackType: EAttackType.PHYSICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -483,7 +474,7 @@ export function createElvesVoidMonkData(data: Partial<IHero>): IHero {
 export function createElvesNecromancerData(data: Partial<IHero>): IHero {
   // Transforms KO units (friend or foe) into phantoms
   const baseHealth = 800;
-  const power = 200;
+  const basePower = 200;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
@@ -496,8 +487,7 @@ export function createElvesNecromancerData(data: Partial<IHero>): IHero {
     attackRange: 3,
     healingRange: 0,
     attackType: EAttackType.MAGICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -511,7 +501,7 @@ export function createElvesWraithData(data: Partial<IHero>): IHero {
   // Can consume up to 3 KO'd units to level up: +100 hp and +50 power per unit
   // Can be deployed on a KO'd unit (does not consume it)
   const baseHealth = 800;
-  const power = 250;
+  const basePower = 250;
   const physicalDamageResistance = 0;
   const magicalDamageResistance = 0;
 
@@ -524,8 +514,7 @@ export function createElvesWraithData(data: Partial<IHero>): IHero {
     attackRange: 1,
     healingRange: 0,
     attackType: EAttackType.MAGICAL,
-    power: data.power ?? power,
-    basePower: power,
+    basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
     baseMagicalDamageResistance: magicalDamageResistance,
     physicalDamageResistance: data.physicalDamageResistance ?? physicalDamageResistance,
@@ -547,7 +536,6 @@ export function createElvesPhantomData(data: Partial<IHero>): IHero {
     attackRange: 1,
     healingRange: 0,
     attackType: EAttackType.MAGICAL,
-    power: 100,
     basePower: 100,
     physicalDamageResistance: 0,
     basePhysicalDamageResistance: 0,

@@ -153,15 +153,7 @@ const HeroSchema = new Schema({
     enum: EAttackType,
     required: true
   },
-  power: {
-    type: Number,
-    required: true
-  },
   basePower: {
-    type: Number,
-    required: true
-  },
-  powerModifier: {
     type: Number,
     required: true
   },
@@ -212,7 +204,11 @@ const HeroSchema = new Schema({
   },
   isDebuffed: {
     type: Boolean,
-    default: false
+    required: true
+  },
+  attackTile: {
+    type: Boolean,
+    required: true
   }
 }, { _id: false });
 
