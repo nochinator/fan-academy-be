@@ -106,53 +106,57 @@ const GameService = {
   },
 
   async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: EFaction, userId: string): Promise<HydratedDocument<IGame> | null> {
+    try {
     // Create a chat log for the game
-    const chatLog = new ChatLog({ _id: gameLookingForPlayers._id });
-    await chatLog.save();
+      const chatLog = new ChatLog({ _id: gameLookingForPlayers._id });
+      await chatLog.save();
 
-    const userObjectId = new Types.ObjectId(userId);
+      const userObjectId = new Types.ObjectId(userId);
 
-    gameLookingForPlayers.players[1] = {
-      userData: userObjectId,
-      faction
-    };
-    gameLookingForPlayers.previousTurn.push({});
+      gameLookingForPlayers.players[1] = {
+        userData: userObjectId,
+        faction
+      };
+      gameLookingForPlayers.previousTurn.push({});
 
-    // Create the player decks
-    gameLookingForPlayers.players.forEach((player, index) => {
-      const playerFaction = createNewGameFactionState(player.userData._id.toString(), player.faction!);
+      // Create the player decks
+      gameLookingForPlayers.players.forEach((player, index) => {
+        const playerFaction = createNewGameFactionState(player.userData._id.toString(), player.faction!);
 
-      if (index === 1) {
-        playerFaction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
-        playerFaction.unitsInHand.forEach(unit => unit.belongsTo = 2);
+        if (index === 1) {
+          playerFaction.unitsInDeck.forEach(unit => unit.belongsTo = 2);
+          playerFaction.unitsInHand.forEach(unit => unit.belongsTo = 2);
 
-        gameLookingForPlayers.previousTurn[0].player2 = {
-          playerId: player.userData,
-          factionData: { ...playerFaction }
-        };
-      } else {
-        gameLookingForPlayers.previousTurn[0].player1 = {
-          playerId: player.userData,
-          factionData: { ...playerFaction }
-        };
-      }
-    });
+          gameLookingForPlayers.previousTurn[0].player2 = {
+            playerId: player.userData,
+            factionData: { ...playerFaction }
+          };
+        } else {
+          gameLookingForPlayers.previousTurn[0].player1 = {
+            playerId: player.userData,
+            factionData: { ...playerFaction }
+          };
+        }
+      });
 
-    gameLookingForPlayers.previousTurn[0].boardState = createNewGameBoardState();
+      gameLookingForPlayers.previousTurn[0].boardState = createNewGameBoardState();
 
-    gameLookingForPlayers.status = EGameStatus.PLAYING;
+      gameLookingForPlayers.status = EGameStatus.PLAYING;
 
-    // Randomly select the starting player
-    const playerIds = gameLookingForPlayers.players.map((player: IPlayerData) => player.userData._id);
-    gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
+      // Randomly select the starting player
+      const playerIds = gameLookingForPlayers.players.map((player: IPlayerData) => player.userData._id);
+      gameLookingForPlayers.activePlayer = Math.random() > 0.5 ? playerIds[0] : playerIds[1];
 
-    // Add date for display order in FE
-    gameLookingForPlayers.lastPlayedAt = new Date(); // TODO: need to send this with every turn
+      // Add date for display order in FE
+      gameLookingForPlayers.lastPlayedAt = new Date();
 
-    await gameLookingForPlayers.save();
-    const game = (await gameLookingForPlayers.populate('players.userData', 'username picture preferences email confirmedEmail')).populate('chatLogs');
+      await gameLookingForPlayers.save();
+      const game = (await gameLookingForPlayers.populate('players.userData', 'username picture preferences email confirmedEmail')).populate('chatLogs');
 
-    return game;
+      return game;
+    } catch (err) {
+      console.error("Erro adding a second player:", err);
+    }
   },
 
   async getColyseusRoom(roomId: string, userId: string): Promise<IGame | null> {
