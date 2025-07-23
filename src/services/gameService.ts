@@ -4,9 +4,9 @@ import { CustomError } from "../classes/customError";
 import { EmailService } from "../emails/emailService";
 import { EFaction, EGameStatus } from "../enums/game.enums";
 import IGame, { IPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
-import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
+import ChatLog from "../models/chatlogModel";
 
 const GameService = {
   // GET ACTIONS
@@ -66,6 +66,10 @@ const GameService = {
     const userObjId = new Types.ObjectId(userId);
     const gameId = new Types.ObjectId();
 
+    // Create a chat log for the game
+    const chatLog = new ChatLog({ _id: gameId });
+    await chatLog.save();
+
     const newGame = new Game({
       _id: gameId,
       players: [
@@ -107,10 +111,6 @@ const GameService = {
 
   async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: EFaction, userId: string): Promise<HydratedDocument<IGame> | null> {
     try {
-    // Create a chat log for the game
-      const chatLog = new ChatLog({ _id: gameLookingForPlayers._id });
-      await chatLog.save();
-
       const userObjectId = new Types.ObjectId(userId);
 
       gameLookingForPlayers.players[1] = {
@@ -155,7 +155,7 @@ const GameService = {
 
       return game;
     } catch (err) {
-      console.error("Erro adding a second player:", err);
+      console.error("Error adding a second player:", err);
       return null;
     }
   },
