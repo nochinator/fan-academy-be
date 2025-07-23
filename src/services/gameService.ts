@@ -1,12 +1,12 @@
 import { matchMaker } from "@colyseus/core";
 import { HydratedDocument, Types } from "mongoose";
 import { CustomError } from "../classes/customError";
+import { EmailService } from "../emails/emailService";
 import { EFaction, EGameStatus } from "../enums/game.enums";
 import IGame, { IPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
+import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
-import { EmailService } from "../emails/emailService";
-import ChatLog from "../models/chatlogModel";
 
 const GameService = {
   // GET ACTIONS
@@ -156,6 +156,7 @@ const GameService = {
       return game;
     } catch (err) {
       console.error("Erro adding a second player:", err);
+      return null;
     }
   },
 
