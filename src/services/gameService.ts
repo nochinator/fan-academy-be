@@ -24,7 +24,7 @@ const GameService = {
       'players.userData': userObjectId,
       status: EGameStatus.FINISHED
     })
-      .sort({ lastPlayedAt: 1 })
+      .sort({ lastPlayedAt: -1 })
       .limit(5)
       .populate('players.userData', 'username picture').populate('chatLogs');
 
