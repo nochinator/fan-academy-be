@@ -499,7 +499,7 @@ export function createElvesWraithData(data: Partial<IHero>): IHero {
   const baseHealth = 800;
   const basePower = 250;
   const physicalDamageResistance = 0;
-  const magicalDamageResistance = 0;
+  const magicalDamageResistance = 10;
 
   return {
     unitType: EHeroes.WRAITH,
