@@ -69,9 +69,6 @@ export class GameRoom extends Room {
 
       if (gameLookingForPlayers) {
         console.log('Matchmaking found an open game');
-        // Create a chat log for the game
-        const chatLog = new ChatLog({ _id: gameLookingForPlayers._id });
-        await chatLog.save();
 
         const updatedGame = await GameService.addPlayerTwo(gameLookingForPlayers, faction, options.userId);
         if (!updatedGame) throw new CustomError(24);
@@ -154,8 +151,8 @@ export class GameRoom extends Room {
 
       const updatedChatlog = await ChatLog.findByIdAndUpdate(this.roomId, { $push: { messages: messageToPush } });
 
+      // Safeguard in case a chatlog wasn't created alongside the game
       if (!updatedChatlog) {
-        // Create a chat log for the game
         const chatLog = new ChatLog({
           _id: this.roomId,
           messages: [messageToPush]
