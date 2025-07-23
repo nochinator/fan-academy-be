@@ -70,10 +70,6 @@ export class GameRoom extends Room {
       if (gameLookingForPlayers) {
         console.log('Matchmaking found an open game');
 
-        // Create a chat log for the game
-        const chatLog = new ChatLog({ _id: gameLookingForPlayers._id });
-        await chatLog.save();
-
         const updatedGame = await GameService.addPlayerTwo(gameLookingForPlayers, faction, options.userId);
         if (!updatedGame) throw new CustomError(24);
 

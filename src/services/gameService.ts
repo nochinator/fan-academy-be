@@ -6,6 +6,7 @@ import IGame, { IPlayerData, IPopulatedUserData } from "../interfaces/gameInterf
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
 import { EmailService } from "../emails/emailService";
+import ChatLog from "../models/chatlogModel";
 
 const GameService = {
   // GET ACTIONS
@@ -105,6 +106,10 @@ const GameService = {
   },
 
   async addPlayerTwo(gameLookingForPlayers: HydratedDocument<IGame>, faction: EFaction, userId: string): Promise<HydratedDocument<IGame> | null> {
+    // Create a chat log for the game
+    const chatLog = new ChatLog({ _id: gameLookingForPlayers._id });
+    await chatLog.save();
+
     const userObjectId = new Types.ObjectId(userId);
 
     gameLookingForPlayers.players[1] = {
