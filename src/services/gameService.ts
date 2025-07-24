@@ -29,9 +29,7 @@ const GameService = {
       .limit(5)
       .populate('players.userData', 'username picture').populate('chatLogs');
 
-    // We get the 5 most recent finished games, but we want to display them in the client from oldest to newest
-    const sortedFinishedGames = finishedGames.sort((a, b) => new Date(a.finishedAt!).getTime() - new Date(b.finishedAt!).getTime());
-    return [...openGames, ...sortedFinishedGames];
+    return [...openGames, ...finishedGames];
   },
 
   async matchmaking(playerId: string): Promise<HydratedDocument<IGame> | null> {
