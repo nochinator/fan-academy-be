@@ -169,7 +169,6 @@ export class GameRoom extends Room {
 
   async handleGameOver(message: ITurnMessage): Promise<void>{
     const finishedAt = new Date();
-    // const { winCondition, winner } = message.gameOver!; // FIXME: revert once gameOver bug is fixed
     const { winner, winCondition } = message.gameOver!;
 
     const updatedGame = await Game.findByIdAndUpdate(message._id, {
