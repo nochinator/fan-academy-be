@@ -591,7 +591,6 @@ export function createNewGameBoardState(): ITile[] {
         y,
         boardPosition,
         tileType: specialTile ? specialTile.tileType : ETiles.BASIC,
-        occupied: false,
         obstacle: isCrystalTile ? true : false,
         ...isCrystalTile ? {
           crystal: {
@@ -674,7 +673,6 @@ export function calculateBoardCenterPoints(): ICoordinates[] {
 
 export function createTileData(data: ITile): ITile {
   const tileType = ETiles.BASIC;
-  const occupied = false;
   const obstacle = false;
   const hero = undefined;
   const crystal = undefined;
@@ -686,7 +684,6 @@ export function createTileData(data: ITile): ITile {
     y: data.y,
     boardPosition: data.boardPosition,
     tileType: data.tileType ?? tileType,
-    occupied: data.occupied ?? occupied,
     obstacle: data.obstacle ?? obstacle,
     hero: data.hero ?? hero,
     crystal: data.crystal ?? crystal

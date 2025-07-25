@@ -173,7 +173,6 @@ export interface ITile {
   x: number;
   y: number;
   boardPosition: number;
-  occupied: boolean;
   obstacle: boolean;
   hero?: IHero | undefined;
   crystal?: ICrystal | undefined

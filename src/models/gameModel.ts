@@ -336,10 +336,6 @@ const TileSchema = new Schema({
     type: Number,
     required: true
   },
-  occupied: {
-    type: Boolean,
-    required: true
-  },
   obstacle: {
     type: Boolean,
     required: true
