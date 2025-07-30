@@ -289,7 +289,7 @@ const map4 = [
 
 /**
   * Tribe map:
-  * 3 medium crystals
+  * 3 medium crystals (not barbed)
   * 2 assault tiles
   * 2 magical resist tiles
   */
@@ -391,7 +391,7 @@ const map6 = [
   },
   {
     row: 0,
-    col: 7,
+    col: 8,
     tileType: ETiles.CRYSTAL
   },
   {
@@ -401,7 +401,7 @@ const map6 = [
   },
   {
     row: 4,
-    col: 7,
+    col: 8,
     tileType: ETiles.CRYSTAL
   },
   {
@@ -521,6 +521,7 @@ const map7 = [
   }
 ];
 
+// console.log([map1, map2, map3, map4, map5, map6, map7]);
 export const mapTemplates: {
   row: number,
   col: number,
