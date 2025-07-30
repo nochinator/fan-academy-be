@@ -55,7 +55,10 @@ const UserService = {
       res.status(201).json({
         message: "User created successfully",
         token,
-        userId: user._id
+        userData: {
+          userId: user._id,
+          preferences: user.preferences
+        }
       });
     } catch(err: any) {
       console.log('Error', err);

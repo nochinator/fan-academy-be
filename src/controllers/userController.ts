@@ -39,7 +39,10 @@ router.post("/login", (req: Request, res: Response, next: NextFunction) => {
 
       res.send({
         token,
-        userId: typedUser._id
+        userData: {
+          userId: typedUser._id,
+          preferences: typedUser.preferences
+        }
       });
     } catch (err) {
       console.error("Token generation error:", err);
