@@ -209,6 +209,10 @@ const HeroSchema = new Schema({
   attackTile: {
     type: Boolean,
     required: true
+  },
+  manaVial: {
+    type: Boolean,
+    required: false
   }
 }, { _id: false });
 

@@ -369,7 +369,8 @@ function createGenericElvesData(data: Partial<IHero>): {
   row: number,
   col: number,
   isDebuffed: boolean,
-  attackTile: boolean
+  attackTile: boolean,
+  manaVial: boolean
 } {
   return {
     class: EClass.HERO,
@@ -386,7 +387,8 @@ function createGenericElvesData(data: Partial<IHero>): {
     row: data.row ?? 0,
     col: data.col ?? 0,
     isDebuffed: data.isDebuffed ?? false,
-    attackTile: data.attackTile ?? false
+    attackTile: data.attackTile ?? false,
+    manaVial: data.manavial ?? false
   };
 }
 

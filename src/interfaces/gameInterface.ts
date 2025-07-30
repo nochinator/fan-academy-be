@@ -93,6 +93,7 @@ export interface IHero {
   unitsConsumed?: number;
   isDebuffed: boolean;
   attackTile: boolean;
+  manavial?: boolean;
 }
 
 /**
