@@ -190,7 +190,8 @@ export class GameRoom extends Room {
       previousTurn: message.currentTurn,
       userIds,
       turnNumber: message.turnNumber,
-      lastPlayedAt: finishedAt
+      lastPlayedAt: finishedAt,
+      gameOver: message.gameOver
     });
 
     // Update users stats

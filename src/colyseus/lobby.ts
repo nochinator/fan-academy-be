@@ -2,7 +2,7 @@ import { Client, Room } from "@colyseus/core";
 import { ObjectId } from "mongoose";
 import { CustomError } from "../classes/customError";
 import { EFaction } from "../enums/game.enums";
-import IGame, { IGameState } from "../interfaces/gameInterface";
+import IGame, { IGameOver, IGameState } from "../interfaces/gameInterface";
 import GameService from "../services/gameService";
 
 export class Lobby extends Room {
@@ -59,7 +59,8 @@ export class Lobby extends Room {
       previousTurn: IGameState[],
       userIds: string[],
       turnNumber: number,
-      lastPlayedAt: Date
+      lastPlayedAt: Date,
+      gameOver: IGameOver
     }) => {
       // console.log('MESSAGE ->', message);
       console.log(`[Lobby ${this.roomId}] Received subscribed gameOverPresence message`);
