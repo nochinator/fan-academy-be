@@ -90,7 +90,11 @@ const UserService = {
       if (emailAlreadyExists) throw new CustomError(12);
     }
 
-    if (password) updateFields.password = password;
+    if (password) {
+      const hashedPassword = await hash(password, 10);
+      updateFields.password = hashedPassword;
+    }
+
     if (picture) updateFields.picture = picture;
 
     // Nested preferences

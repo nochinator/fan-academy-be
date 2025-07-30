@@ -30,8 +30,6 @@ router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", { session: false }, (err: any, user: Express.User | false, _info?: { message?: string }) => {
     if (err || !user) next(new CustomError(11));
 
-    console.log('USER', user);
-
     try {
       const typedUser = user as IUser;
       const token = generateToken({
