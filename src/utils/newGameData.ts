@@ -204,7 +204,8 @@ function createGenericCouncilData(data: Partial<IHero>): {
   row: number,
   col: number,
   isDebuffed: boolean,
-  attackTile: boolean
+  attackTile: boolean,
+  speedTile: boolean
 } {
   return {
     class: EClass.HERO,
@@ -221,7 +222,8 @@ function createGenericCouncilData(data: Partial<IHero>): {
     row: data.row ?? 0,
     col: data.col ?? 0,
     isDebuffed: data.isDebuffed ?? false,
-    attackTile: data.attackTile ?? false
+    attackTile: data.attackTile ?? false,
+    speedTile: data.speedTile ?? false
   };
 }
 
@@ -370,7 +372,8 @@ function createGenericElvesData(data: Partial<IHero>): {
   col: number,
   isDebuffed: boolean,
   attackTile: boolean,
-  manaVial: boolean
+  manaVial: boolean,
+  speedTile: boolean
 } {
   return {
     class: EClass.HERO,
@@ -388,7 +391,8 @@ function createGenericElvesData(data: Partial<IHero>): {
     col: data.col ?? 0,
     isDebuffed: data.isDebuffed ?? false,
     attackTile: data.attackTile ?? false,
-    manaVial: data.manavial ?? false
+    manaVial: data.manavial ?? false,
+    speedTile: data.speedTile ?? false
   };
 }
 

@@ -213,6 +213,10 @@ const HeroSchema = new Schema({
   manaVial: {
     type: Boolean,
     required: false
+  },
+  speedTile: {
+    type: Boolean,
+    required: false
   }
 }, { _id: false });
 

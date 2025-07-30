@@ -94,6 +94,7 @@ export interface IHero {
   isDebuffed: boolean;
   attackTile: boolean;
   manavial?: boolean;
+  speedTile?: boolean
 }
 
 /**
