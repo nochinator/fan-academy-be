@@ -95,6 +95,8 @@ export enum ETiles {
   CRYSTAL_DAMAGE = 'crystalDamageTile',
   TELEPORTER = 'teleporterTile',
   CRYSTAL = 'crystal',
+  CRYSTAL_BIG = 'crystalBig',
+  CRYSTAL_SMALL = 'crystalSmall',
   SPAWN = 'spawnTile',
   SPEED = 'speedTile'
 }

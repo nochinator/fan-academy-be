@@ -1,5 +1,11 @@
 import { ETiles } from "../enums/game.enums";
 
+/**
+  * 2 medium crystals
+  * 2 attack tiles
+  * 2 physical resistance tiles
+  * 1 assault tile
+  */
 const map1 = [
   {
     row: 0,
@@ -68,6 +74,12 @@ const map1 = [
   }
 ];
 
+/**
+  * 2 medium crystals
+  * 2 attack tiles
+  * 1 magical resistance tile
+  * 1 assault tile
+  */
 const map2 = [
   {
     row: 1,
@@ -131,6 +143,13 @@ const map2 = [
   }
 ];
 
+/**
+  * Dwarves map:
+  * 2 medium crystals
+  * 2 assault tiles
+  * 1 attack tile
+  * 2 teleporters
+  */
 const map3 = [
   {
     row: 0,
@@ -199,25 +218,110 @@ const map3 = [
   }
 ];
 
+/**
+  * Single crystal map
+  * 2 assault tiles
+  * 2 attack tiles
+  * 2 physical resistance tiles
+  */
 const map4 = [
   {
+    row: 2,
+    col: 2,
+    tileType: ETiles.CRYSTAL_BIG
+  },
+  {
+    row: 2,
+    col: 6,
+    tileType: ETiles.CRYSTAL_BIG
+  },
+  {
+    row: 0,
+    col: 0,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 0,
+    col: 8,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 4,
+    col: 0,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 4,
+    col: 8,
+    tileType: ETiles.SPAWN
+  },
+  {
     row: 1,
     col: 2,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.POWER
   },
   {
     row: 3,
-    col: 2,
-    tileType: ETiles.CRYSTAL
+    col: 6,
+    tileType: ETiles.POWER
   },
   {
     row: 1,
     col: 6,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.PHYSICAL_RESISTANCE
   },
   {
     row: 3,
+    col: 2,
+    tileType: ETiles.PHYSICAL_RESISTANCE
+  },
+  {
+    row: 0,
+    col: 4,
+    tileType: ETiles.CRYSTAL_DAMAGE
+  },
+  {
+    row: 4,
+    col: 4,
+    tileType: ETiles.CRYSTAL_DAMAGE
+  }
+];
+
+/**
+  * Tribe map:
+  * 3 medium crystals
+  * 2 assault tiles
+  * 2 magical resist tiles
+  */
+const map5 = [
+  {
+    row: 0,
+    col: 1,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 2,
+    col: 2,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 4,
+    col: 1,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 0,
+    col: 7,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 2,
     col: 6,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 4,
+    col: 7,
     tileType: ETiles.CRYSTAL
   },
   {
@@ -272,8 +376,154 @@ const map4 = [
   }
 ];
 
+/**
+ * Shaolin puzzle map:
+ * 2 medium crystals
+ * 2 assault tiles
+ * 2 attack tiles
+ * 1 speed tile
+ */
+const map6 = [
+  {
+    row: 0,
+    col: 0,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 0,
+    col: 7,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 4,
+    col: 0,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 4,
+    col: 7,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 1,
+    col: 0,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 3,
+    col: 0,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 3,
+    col: 8,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 1,
+    col: 8,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 2,
+    col: 0,
+    tileType: ETiles.POWER
+  },
+  {
+    row: 2,
+    col: 8,
+    tileType: ETiles.POWER
+  },
+  {
+    row: 0,
+    col: 4,
+    tileType: ETiles.CRYSTAL_DAMAGE
+  },
+  {
+    row: 4,
+    col: 4,
+    tileType: ETiles.CRYSTAL_DAMAGE
+  },
+  {
+    row: 2,
+    col: 4,
+    tileType: ETiles.SPEED
+  }
+];
+
+/**
+ * Shaolin map:
+ * 2 medium crystals
+ * 2 assault tiles
+ * 1 attack tile
+ * 1 speed tile
+ */
+const map7 = [
+  {
+    row: 0,
+    col: 2,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 3,
+    col: 0,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 0,
+    col: 6,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 3,
+    col: 8,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 1,
+    col: 0,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 4,
+    col: 0,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 1,
+    col: 8,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 4,
+    col: 8,
+    tileType: ETiles.SPAWN
+  },
+  {
+    row: 1,
+    col: 4,
+    tileType: ETiles.POWER
+  },
+  {
+    row: 4,
+    col: 4,
+    tileType: ETiles.SPEED
+  },
+  {
+    row: 2,
+    col: 2,
+    tileType: ETiles.CRYSTAL_DAMAGE
+  },
+  {
+    row: 2,
+    col: 6,
+    tileType: ETiles.CRYSTAL_DAMAGE
+  }
+];
+
 export const mapTemplates: {
   row: number,
   col: number,
-  tileType: ETiles
-}[][] = [map1, map2, map3, map4];
+  tileType: ETiles,
+  crystalType?: number
+}[][] = [map1, map2, map3, map4, map5, map6, map7];
