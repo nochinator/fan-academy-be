@@ -174,6 +174,7 @@ export class GameRoom extends Room {
     const updatedGame = await Game.findByIdAndUpdate(message._id, {
       previousTurn: message.currentTurn,
       turnNumber: message.turnNumber,
+      activePlayer: message.newActivePlayer,
       gameOver: message.gameOver,
       status: EGameStatus.FINISHED,
       lastPlayedAt: finishedAt,
