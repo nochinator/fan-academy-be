@@ -21,7 +21,6 @@ export class GameRoom extends Room {
     token: string,
     roomId?: string,
     opponentId?: string
-    // boardState?: ITile[]
   }): Promise<void> {
     /**
      * onCreate can be called when:
@@ -105,7 +104,9 @@ export class GameRoom extends Room {
         });
         console.log('NEWGAME', newGame);
 
-        if (newGame) this.roomId = newGame._id.toString();
+        if (!newGame) return undefined;
+
+        this.roomId = newGame._id.toString();
 
         // Send a message to update the game list
         this.presence.publish("newGamePresence", {

@@ -1,12 +1,11 @@
 import { matchMaker } from "@colyseus/core";
 import { HydratedDocument, Types } from "mongoose";
 import { CustomError } from "../classes/customError";
-import { EmailService } from "../emails/emailService";
 import { EFaction, EGameStatus } from "../enums/game.enums";
-import IGame, { IPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
+import IGame, { IPlayerData } from "../interfaces/gameInterface";
+import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
-import ChatLog from "../models/chatlogModel";
 
 const GameService = {
   // GET ACTIONS
@@ -63,6 +62,15 @@ const GameService = {
   }): Promise<HydratedDocument<IGame>> {
     const { userId, faction, opponentId } = params;
 
+    const activeGamesLimit = 50;
+    const playerActiveGames = await Game.find({ status: { $ne: EGameStatus.FINISHED } });
+    if (playerActiveGames.length && playerActiveGames.length >= activeGamesLimit) throw new CustomError(22);
+
+    if (opponentId) {
+      const opponentActiveGames = await Game.find({ status: { $ne: EGameStatus.FINISHED } });
+      if (opponentActiveGames.length && opponentActiveGames.length >= activeGamesLimit) throw new CustomError(22);
+    }
+
     const userObjId = new Types.ObjectId(userId);
     const gameId = new Types.ObjectId();
 
@@ -97,14 +105,14 @@ const GameService = {
       });
 
       // Send email to challenged user if they are not online but have notifications enabled
-      const challengedUser = result.players[1].userData as unknown as IPopulatedUserData;
-      const challenger = result.players[0].userData as unknown as IPopulatedUserData;
+      // const challengedUser = result.players[1].userData as unknown as IPopulatedUserData;
+      // const challenger = result.players[0].userData as unknown as IPopulatedUserData;
 
-      const isOnline = await matchMaker.presence.get(`user:${opponentId}`);
+      // const isOnline = await matchMaker.presence.get(`user:${opponentId}`);
 
-      const acceptsEmails = challengedUser.preferences?.emailNotifications;
+      // const acceptsEmails = challengedUser.preferences?.emailNotifications;
 
-      if (!isOnline && acceptsEmails) await EmailService.sendChallengeNotificationEmail(challengedUser.email!, challengedUser.username!, challenger.username!);
+      // if (!isOnline && acceptsEmails) await EmailService.sendChallengeNotificationEmail(challengedUser.email!, challengedUser.username!, challenger.username!);
     }
     return result;
   },
