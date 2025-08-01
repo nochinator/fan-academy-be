@@ -1,8 +1,8 @@
 import { matchMaker } from "@colyseus/core";
 import { HydratedDocument, Types } from "mongoose";
 import { CustomError } from "../classes/customError";
-import { EFaction, EGameStatus } from "../enums/game.enums";
-import IGame, { IPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
+import { EFaction, EGameStatus, EWinConditions } from "../enums/game.enums";
+import IGame, { IPlayerData, IPopulatedPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
 import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
@@ -13,6 +13,16 @@ const GameService = {
   async getCurrentGames(userId: string): Promise<IGame[] | null> {
     const userObjectId = new Types.ObjectId(userId);
     console.log('userId', userId);
+
+    // Check for games where a player has not played for over two weeks and update them before returning the game list to the player
+    const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+    const timedOutGames = await Game.find({
+      'players.userData': userObjectId,
+      status: EGameStatus.PLAYING,
+      lastPlayedAt: { $lt: twoWeeksAgo }
+    }).populate('players.userData', 'username email');
+
+    if (timedOutGames) await this.handleTimedOutGames(timedOutGames);
 
     const openGames = await Game.find({
       'players.userData': userObjectId,
@@ -203,6 +213,44 @@ const GameService = {
 
     const result = deletedGame.players.map(player => { return player.userData.toString() ;});
     return result;
+  },
+
+  async handleTimedOutGames(games: IGame[]): Promise<void> {
+    const userInfoForEmails: {
+      winner: IPopulatedPlayerData,
+      loser: IPopulatedPlayerData,
+    }[] = [];
+    const gamesToUpdate = games.map(game => {
+      const winner = game.players.find(player => player.userData._id.toString() !== game.activePlayer?.toString()) as IPopulatedPlayerData;
+      const loser = game.players.find(player => player.userData._id.toString() === game.activePlayer?.toString()) as IPopulatedPlayerData;
+
+      userInfoForEmails.push({
+        winner,
+        loser
+      });
+
+      return {
+        updateOne: {
+          filter: { _id: game._id },
+          update: {
+            $set: {
+              status: EGameStatus.FINISHED,
+              gameOver: {
+                winCondition: EWinConditions.TIME,
+                winner: winner?.userData._id?.toString()
+              },
+              finishedAt: new Date()
+            }
+          }
+        }
+      };
+    });
+
+    if (gamesToUpdate.length > 0) await Game.bulkWrite(gamesToUpdate);
+
+    for (let i = 0; i < userInfoForEmails.length; i++) {
+      await EmailService.sendGameOverEmail(userInfoForEmails[i].winner, userInfoForEmails[i].loser, EWinConditions.TIME);
+    }
   }
 
 };

@@ -429,7 +429,13 @@ const GameSchema = new Schema({
     ref: 'ChatLog',
     required: false
   }
+});
 
+// Indexing for checking if games have tiomed out
+GameSchema.index({
+  'players.userData': 1,
+  status: 1,
+  lastPlayedAt: 1
 });
 
 export default model<IGame>('Game', GameSchema);
