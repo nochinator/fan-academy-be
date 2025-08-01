@@ -14,7 +14,7 @@ const GameService = {
     const userObjectId = new Types.ObjectId(userId);
     console.log('userId', userId);
 
-    // Check for games where a player has not played for over two weeks and update them before returning the game list to the player
+    // Check for games where a player has not played for over a week and update them before returning the game list to the player
     const twoWeeksAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const timedOutGames = await Game.find({
       'players.userData': userObjectId,
