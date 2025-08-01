@@ -74,11 +74,17 @@ const GameService = {
     const { userId, faction, opponentId } = params;
 
     const activeGamesLimit = 50;
-    const playerActiveGames = await Game.find({ status: { $ne: EGameStatus.FINISHED } });
+    const playerActiveGames = await Game.find({
+      'players.userData': userId,
+      status: { $ne: EGameStatus.FINISHED }
+    });
     if (playerActiveGames.length && playerActiveGames.length >= activeGamesLimit) throw new CustomError(22);
 
     if (opponentId) {
-      const opponentActiveGames = await Game.find({ status: { $ne: EGameStatus.FINISHED } });
+      const opponentActiveGames = await Game.find({
+        'players.userData': opponentId,
+        status: { $ne: EGameStatus.FINISHED }
+      });
       if (opponentActiveGames.length && opponentActiveGames.length >= activeGamesLimit) throw new CustomError(22);
     }
 
