@@ -69,6 +69,11 @@ const UserSchema = new Schema({
     type: Boolean,
     required: true,
     default: false
+  },
+  turnEmailSent: {
+    type: Boolean,
+    required: true,
+    default: false
   }
 });
 

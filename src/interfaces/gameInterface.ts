@@ -130,6 +130,7 @@ export interface IPopulatedUserData {
   stats?: IUserStats;
   preferences?: IUserPreferences;
   confirmedEmail?: boolean;
+  turnEmailSent?: boolean
 };
 
 /**

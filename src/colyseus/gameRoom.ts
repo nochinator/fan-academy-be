@@ -227,11 +227,11 @@ export class GameRoom extends Room {
       turnNumber: message.turnNumber,
       activePlayer: message.newActivePlayer,
       lastPlayedAt
-    }, { new: true }).populate('players.userData', "username picture preferences email confirmedEmail");
+    }, { new: true }).populate('players.userData', "username picture preferences email confirmedEmail turnEmailSent");
 
     if (!updatedGame) throw new CustomError(24);
 
-    // Send a notification if the new active player is offline and can receive emails
+    // Send a notification if the new active player is offline, can receive emails and it has not already received a notification email since the last time they logged in
     const playerToNotify = updatedGame.players.find((player) =>
       player.userData._id.toString() === updatedGame.activePlayer?.toString());
 
@@ -241,10 +241,13 @@ export class GameRoom extends Room {
       const isOnline = await matchMaker.presence.get(`user:${updatedGame.activePlayer}`);
 
       const acceptsEmails = userData.preferences?.emailNotifications;
-
       const confirmedEmail = userData?.confirmedEmail;
+      const turnEmailSent = userData?.turnEmailSent;
 
-      if (!isOnline && acceptsEmails && confirmedEmail!) await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
+      if (!isOnline && acceptsEmails && confirmedEmail! && !turnEmailSent) {
+        await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
+        await User.findByIdAndUpdate(userData._id, { turnEmailSent: true });
+      }
     }
 
     // Retrieve user ids and publish update the users' game lists

@@ -176,7 +176,7 @@ const GameService = {
       gameLookingForPlayers.lastPlayedAt = new Date();
 
       await gameLookingForPlayers.save();
-      const game = (await gameLookingForPlayers.populate('players.userData', 'username picture preferences email confirmedEmail')).populate('chatLogs');
+      const game = (await gameLookingForPlayers.populate('players.userData', 'username picture preferences email confirmedEmail turnEmailSent')).populate('chatLogs');
 
       return game;
     } catch (err) {
