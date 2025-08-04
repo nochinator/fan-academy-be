@@ -603,7 +603,7 @@ export function createNewGameBoardState(): ITile[] {
           maxHealth: crystalHp,
           currentHealth: crystalHp,
           isDestroyed: false,
-          isLastCrystal: false,
+          isLastCrystal: specialTile.tileType === ETiles.CRYSTAL_BIG ? true : false,
           boardPosition,
           row,
           col,
