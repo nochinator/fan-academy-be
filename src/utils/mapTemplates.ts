@@ -377,76 +377,76 @@ const map5 = [
 ];
 
 /**
- * Shaolin puzzle map:
+ * kitty-corner map:
  * 2 medium crystals
  * 2 assault tiles
- * 2 attack tiles
- * 1 speed tile
+ * 1 attack tile
+ * 2 speed tiles
  */
 const map6 = [
   {
-    row: 0,
-    col: 0,
-    tileType: ETiles.CRYSTAL
-  },
-  {
-    row: 0,
-    col: 8,
-    tileType: ETiles.CRYSTAL
-  },
-  {
-    row: 4,
-    col: 0,
-    tileType: ETiles.CRYSTAL
-  },
-  {
-    row: 4,
-    col: 8,
+    row: 2,
+    col: 1,
     tileType: ETiles.CRYSTAL
   },
   {
     row: 1,
-    col: 0,
-    tileType: ETiles.SPAWN
+    col: 3,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 2,
+    col: 7,
+    tileType: ETiles.CRYSTAL
   },
   {
     row: 3,
-    col: 0,
+    col: 5,
+    tileType: ETiles.CRYSTAL
+  },
+  {
+    row: 0,
+    col: 2,
     tileType: ETiles.SPAWN
   },
   {
-    row: 3,
-    col: 8,
-    tileType: ETiles.SPAWN
-  },
-  {
-    row: 1,
+    row: 2,
     col: 8,
     tileType: ETiles.SPAWN
   },
   {
     row: 2,
     col: 0,
-    tileType: ETiles.POWER
+    tileType: ETiles.SPAWN
   },
   {
-    row: 2,
-    col: 8,
-    tileType: ETiles.POWER
+    row: 4,
+    col: 6,
+    tileType: ETiles.SPAWN
   },
   {
-    row: 0,
-    col: 4,
+    row: 4,
+    col: 2,
     tileType: ETiles.CRYSTAL_DAMAGE
   },
   {
-    row: 4,
-    col: 4,
+    row: 0,
+    col: 6,
     tileType: ETiles.CRYSTAL_DAMAGE
   },
   {
     row: 2,
     col: 4,
+    tileType: ETiles.POWER
+  },
+  {
+    row: 3,
+    col: 7,
+    tileType: ETiles.SPEED
+  },
+  {
+    row: 1,
+    col: 1,
     tileType: ETiles.SPEED
   }
 ];
