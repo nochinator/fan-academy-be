@@ -9,7 +9,7 @@
         },
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://nochinator.github.io, http://localhost:5173"
+          "value": "*"
         },
         {
           "key": "Access-Control-Allow-Methods",
