@@ -1,4 +1,11 @@
 {
+  "functions": {
+    "index.js": {
+      "runtime": "node_20.x",
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
