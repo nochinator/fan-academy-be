@@ -58,7 +58,7 @@ const index = async () => {
     (req: Request, res: Response) => {
       const user = req.user as IUser;
 
-      res.send({
+      res.json({
         userId: user._id,
         preferences: user.preferences
       });
