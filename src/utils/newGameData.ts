@@ -204,7 +204,8 @@ function createGenericCouncilData(data: Partial<IHero>): {
   row: number,
   col: number,
   isDebuffed: boolean,
-  attackTile: boolean
+  attackTile: boolean,
+  speedTile: boolean
 } {
   return {
     class: EClass.HERO,
@@ -221,7 +222,8 @@ function createGenericCouncilData(data: Partial<IHero>): {
     row: data.row ?? 0,
     col: data.col ?? 0,
     isDebuffed: data.isDebuffed ?? false,
-    attackTile: data.attackTile ?? false
+    attackTile: data.attackTile ?? false,
+    speedTile: data.speedTile ?? false
   };
 }
 
@@ -369,7 +371,9 @@ function createGenericElvesData(data: Partial<IHero>): {
   row: number,
   col: number,
   isDebuffed: boolean,
-  attackTile: boolean
+  attackTile: boolean,
+  manaVial: boolean,
+  speedTile: boolean
 } {
   return {
     class: EClass.HERO,
@@ -386,7 +390,9 @@ function createGenericElvesData(data: Partial<IHero>): {
     row: data.row ?? 0,
     col: data.col ?? 0,
     isDebuffed: data.isDebuffed ?? false,
-    attackTile: data.attackTile ?? false
+    attackTile: data.attackTile ?? false,
+    manaVial: data.manavial ?? false,
+    speedTile: data.speedTile ?? false
   };
 }
 
@@ -578,12 +584,33 @@ export function createNewGameBoardState(): ITile[] {
   const newBoard: ITile[] = [];
   const centerPoints = calculateAllCenterPoints();
 
+  const crystalsTypeArray = [ETiles.CRYSTAL_SMALL, ETiles.CRYSTAL, ETiles.CRYSTAL_BIG];
+
   let boardPosition = 0;
   for (let row = 0; row < 5; row++) {
     for (let col = 0; col < 9; col++) {
       const { x, y } = centerPoints[boardPosition];
       const specialTile = mapData.find((tile) => tile.col === col && tile.row === row);
-      const isCrystalTile = specialTile?.tileType === ETiles.CRYSTAL;
+
+      let crystalData;
+      const isCrystalTile = specialTile?.tileType && crystalsTypeArray.includes(specialTile.tileType);
+
+      if (isCrystalTile) {
+        const crystalHp = getCrystalHp(specialTile.tileType);
+
+        crystalData = {
+          belongsTo: col > 4 ? 2 : 1,
+          maxHealth: crystalHp,
+          currentHealth: crystalHp,
+          isDestroyed: false,
+          isLastCrystal: specialTile.tileType === ETiles.CRYSTAL_BIG ? true : false,
+          boardPosition,
+          row,
+          col,
+          debuffLevel: 0
+        };
+      }
+
       const tile = createTileData({
         row,
         col,
@@ -592,25 +619,34 @@ export function createNewGameBoardState(): ITile[] {
         boardPosition,
         tileType: specialTile ? specialTile.tileType : ETiles.BASIC,
         obstacle: isCrystalTile ? true : false,
-        ...isCrystalTile ? {
-          crystal: {
-            belongsTo: col > 4 ? 2 : 1,
-            maxHealth: 4500,
-            currentHealth: 4500,
-            isDestroyed: false,
-            isLastCrystal: false,
-            boardPosition,
-            row,
-            col,
-            debuffLevel: 0
-          }
-        } : {}
+        ...isCrystalTile ? { crystal: crystalData } : {}
       });
       newBoard.push(tile);
       boardPosition++;
     }}
 
   return newBoard;
+}
+
+export function getCrystalHp(tileType: ETiles) {
+  let health;
+
+  switch (tileType) {
+    case ETiles.CRYSTAL_SMALL:
+      health = 3000;
+      break;
+    case ETiles.CRYSTAL:
+      health = 4500;
+      break;
+    case ETiles.CRYSTAL_BIG:
+      health = 9000;
+      break;
+    default:
+      health = 4500;
+      break;
+  }
+
+  return health;
 }
 
 export function calculateAllCenterPoints(): ICoordinates[] {

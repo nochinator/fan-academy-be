@@ -1,12 +1,12 @@
 import { matchMaker } from "@colyseus/core";
 import { HydratedDocument, Types } from "mongoose";
 import { CustomError } from "../classes/customError";
-import { EmailService } from "../emails/emailService";
-import { EFaction, EGameStatus } from "../enums/game.enums";
-import IGame, { IPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
+import { EFaction, EGameStatus, EWinConditions } from "../enums/game.enums";
+import IGame, { IPlayerData, IPopulatedPlayerData, IPopulatedUserData } from "../interfaces/gameInterface";
+import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
-import ChatLog from "../models/chatlogModel";
+import { EmailService } from "../emails/emailService";
 import { DiscordNotificationService } from "./DiscordNotificationService";
 
 const GameService = {
@@ -14,6 +14,16 @@ const GameService = {
   async getCurrentGames(userId: string): Promise<IGame[] | null> {
     const userObjectId = new Types.ObjectId(userId);
     console.log('userId', userId);
+
+    // Check for games where a player has not played for over a week and update them before returning the game list to the player
+    const twoWeeksAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const timedOutGames = await Game.find({
+      'players.userData': userObjectId,
+      status: EGameStatus.PLAYING,
+      lastPlayedAt: { $lt: twoWeeksAgo }
+    }).populate('players.userData', 'username email');
+
+    if (timedOutGames) await this.handleTimedOutGames(timedOutGames);
 
     const openGames = await Game.find({
       'players.userData': userObjectId,
@@ -63,6 +73,21 @@ const GameService = {
     opponentId?: string,
   }): Promise<HydratedDocument<IGame>> {
     const { userId, faction, opponentId } = params;
+
+    const activeGamesLimit = 50;
+    const playerActiveGames = await Game.find({
+      'players.userData': userId,
+      status: { $ne: EGameStatus.FINISHED }
+    });
+    if (playerActiveGames.length && playerActiveGames.length >= activeGamesLimit) throw new CustomError(22);
+
+    if (opponentId) {
+      const opponentActiveGames = await Game.find({
+        'players.userData': opponentId,
+        status: { $ne: EGameStatus.FINISHED }
+      });
+      if (opponentActiveGames.length && opponentActiveGames.length >= activeGamesLimit) throw new CustomError(22);
+    }
 
     const userObjId = new Types.ObjectId(userId);
     const gameId = new Types.ObjectId();
@@ -162,7 +187,7 @@ const GameService = {
       gameLookingForPlayers.lastPlayedAt = new Date();
 
       await gameLookingForPlayers.save();
-      const game = (await gameLookingForPlayers.populate('players.userData', 'username picture preferences email confirmedEmail')).populate('chatLogs');
+      const game = (await gameLookingForPlayers.populate('players.userData', 'username picture preferences email confirmedEmail turnEmailSent')).populate('chatLogs');
 
       return game;
     } catch (err) {
@@ -205,6 +230,44 @@ const GameService = {
 
     const result = deletedGame.players.map(player => { return player.userData.toString(); });
     return result;
+  },
+
+  async handleTimedOutGames(games: IGame[]): Promise<void> {
+    const userInfoForEmails: {
+      winner: IPopulatedPlayerData,
+      loser: IPopulatedPlayerData,
+    }[] = [];
+    const gamesToUpdate = games.map(game => {
+      const winner = game.players.find(player => player.userData._id.toString() !== game.activePlayer?.toString()) as IPopulatedPlayerData;
+      const loser = game.players.find(player => player.userData._id.toString() === game.activePlayer?.toString()) as IPopulatedPlayerData;
+
+      userInfoForEmails.push({
+        winner,
+        loser
+      });
+
+      return {
+        updateOne: {
+          filter: { _id: game._id },
+          update: {
+            $set: {
+              status: EGameStatus.FINISHED,
+              gameOver: {
+                winCondition: EWinConditions.TIME,
+                winner: winner?.userData._id?.toString()
+              },
+              finishedAt: new Date()
+            }
+          }
+        }
+      };
+    });
+
+    if (gamesToUpdate.length > 0) await Game.bulkWrite(gamesToUpdate);
+
+    for (let i = 0; i < userInfoForEmails.length; i++) {
+      await EmailService.sendGameOverEmail(userInfoForEmails[i].winner, userInfoForEmails[i].loser, EWinConditions.TIME);
+    }
   }
 
 };

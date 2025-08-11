@@ -22,7 +22,6 @@ export class GameRoom extends Room {
     token: string,
     roomId?: string,
     opponentId?: string
-    // boardState?: ITile[]
   }): Promise<void> {
     /**
      * onCreate can be called when:
@@ -116,7 +115,9 @@ export class GameRoom extends Room {
         });
         console.log('NEWGAME', newGame);
 
-        if (newGame) this.roomId = newGame._id.toString();
+        if (!newGame) return undefined;
+
+        this.roomId = newGame._id.toString();
 
         // Send a message to update the game list
         this.presence.publish("newGamePresence", {
@@ -185,6 +186,7 @@ export class GameRoom extends Room {
     const updatedGame = await Game.findByIdAndUpdate(message._id, {
       previousTurn: message.currentTurn,
       turnNumber: message.turnNumber,
+      activePlayer: message.newActivePlayer,
       gameOver: message.gameOver,
       status: EGameStatus.FINISHED,
       lastPlayedAt: finishedAt,
@@ -200,7 +202,8 @@ export class GameRoom extends Room {
       previousTurn: message.currentTurn,
       userIds,
       turnNumber: message.turnNumber,
-      lastPlayedAt: finishedAt
+      lastPlayedAt: finishedAt,
+      gameOver: message.gameOver
     });
 
     // Update users stats
@@ -246,11 +249,11 @@ export class GameRoom extends Room {
       turnNumber: message.turnNumber,
       activePlayer: message.newActivePlayer,
       lastPlayedAt
-    }, { new: true }).populate('players.userData', "username picture preferences email confirmedEmail");
+    }, { new: true }).populate('players.userData', "username picture preferences email confirmedEmail turnEmailSent");
 
     if (!updatedGame) throw new CustomError(24);
 
-    // Send a notification if the new active player is offline and can receive emails
+    // Send a notification if the new active player is offline, can receive emails and it has not already received a notification email since the last time they logged in
     const playerToNotify = updatedGame.players.find((player) =>
       player.userData._id.toString() === updatedGame.activePlayer?.toString());
 
@@ -260,11 +263,12 @@ export class GameRoom extends Room {
       const isOnline = await matchMaker.presence.get(`user:${updatedGame.activePlayer}`);
 
       const acceptsEmails = userData.preferences?.emailNotifications;
-
       const confirmedEmail = userData?.confirmedEmail;
+      const turnEmailSent = userData?.turnEmailSent;
 
-      if (!isOnline && acceptsEmails && confirmedEmail!) {
+      if (!isOnline && acceptsEmails && confirmedEmail! && !turnEmailSent) {
         await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
+        await User.findByIdAndUpdate(userData._id, { turnEmailSent: true });
       }
 
       try {

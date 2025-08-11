@@ -56,7 +56,10 @@ const UserService = {
       res.status(201).json({
         message: "User created successfully",
         token,
-        userId: user._id
+        userData: {
+          userId: user._id,
+          preferences: user.preferences
+        }
       });
     } catch (err: any) {
       console.log('Error', err);
@@ -79,7 +82,7 @@ const UserService = {
 
   async updateProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user as IUser; // User data is populated by Passport
-    const { email, password, picture, emailNotifications, chat } = req.body;
+    const { email, password, picture, emailNotifications, chat, sound } = req.body;
 
     const updateFields: any = {};
 
@@ -91,15 +94,17 @@ const UserService = {
       if (emailAlreadyExists) throw new CustomError(12);
     }
 
-    if (password) updateFields.password = password;
+    if (password) {
+      const hashedPassword = await hash(password, 10);
+      updateFields.password = hashedPassword;
+    }
+
     if (picture) updateFields.picture = picture;
 
     // Nested preferences
-    if (emailNotifications || chat) {
-      updateFields.preferences = {};
-      if (emailNotifications) updateFields.preferences.emailNotifications = emailNotifications;
-      if (chat) updateFields.preferences.chat = chat;
-    }
+    if (emailNotifications !== undefined) updateFields['preferences.emailNotifications'] = emailNotifications;
+    if (chat !== undefined) updateFields['preferences.chat'] = chat;
+    if (sound !== undefined) updateFields['preferences.sound'] = sound;
 
     const result = await User.findByIdAndUpdate(user._id, updateFields, { new: true });
 
@@ -191,7 +196,6 @@ const UserService = {
 
   async getProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user as IUser; // User data is populated by Passport
-    console.log('USERR', user);
     if (!user._id) { throw new CustomError(10); }
 
     const result = await User.findById(user._id, { password: 0 });

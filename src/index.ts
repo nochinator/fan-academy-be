@@ -62,7 +62,11 @@ const index = async () => {
   app.get('/auth-check', passport.authenticate('jwt', { session: false }),
     (req: Request, res: Response) => {
       const user = req.user as IUser;
-      res.send(user._id);
+
+      res.send({
+        userId: user._id,
+        preferences: user.preferences
+      });
     }
   );
 

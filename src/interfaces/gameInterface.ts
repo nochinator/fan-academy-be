@@ -93,6 +93,8 @@ export interface IHero {
   unitsConsumed?: number;
   isDebuffed: boolean;
   attackTile: boolean;
+  manavial?: boolean;
+  speedTile?: boolean
 }
 
 /**
@@ -128,6 +130,7 @@ export interface IPopulatedUserData {
   stats?: IUserStats;
   preferences?: IUserPreferences;
   confirmedEmail?: boolean;
+  turnEmailSent?: boolean
 };
 
 /**

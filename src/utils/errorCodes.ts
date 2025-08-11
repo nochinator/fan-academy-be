@@ -7,6 +7,7 @@ export const ErrorCodes = {
   13: 'Unable to log out',
 
   // Game
+  22: 'Player has hit the limit for open games',
   23: 'Could not create game',
   24: 'Game not found',
   25: 'User is not the active player',
@@ -33,6 +34,7 @@ export const ErrorStatuses = {
   11: 401,
   12: 409,
   13: 400,
+  22: 403,
   23: 500,
   24: 404,
   25: 403,

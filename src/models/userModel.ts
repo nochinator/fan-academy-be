@@ -11,6 +11,11 @@ const PreferencesSchema = new Schema({
     type: Boolean,
     required: true,
     default: true
+  },
+  sound: {
+    type: Boolean,
+    required: true,
+    default: true
   }
 });
 
@@ -61,6 +66,11 @@ const UserSchema = new Schema({
     required: false
   },
   confirmedEmail: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  turnEmailSent: {
     type: Boolean,
     required: true,
     default: false

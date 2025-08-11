@@ -2,18 +2,20 @@ import { Client, Room } from "@colyseus/core";
 import { ObjectId } from "mongoose";
 import { CustomError } from "../classes/customError";
 import { EFaction } from "../enums/game.enums";
-import IGame, { IGameState } from "../interfaces/gameInterface";
+import IGame, { IGameOver, IGameState } from "../interfaces/gameInterface";
 import GameService from "../services/gameService";
+import User from "../models/userModel";
 
 export class Lobby extends Room {
   connectedClients: Set<Client> = new Set();
 
-  onJoin(client: Client, options: { userId: string }) {
+  async onJoin(client: Client, options: { userId: string }) {
     (client as any).userId = options.userId; // TypeScript workaround
     this.presence.set(`user:${options.userId}`, 'online');
     this.connectedClients.add(client);
     console.log(`[Lobby ${this.roomId}] Client joined: ${(client as any).userId}`);
     this.logConnectedClients();
+    await User.findByIdAndUpdate(options.userId, { turnEmailSent: false });
   }
 
   onCreate(_options: { userId: string }): void {
@@ -59,7 +61,8 @@ export class Lobby extends Room {
       previousTurn: IGameState[],
       userIds: string[],
       turnNumber: number,
-      lastPlayedAt: Date
+      lastPlayedAt: Date,
+      gameOver: IGameOver
     }) => {
       // console.log('MESSAGE ->', message);
       console.log(`[Lobby ${this.roomId}] Received subscribed gameOverPresence message`);
