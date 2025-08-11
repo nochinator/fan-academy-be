@@ -216,8 +216,18 @@ export class GameRoom extends Room {
 
     if (!updateWinner || !updateLoser) throw new CustomError(24);
 
+    const emails = [];
+    if (updateWinner?.preferences.emailNotifications) emails.push(updateWinner.email);
+    if (updateLoser?.preferences.emailNotifications) emails.push(updateLoser.email);
+
     // Send gameover emails
-    await EmailService.sendGameOverEmail(userWon, userLost, winCondition);
+    if (emails.length) {
+      await EmailService.sendGameOverEmail({
+        winner: userWon,
+        loser: userLost,
+        emails
+      }, winCondition);
+    }
   }
 
   async handleTurn(message: ITurnMessage): Promise<void> {
