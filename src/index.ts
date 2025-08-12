@@ -51,7 +51,6 @@ const index = async () => {
 
   await databaseConnection();
 
-
   // Ensure notification definitions exist before sending notifications
   await ensureNotificationDefinitionsExist();
 
