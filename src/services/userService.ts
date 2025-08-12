@@ -11,7 +11,7 @@ import User from "../models/userModel";
 import { generateToken } from '../middleware/jwt';
 import { getConfirmationLink } from '../utils/tokenGeneration';
 import { EmailService } from '../emails/emailService';
-import { DiscordNotificationService } from './DiscordNotificationService';
+import { DiscordNotificationService } from './discordNotificationService';
 
 const UserService = {
   async signup(req: Request, res: Response, next: NextFunction): Promise<void> {

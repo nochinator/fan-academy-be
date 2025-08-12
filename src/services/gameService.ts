@@ -7,9 +7,8 @@ import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
 import { EmailService } from "../emails/emailService";
-import { DiscordNotificationService } from "./DiscordNotificationService";
 import User from "../models/userModel";
-
+import { DiscordNotificationService } from "./discordNotificationService";
 
 const GameService = {
   // GET ACTIONS
