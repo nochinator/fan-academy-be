@@ -9,7 +9,7 @@ import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import User from '../models/userModel';
 import GameService from "../services/gameService";
-import { DiscordNotificationService } from "../services/DiscordNotificationService";
+import { DiscordNotificationService } from "../services/discordNotificationService";
 
 export class GameRoom extends Room {
   connectedClients: Set<string> = new Set();
@@ -97,9 +97,7 @@ export class GameRoom extends Room {
           }
 
           try {
-            if (typeof userData.username === 'string') {
-              await DiscordNotificationService.sendYourTurn(userData.username);
-            }
+            if (typeof userData.username === 'string') await DiscordNotificationService.sendYourTurn(userData.username);
           } catch (err) {
             console.error('Failed to send Discord your turn notification:', err);
           }
@@ -239,16 +237,13 @@ export class GameRoom extends Room {
         emails
       }, winCondition);
     }
-    
+
     try {
-      if (userWon?.userData?.username) {
-        await DiscordNotificationService.sendGameFinished(userWon.userData.username);
-      }
-      if (userLost?.userData?.username) {
-        await DiscordNotificationService.sendGameFinished(userLost.userData.username);
-      }
+      if (userWon?.userData?.username) await DiscordNotificationService.sendGameFinished(userWon.userData.username);
+      if (userLost?.userData?.username) await DiscordNotificationService.sendGameFinished(userLost.userData.username);
     } catch (err) {
       console.error('Failed to send Discord game finished notification:', err);
+    }
   }
 
   async handleTurn(message: ITurnMessage): Promise<void> {

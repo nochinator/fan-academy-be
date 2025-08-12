@@ -431,7 +431,7 @@ const GameSchema = new Schema({
   }
 });
 
-// Indexing for checking if games have tiomed out
+// Indexing for checking if games have timed out
 GameSchema.index({
   'players.userData': 1,
   status: 1,
