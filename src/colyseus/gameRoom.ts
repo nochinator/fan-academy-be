@@ -227,9 +227,19 @@ export class GameRoom extends Room {
 
     if (!updateWinner || !updateLoser) throw new CustomError(24);
 
-    // Send gameover emails
-    await EmailService.sendGameOverEmail(userWon, userLost, winCondition);
+    const emails = [];
+    if (updateWinner?.preferences.emailNotifications) emails.push(updateWinner.email);
+    if (updateLoser?.preferences.emailNotifications) emails.push(updateLoser.email);
 
+    // Send gameover emails
+    if (emails.length) {
+      await EmailService.sendGameOverEmail({
+        winner: userWon,
+        loser: userLost,
+        emails
+      }, winCondition);
+    }
+    
     try {
       if (userWon?.userData?.username) {
         await DiscordNotificationService.sendGameFinished(userWon.userData.username);
@@ -239,7 +249,6 @@ export class GameRoom extends Room {
       }
     } catch (err) {
       console.error('Failed to send Discord game finished notification:', err);
-    }
   }
 
   async handleTurn(message: ITurnMessage): Promise<void> {

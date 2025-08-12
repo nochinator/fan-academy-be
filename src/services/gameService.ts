@@ -8,6 +8,8 @@ import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
 import { EmailService } from "../emails/emailService";
 import { DiscordNotificationService } from "./DiscordNotificationService";
+import User from "../models/userModel";
+
 
 const GameService = {
   // GET ACTIONS
@@ -236,17 +238,41 @@ const GameService = {
     const userInfoForEmails: {
       winner: IPopulatedPlayerData,
       loser: IPopulatedPlayerData,
+      emails: string[]
     }[] = [];
-    const gamesToUpdate = games.map(game => {
+
+    const gamesToUpdate = [];
+
+    for (const game of games) {
       const winner = game.players.find(player => player.userData._id.toString() !== game.activePlayer?.toString()) as IPopulatedPlayerData;
       const loser = game.players.find(player => player.userData._id.toString() === game.activePlayer?.toString()) as IPopulatedPlayerData;
 
-      userInfoForEmails.push({
-        winner,
-        loser
-      });
+      const updateWinner = await User.findByIdAndUpdate(
+        winner.userData._id,
+        {
+          $inc: {
+            'stats.totalGames': 1,
+            'stats.totalWins': 1,
+            ...winner.faction === EFaction.COUNCIL ? { 'stats.councilWins': 1 } : { 'stats.elvesWins': 1 }
+          }
+        }
+      );
 
-      return {
+      const updateLoser = await User.findByIdAndUpdate(loser.userData._id, { $inc: { 'stats.totalGames': 1 } });
+
+      const emails = [];
+      if (updateWinner?.preferences.emailNotifications) emails.push(winner.userData.email!);
+      if (updateLoser?.preferences.emailNotifications) emails.push(loser.userData.email!);
+
+      if (emails.length) {
+        userInfoForEmails.push({
+          winner: winner,
+          loser: loser,
+          emails
+        });
+      }
+
+      gamesToUpdate.push({
         updateOne: {
           filter: { _id: game._id },
           update: {
@@ -260,13 +286,13 @@ const GameService = {
             }
           }
         }
-      };
-    });
+      });
+    };
 
     if (gamesToUpdate.length > 0) await Game.bulkWrite(gamesToUpdate);
 
     for (let i = 0; i < userInfoForEmails.length; i++) {
-      await EmailService.sendGameOverEmail(userInfoForEmails[i].winner, userInfoForEmails[i].loser, EWinConditions.TIME);
+      await EmailService.sendGameOverEmail(userInfoForEmails[i], EWinConditions.TIME);
     }
   }
 

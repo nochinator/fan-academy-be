@@ -88,10 +88,16 @@ export const EmailService = {
     });
   },
 
-  async sendGameOverEmail(winner: IPopulatedPlayerData, loser: IPopulatedPlayerData, winCondition: EWinConditions): Promise<void> {
+  async sendGameOverEmail(data: {
+    winner: IPopulatedPlayerData,
+    loser: IPopulatedPlayerData,
+    emails: string[]
+  }, winCondition: EWinConditions): Promise<void> {
+    const { winner, loser, emails } = data;
+
     await this.sendEmail({
       templateId: 4,
-      email: [winner.userData.email!, loser.userData.email!],
+      email: emails,
       params: {
         user1: winner.userData.username,
         user1Faction: winner.faction,
