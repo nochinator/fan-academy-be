@@ -7,7 +7,9 @@ import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import { createNewGameBoardState, createNewGameFactionState } from "../utils/newGameData";
 import { EmailService } from "../emails/emailService";
+import { DiscordNotificationService } from "./DiscordNotificationService";
 import User from "../models/userModel";
+
 
 const GameService = {
   // GET ACTIONS
@@ -131,6 +133,16 @@ const GameService = {
       const acceptsEmails = challengedUser.preferences?.emailNotifications;
 
       if (!isOnline && acceptsEmails) await EmailService.sendChallengeNotificationEmail(challengedUser.email!, challengedUser.username!, challenger.username!);
+      // Send Discord notification for new challenge
+      try {
+        if (typeof challengedUser.username === 'string') {
+          await DiscordNotificationService.sendNewChallenge(challengedUser.username);
+        } else {
+          console.error('Challenged user username is missing or not a string, Discord notification not sent.');
+        }
+      } catch (err) {
+        console.error('Failed to send Discord notification:', err);
+      }
     }
     return result;
   },
@@ -218,7 +230,7 @@ const GameService = {
     const deletedGame = await Game.findByIdAndDelete(game._id);
     if (!deletedGame) throw new CustomError(24); // REVIEW
 
-    const result = deletedGame.players.map(player => { return player.userData.toString() ;});
+    const result = deletedGame.players.map(player => { return player.userData.toString(); });
     return result;
   },
 
