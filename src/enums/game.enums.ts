@@ -93,7 +93,7 @@ export enum EHeroes {
   WRAITH = 'wraith',
 
   // Dwarves
-  PALADIN = 'palidin',
+  PALADIN = 'paladin',
   GRENADIER = 'grenadier',
   GUNNER = 'gunner',
   ENGINEER = 'engineer',

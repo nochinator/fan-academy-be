@@ -4,6 +4,7 @@ import { IPopulatedPlayerData } from '../interfaces/gameInterface';
 import { CustomError } from '../classes/customError';
 
 const apiInstance = new Brevo.TransactionalEmailsApi();
+const ENABLE_EMAILS = process.env.ENABLE_EMAILS === 'true';
 
 apiInstance.setApiKey(
   Brevo.TransactionalEmailsApiApiKeys.apiKey,
@@ -25,6 +26,10 @@ export const EmailService = {
     email: string | string[],
     params?: object,
   }): Promise<void> {
+    if (!ENABLE_EMAILS) {
+      console.log(`Email sending disabled. Skipped template ID: ${emailData.templateId}`);
+      return;
+    }
     const sendTo = Array.isArray(emailData.email)
       ? emailData.email.map((mail) => ({ email: mail }))
       : [{ email: emailData.email }];
