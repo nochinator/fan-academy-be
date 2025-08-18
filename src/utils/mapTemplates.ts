@@ -289,7 +289,7 @@ const map4 = [
 
 /**
   * Tribe map:
-  * 3 medium crystals (not barbed)
+  * 3 small crystals (not barbed)
   * 2 assault tiles
   * 2 magical resist tiles
   */
@@ -297,32 +297,32 @@ const map5 = [
   {
     row: 0,
     col: 1,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.CRYSTAL_SMALL
   },
   {
     row: 2,
     col: 2,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.CRYSTAL_SMALL
   },
   {
     row: 4,
     col: 1,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.CRYSTAL_SMALL
   },
   {
     row: 0,
     col: 7,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.CRYSTAL_SMALL
   },
   {
     row: 2,
     col: 6,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.CRYSTAL_SMALL
   },
   {
     row: 4,
     col: 7,
-    tileType: ETiles.CRYSTAL
+    tileType: ETiles.CRYSTAL_SMALL
   },
   {
     row: 1,

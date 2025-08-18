@@ -11,13 +11,14 @@ import User from "../models/userModel";
 import { generateToken } from '../middleware/jwt';
 import { getConfirmationLink } from '../utils/tokenGeneration';
 import { EmailService } from '../emails/emailService';
+import { DiscordNotificationService } from './discordNotificationService';
 
 const UserService = {
-  async signup(req: Request, res: Response, next: NextFunction): Promise<void>{
+  async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
     const { username, email, password } = req.body;
 
     // Check if the username or email are already in use
-    const userAlreadyExists: IUser[] = await User.find({ $or: [ { username }, { email }] });
+    const userAlreadyExists: IUser[] = await User.find({ $or: [{ username }, { email }] });
     if (userAlreadyExists.length) throw new CustomError(12);
 
     // If the user doesn't exist, create a new user with an encrypted password
@@ -35,7 +36,7 @@ const UserService = {
         stats: {},
         emailConfirmationLink
       });
-      const user =  await newUser.save();
+      const user = await newUser.save();
       if (!user) throw new CustomError(30);
 
       // Send email confirmation email
@@ -60,7 +61,7 @@ const UserService = {
           preferences: user.preferences
         }
       });
-    } catch(err: any) {
+    } catch (err: any) {
       console.log('Error', err);
       next(err.message);
     }
@@ -79,7 +80,7 @@ const UserService = {
     return false;
   },
 
-  async updateProfile(req: Request, res: Response): Promise<Response>{
+  async updateProfile(req: Request, res: Response): Promise<Response> {
     const user = req.user as IUser; // User data is populated by Passport
     const { email, password, picture, emailNotifications, chat, sound } = req.body;
 
@@ -117,6 +118,7 @@ const UserService = {
       // Find and remove open games / and challenges, and inform the other players
       const userIdsToUpdate = new Set<string>();
       const userEmailsToUpdate = new Set<string>();
+      const opponentUsernamesToUpdate = new Set<string>();
       const gamesToDelete = new Set<string>();
       const affectedGames = await Game.find({ 'players.userData': user._id }).populate('players.userData', 'email confirmedEmail username');
 
@@ -126,11 +128,12 @@ const UserService = {
 
           gamesToDelete.add(game._id.toString());
 
-          const opponent = game.players.find(player => player.userData._id.toString() !== user._id.toString() );
+          const opponent = game.players.find(player => player.userData._id.toString() !== user._id.toString());
           const opponentUserData = opponent?.userData as unknown as IPopulatedUserData;
 
           if (opponentUserData?.email && opponentUserData.confirmedEmail) userEmailsToUpdate.add(opponentUserData.email);
           if (opponentUserData?._id) userIdsToUpdate.add(opponentUserData._id.toString());
+          if (opponentUserData?.username) opponentUsernamesToUpdate.add(opponentUserData.username);
         });
 
         await Game.deleteMany({ 'players.userData': user._id });
@@ -144,13 +147,21 @@ const UserService = {
       if (userIdsToUpdate.size > 0) {
         await EmailService.sendGameDeletionEmail([...userEmailsToUpdate]);
 
+        try {
+          for (const username of opponentUsernamesToUpdate) {
+            await DiscordNotificationService.sendGameDeleted(username);
+          }
+        } catch (err) {
+          console.error('Failed to send Discord account deletion notification:', err);
+        }
+
         // Send a message to update the game list of the affected players
         matchMaker.presence.publish('userDeletedPresence', {
           userIds: [...userIdsToUpdate],
           gameIds: [...gamesToDelete]
         });
       }
-    } catch(err) {
+    } catch (err) {
       console.log(err);
       next(err);
     }
@@ -164,7 +175,7 @@ const UserService = {
     const limit = 12;
     const skip = (page - 1) * limit;
 
-    const players =  await User.find({}, {
+    const players = await User.find({}, {
       username: 1,
       picture: 1,
       stats: 1

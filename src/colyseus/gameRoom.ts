@@ -9,11 +9,12 @@ import ChatLog from "../models/chatlogModel";
 import Game from "../models/gameModel";
 import User from '../models/userModel';
 import GameService from "../services/gameService";
+import { DiscordNotificationService } from "../services/discordNotificationService";
 
 export class GameRoom extends Room {
   connectedClients: Set<string> = new Set();
 
-  onInit(_options: any) {}
+  onInit(_options: any) { }
 
   async onCreate(options: {
     userId: string,
@@ -60,7 +61,7 @@ export class GameRoom extends Room {
      * CREATING A ROOM FOR A NEW GAME
      *
      */
-    if(!roomId) {
+    if (!roomId) {
       // Check for games already looking for players
       const gameLookingForPlayers = await GameService.matchmaking(options.userId);
 
@@ -91,12 +92,20 @@ export class GameRoom extends Room {
 
           const confirmedEmail = userData?.confirmedEmail;
 
-          if (!isOnline && acceptsEmails && confirmedEmail!) await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
+          if (!isOnline && acceptsEmails && confirmedEmail!) {
+            await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
+          }
+
+          try {
+            if (typeof userData.username === 'string') await DiscordNotificationService.sendYourTurn(userData.username);
+          } catch (err) {
+            console.error('Failed to send Discord your turn notification:', err);
+          }
         }
       }
 
       // If there are no games looking for players, create one
-      if(!gameLookingForPlayers) {
+      if (!gameLookingForPlayers) {
         const newGame = await GameService.createGame({
           userId: options.userId,
           faction,
@@ -164,11 +173,11 @@ export class GameRoom extends Room {
       this.broadcast('chatMessageReceived', {
         username: client.auth.username,
         message: sanitizedMessage
-      } );
+      });
     });
   }
 
-  async handleGameOver(message: ITurnMessage): Promise<void>{
+  async handleGameOver(message: ITurnMessage): Promise<void> {
     const finishedAt = new Date();
     const { winner, winCondition } = message.gameOver!;
 
@@ -185,7 +194,7 @@ export class GameRoom extends Room {
     if (!updatedGame) throw new CustomError(24);
 
     // Retrieve user ids and publish update the users' game lists
-    const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
+    const userIds = updatedGame.players.map((player: IPlayerData) => player.userData._id.toString());
     this.presence.publish("gameOverPresence", {
       gameId: message._id,
       previousTurn: message.currentTurn,
@@ -216,8 +225,25 @@ export class GameRoom extends Room {
 
     if (!updateWinner || !updateLoser) throw new CustomError(24);
 
+    const emails = [];
+    if (updateWinner?.preferences.emailNotifications) emails.push(updateWinner.email);
+    if (updateLoser?.preferences.emailNotifications) emails.push(updateLoser.email);
+
     // Send gameover emails
-    await EmailService.sendGameOverEmail(userWon, userLost, winCondition);
+    if (emails.length) {
+      await EmailService.sendGameOverEmail({
+        winner: userWon,
+        loser: userLost,
+        emails
+      }, winCondition);
+    }
+
+    try {
+      if (userWon?.userData?.username) await DiscordNotificationService.sendGameFinished(userWon.userData.username);
+      if (userLost?.userData?.username) await DiscordNotificationService.sendGameFinished(userLost.userData.username);
+    } catch (err) {
+      console.error('Failed to send Discord game finished notification:', err);
+    }
   }
 
   async handleTurn(message: ITurnMessage): Promise<void> {
@@ -248,10 +274,18 @@ export class GameRoom extends Room {
         await EmailService.sendTurnNotificationEmail(userData.email!, userData.username!);
         await User.findByIdAndUpdate(userData._id, { turnEmailSent: true });
       }
+
+      try {
+        if (typeof userData.username === 'string') {
+          await DiscordNotificationService.sendYourTurn(userData.username);
+        }
+      } catch (err) {
+        console.error('Failed to send Discord your turn notification:', err);
+      }
     }
 
     // Retrieve user ids and publish update the users' game lists
-    const userIds = updatedGame.players.map((player: IPlayerData) =>  player.userData._id.toString());
+    const userIds = updatedGame.players.map((player: IPlayerData) => player.userData._id.toString());
     this.presence.publish("gameUpdatedPresence", {
       gameId: message._id,
       previousTurn: message.currentTurn,
@@ -284,7 +318,7 @@ export class GameRoom extends Room {
     }
 
     try {
-    // Verify the game exists and the user is a participant
+      // Verify the game exists and the user is a participant
       const game = await GameService.getColyseusRoom(roomId, userId);
 
       if (!game) {
@@ -325,7 +359,7 @@ export class GameRoom extends Room {
   }
 
   // Room auth
-  static async onAuth(_token: string, options: any, _context: AuthContext): Promise<JwtPayload | boolean>  {
+  static async onAuth(_token: string, options: any, _context: AuthContext): Promise<JwtPayload | boolean> {
     try {
       const user = await JWT.verify(options.token) as JwtPayload;
 

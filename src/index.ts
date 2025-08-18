@@ -19,13 +19,14 @@ import IUser from "./interfaces/userInterface";
 import AppErrorHandler from "./middleware/errorHandler";
 import { jwtStrategy, localStrategy } from "./middleware/passport";
 import { sanitizeInput } from "./middleware/sanitizeInput";
+import { ensureNotificationDefinitionsExist } from "./models/notificationModel";
 
 const index = async () => {
   console.log('USING ENV:', process.env.NODE_ENV);
   const app: Express = express();
   const server = http.createServer(app);
 
-  const colyseusServer = new Server({  transport: new WebSocketTransport() });
+  const colyseusServer = new Server({ transport: new WebSocketTransport() });
   colyseusServer.attach({
     transport: new WebSocketTransport({
       server,
@@ -49,6 +50,9 @@ const index = async () => {
   }));
 
   await databaseConnection();
+
+  // Ensure notification definitions exist before sending notifications
+  await ensureNotificationDefinitionsExist();
 
   app.use(passport.initialize());
   passport.use(localStrategy);
