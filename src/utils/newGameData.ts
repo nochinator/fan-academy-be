@@ -195,19 +195,19 @@ function createDwarvesDeck(userId: string): (IHero | IItem)[] {
     const engineer = createDwarfEngineerData({ unitId: `${userId}_engineer_${index}` });
 
     const sword = createItemData({
-      unitId: `${userId}_dwarfSword_${index}`,
+      unitId: `${userId}_RuneMetal_${index}`,
       faction: EFaction.DWARVES,
       itemType: EItems.RUNE_METAL
     });
 
     const armor = createItemData({
-      unitId: `${userId}_dwarfArmor_${index}`,
+      unitId: `${userId}_dragonScale_${index}`,
       faction: EFaction.DWARVES,
       itemType: EItems.DRAGON_SCALE
     });
 
     const helm = createItemData({
-      unitId: `${userId}_dwarfHelm_${index}`,
+      unitId: `${userId}_shiningHelm_${index}`,
       faction: EFaction.DWARVES,
       itemType: EItems.SHINING_HELM
     });

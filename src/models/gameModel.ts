@@ -128,6 +128,10 @@ const ItemSchema = new Schema({
  * Hero Schema
  */
 const HeroSchema = new Schema({
+  unitType: { // <-- ADD THIS FIELD!
+    type: String,
+    required: true
+  },
   faction: {
     type: String,
     enum: EFaction,
