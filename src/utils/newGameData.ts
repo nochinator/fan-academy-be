@@ -397,7 +397,7 @@ export function createDwarfEngineerData(data: Partial<IHero>): IHero {
     currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 1,
-    healingRange: 0,
+    healingRange: 3, // shielding range
     attackType: EAttackType.PHYSICAL,
     basePower,
     basePhysicalDamageResistance: physicalDamageResistance,

@@ -67,7 +67,7 @@ export enum EItems {
 
   // Dwarves
   // alsu uses dragon scale
-  DWARVEN_BREW = 'dwarverBrew',
+  DWARVEN_BREW = 'dwarvernBrew',
   PULVERIZER = 'pulverizer'
 }
 
