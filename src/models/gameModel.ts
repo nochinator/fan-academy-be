@@ -37,17 +37,53 @@ const CrystalSchema = new Schema({
   },
   isDestroyed: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   isLastCrystal: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   boardPosition: {
     type: Number,
     required: true
   },
+  debuffAmount: {
+    type: Number,
+    required: true,
+    default: 0
+  },
   debuffLevel: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  isShielded: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  paladinAura: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  physicalDamageResistance: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  magicalDamageResistance: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  row: {
+    type: Number,
+    required: true
+  },
+  col: {
     type: Number,
     required: true
   }
@@ -94,10 +130,7 @@ const ItemSchema = new Schema({
 const HeroSchema = new Schema({
   faction: {
     type: String,
-    required: true
-  },
-  unitType: {
-    type: String,
+    enum: EFaction,
     required: true
   },
   unitId: {
@@ -161,11 +194,11 @@ const HeroSchema = new Schema({
     type: Number,
     required: true
   },
-  basePhysicalDamageResistance: {
+  magicalDamageResistance: {
     type: Number,
     required: true
   },
-  magicalDamageResistance: {
+  basePhysicalDamageResistance: {
     type: Number,
     required: true
   },
@@ -202,20 +235,42 @@ const HeroSchema = new Schema({
     type: Number,
     default: 0
   },
-  isDebuffed: {
+  annihilatorDebuff: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
+  },
+  priestessDebuff: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  isShielded: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  isDrunk: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  paladinAura: {
+    type: Number,
+    required: true,
+    default: 0
   },
   attackTile: {
-    type: Boolean,
-    required: true
+    type: Number,
+    required: true,
+    default: 0
   },
   manaVial: {
     type: Boolean,
     required: false
   },
   speedTile: {
-    type: Boolean,
+    type: Number,
     required: false
   }
 }, { _id: false });
