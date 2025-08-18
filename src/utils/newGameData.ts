@@ -9,7 +9,7 @@ export function createNewGameFactionState(userId: string, playerFaction: EFactio
   const faction: Record<string, IFaction> = {
     [EFaction.COUNCIL]: createCouncilFactionData(userId),
     [EFaction.DARK_ELVES]: createElvesFactionData(userId),
-    [EFaction.DWARVES]: createDwarvesFactionData(userId) // Added new Dwarves faction
+    [EFaction.DWARVES]: createDwarvesFactionData(userId)
   };
 
   return faction[playerFaction];
@@ -17,7 +17,7 @@ export function createNewGameFactionState(userId: string, playerFaction: EFactio
 
 export function createCouncilFactionData(userId: string): IFaction {
   const unitsInDeck = createCouncilDeck(userId);
-  const unitsInHand =  unitsInDeck.splice(0, 6);
+  const unitsInHand = unitsInDeck.splice(0, 6);
   const factionName = EFaction.COUNCIL;
 
   return {
@@ -33,26 +33,24 @@ function createCouncilDeck(userId: string): (IHero | IItem)[] {
   const itemsDeck = [];
 
   for (let index = 0; index < 3; index++) {
-    const archer = createCouncilArcherData( { unitId: `${userId}_archer_${index}` });
-    const knight = createCouncilKnightData( { unitId: `${userId}_knight_${index}` });
-    const wizard = createCouncilWizardData( { unitId: `${userId}_wizard_${index}` });
-    const cleric = createCouncilClericData( { unitId: `${userId}_cleric_${index}` });
+    const archer = createCouncilArcherData({ unitId: `${userId}_archer_${index}` });
+    const knight = createCouncilKnightData({ unitId: `${userId}_knight_${index}` });
+    const wizard = createCouncilWizardData({ unitId: `${userId}_wizard_${index}` });
+    const cleric = createCouncilClericData({ unitId: `${userId}_cleric_${index}` });
 
-    const shiningHelm = createItemData( {
-      // Increases magical resistance by 20% and max health by 10%
+    const shiningHelm = createItemData({
       unitId: `${userId}_shiningHelm_${index}`,
       faction: EFaction.COUNCIL,
       itemType: EItems.SHINING_HELM
     });
 
-    const runeMetal = createItemData( {
-      // Increases magical resistance by 20% and max health by 10%
+    const runeMetal = createItemData({
       unitId: `${userId}_runeMetal_${index}`,
       faction: EFaction.COUNCIL,
       itemType: EItems.RUNE_METAL
     });
 
-    const factionBuff = createItemData( {
+    const factionBuff = createItemData({
       unitId: `${userId}_dragonScale_${index}`,
       faction: EFaction.COUNCIL,
       itemType: EItems.DRAGON_SCALE
@@ -63,23 +61,19 @@ function createCouncilDeck(userId: string): (IHero | IItem)[] {
   }
 
   for (let index = 0; index < 2; index++) {
-    // Heals 1000 hp. Can revive at 1/2 power
-    const healingPotion = createItemData( {
+    const healingPotion = createItemData({
       unitId: `${userId}_healingPotion_${index}`,
       faction: EFaction.COUNCIL,
       itemType: EItems.HEALING_POTION,
       canHeal: true
     });
-    const inferno = createItemData( {
-      //  High-damage attack spell that does 350 magical damage in a 3x3 area.
-      // Can remove knocked-out enemies from the field.
+    const inferno = createItemData({
       unitId: `${userId}_inferno_${index}`,
       faction: EFaction.COUNCIL,
       dealsDamage: true,
       itemType: EItems.INFERNO
     });
-    const superCharge = createItemData( {
-      // Triples the attack power of the next attack for the chosen unit
+    const superCharge = createItemData({
       unitId: `${userId}_superCharge_${index}`,
       faction: EFaction.COUNCIL,
       itemType: EItems.SUPERCHARGE
@@ -88,8 +82,7 @@ function createCouncilDeck(userId: string): (IHero | IItem)[] {
     itemsDeck.push(healingPotion, inferno, superCharge);
   }
 
-  // Unique unit
-  const ninja = createCouncilNinjaData( { unitId: `${userId}_ninja` });
+  const ninja = createCouncilNinjaData({ unitId: `${userId}_ninja` });
   unitsDeck.push(ninja);
 
   const shuffledDeck = shuffleDeck(unitsDeck, itemsDeck);
@@ -99,7 +92,7 @@ function createCouncilDeck(userId: string): (IHero | IItem)[] {
 
 export function createElvesFactionData(userId: string): IFaction {
   const unitsInDeck = createElvesDeck(userId);
-  const unitsInHand =  unitsInDeck.splice(0, 6);
+  const unitsInHand = unitsInDeck.splice(0, 6);
   const factionName = EFaction.DARK_ELVES;
   return {
     userId,
@@ -114,26 +107,24 @@ function createElvesDeck(userId: string): (IHero | IItem)[] {
   const itemsDeck = [];
 
   for (let index = 0; index < 3; index++) {
-    const impaler = createElvesImpalerData( { unitId: `${userId}_impaler_${index}` });
-    const voidMonk = createElvesVoidMonkData( { unitId: `${userId}_voidMonk_${index}` });
-    const necromancer = createElvesNecromancerData( { unitId: `${userId}_necromancer_${index}` });
-    const priestess = createElvesPriestessData( { unitId: `${userId}_priestess_${index}` });
+    const impaler = createElvesImpalerData({ unitId: `${userId}_impaler_${index}` });
+    const voidMonk = createElvesVoidMonkData({ unitId: `${userId}_voidMonk_${index}` });
+    const necromancer = createElvesNecromancerData({ unitId: `${userId}_necromancer_${index}` });
+    const priestess = createElvesPriestessData({ unitId: `${userId}_priestess_${index}` });
 
-    const shiningHelm = createItemData( {
-      // Increases magical resistance by 20% and max health by 10%
+    const shiningHelm = createItemData({
       unitId: `${userId}_shiningHelm_${index}`,
       faction: EFaction.DARK_ELVES,
       itemType: EItems.SHINING_HELM
     });
 
-    const runeMetal = createItemData( {
-      // Increases magical resistance by 20% and max health by 10%
+    const runeMetal = createItemData({
       unitId: `${userId}_runeMetal_${index}`,
       faction: EFaction.DARK_ELVES,
       itemType: EItems.RUNE_METAL
     });
 
-    const factionBuff = createItemData( {
+    const factionBuff = createItemData({
       unitId: `${userId}_soulStone_${index}`,
       faction: EFaction.DARK_ELVES,
       itemType: EItems.SOUL_STONE
@@ -144,29 +135,21 @@ function createElvesDeck(userId: string): (IHero | IItem)[] {
   }
 
   for (let index = 0; index < 2; index++) {
-    const manaVial = createItemData( {
-      // Heals for 1000 hp and increases max HP by 50
-      //  Does not revive
+    const manaVial = createItemData({
       unitId: `${userId}_manaVial_${index}`,
       faction: EFaction.DARK_ELVES,
       itemType: EItems.MANA_VIAL,
       canHeal: true
     });
 
-    const soulHarvest = createItemData( {
-      // Does damage to enemies while raising your fallen heroes and adding to their maximum health.
-      // Health gained by each unit is equal to the total life lost by enemy units divided by the number of friendly units plus 3 rounded to the nearest 5.
-      // The equation for this is H = 1/(3+U) x 400, where H is Health gained by each allied unit, D is Damage dealt, U = Amount of allied units on the field, and R = Any real number. H is rounded to the nearest 5 at the end.
-      //   For example, if there were 3 allied units, and the harvest dealt 400 damage, then H = 1/(3+3) x 400, which is 1/6 x 400, which is 66.66...., which rounds to 65.
-      //   As a second example, if there were 7 allied units, and the harvest dealt 780 damage, then H = 1/(3+7) x 780, which is 1/10 x 780, which is 78, which rounds to 80
+    const soulHarvest = createItemData({
       unitId: `${userId}_soulHarvest_${index}`,
       faction: EFaction.DARK_ELVES,
       itemType: EItems.SOUL_HARVEST,
       dealsDamage: true
     });
 
-    const superCharge = createItemData( {
-      // Triples the attack power of the next attack for the chosen unit
+    const superCharge = createItemData({
       unitId: `${userId}_superCharge_${index}`,
       faction: EFaction.DARK_ELVES,
       itemType: EItems.SUPERCHARGE
@@ -175,8 +158,7 @@ function createElvesDeck(userId: string): (IHero | IItem)[] {
     itemsDeck.push(manaVial, soulHarvest, superCharge);
   }
 
-  // Unique unit
-  const wraith = createElvesWraithData( { unitId: `${userId}_wraith` });
+  const wraith = createElvesWraithData({ unitId: `${userId}_wraith` });
   unitsDeck.push(wraith);
 
   const shuffledDeck = shuffleDeck(unitsDeck, itemsDeck);
@@ -206,7 +188,6 @@ function createDwarvesDeck(userId: string): (IHero | IItem)[] {
   const unitsDeck = [];
   const itemsDeck = [];
 
-  // Create standard heroes and items
   for (let index = 0; index < 3; index++) {
     const paladin = createDwarfPaladinData({ unitId: `${userId}_paladin_${index}` });
     const grenadier = createDwarfGrenadierData({ unitId: `${userId}_grenadier_${index}` });
@@ -235,7 +216,6 @@ function createDwarvesDeck(userId: string): (IHero | IItem)[] {
     itemsDeck.push(sword, armor, helm);
   }
 
-  // Create consumables
   for (let index = 0; index < 2; index++) {
     const scroll = createItemData({
       unitId: `${userId}_scroll_${index}`,
@@ -256,11 +236,10 @@ function createDwarvesDeck(userId: string): (IHero | IItem)[] {
       itemType: EItems.PULVERIZER,
       dealsDamage: true
     });
-    
+
     itemsDeck.push(scroll, dwarvenBrew, pulverizer);
   }
 
-  // Unique unit
   const annihilator = createDwarfAnnihilatorData({ unitId: `${userId}_annihilator` });
   unitsDeck.push(annihilator);
 
@@ -283,10 +262,14 @@ function createGenericDwarvesData(data: Partial<IHero>): {
   lastBreath: boolean,
   row: number,
   col: number,
-  isDebuffed: boolean,
-  attackTile: boolean,
-  manaVial: boolean,
-  speedTile: boolean
+  annihilatorDebuff: boolean,
+  priestessDebuff: boolean,
+  isShielded: boolean,
+  isDrunk: boolean,
+  paladinAura: number,
+  attackTile: number,
+  manaVial?: boolean,
+  speedTile?: number
 } {
   return {
     class: EClass.HERO,
@@ -302,10 +285,14 @@ function createGenericDwarvesData(data: Partial<IHero>): {
     belongsTo: data.belongsTo ?? 1,
     row: data.row ?? 0,
     col: data.col ?? 0,
-    isDebuffed: data.isDebuffed ?? false,
-    attackTile: data.attackTile ?? false,
-    manaVial: data.manavial ?? false,
-    speedTile: data.speedTile ?? false
+    annihilatorDebuff: data.annihilatorDebuff ?? false,
+    priestessDebuff: data.priestessDebuff ?? false,
+    isShielded: data.isShielded ?? false,
+    isDrunk: data.isDrunk ?? false,
+    paladinAura: data.paladinAura ?? 0,
+    attackTile: data.attackTile ?? 0,
+    manaVial: data.manaVial ?? false,
+    speedTile: data.speedTile ?? 0
   };
 }
 
@@ -397,7 +384,7 @@ export function createDwarfEngineerData(data: Partial<IHero>): IHero {
     currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
     attackRange: 1,
-    healingRange: 3, // shielding range
+    healingRange: 3,
     attackType: EAttackType.PHYSICAL,
     basePower,
     basePhysicalDamageResistance: physicalDamageResistance,
@@ -454,9 +441,13 @@ function createGenericCouncilData(data: Partial<IHero>): {
   lastBreath: boolean,
   row: number,
   col: number,
-  isDebuffed: boolean,
-  attackTile: boolean,
-  speedTile: boolean
+  annihilatorDebuff: boolean,
+  priestessDebuff: boolean,
+  isShielded: boolean,
+  isDrunk: boolean,
+  paladinAura: number,
+  attackTile: number,
+  speedTile?: number
 } {
   return {
     class: EClass.HERO,
@@ -472,14 +463,17 @@ function createGenericCouncilData(data: Partial<IHero>): {
     belongsTo: data.belongsTo ?? 1,
     row: data.row ?? 0,
     col: data.col ?? 0,
-    isDebuffed: data.isDebuffed ?? false,
-    attackTile: data.attackTile ?? false,
-    speedTile: data.speedTile ?? false
+    annihilatorDebuff: data.annihilatorDebuff ?? false,
+    priestessDebuff: data.priestessDebuff ?? false,
+    isShielded: data.isShielded ?? false,
+    isDrunk: data.isDrunk ?? false,
+    paladinAura: data.paladinAura ?? 0,
+    attackTile: data.attackTile ?? 0,
+    speedTile: data.speedTile ?? 0
   };
 }
 
 export function createCouncilArcherData(data: Partial<IHero>): IHero {
-  // Melee damage = 1/2 power
   const baseHealth = 800;
   const basePower = 300;
   const physicalDamageResistance = 0;
@@ -555,7 +549,6 @@ export function createCouncilKnightData(data: Partial<IHero>): IHero {
 }
 
 export function createCouncilClericData(data: Partial<IHero>): IHero {
-  // Heals for x3, revives for x2 power
   const baseHealth = 800;
   const basePower = 200;
   const physicalDamageResistance = 0;
@@ -581,8 +574,6 @@ export function createCouncilClericData(data: Partial<IHero>): IHero {
 }
 
 export function createCouncilNinjaData(data: Partial<IHero>): IHero {
-  // Melee is x2 power
-  // Can teleport
   const baseHealth = 800;
   const basePower = 200;
   const physicalDamageResistance = 0;
@@ -621,10 +612,14 @@ function createGenericElvesData(data: Partial<IHero>): {
   lastBreath: boolean,
   row: number,
   col: number,
-  isDebuffed: boolean,
-  attackTile: boolean,
-  manaVial: boolean,
-  speedTile: boolean
+  annihilatorDebuff: boolean,
+  priestessDebuff: boolean,
+  isShielded: boolean,
+  isDrunk: boolean,
+  paladinAura: number,
+  attackTile: number,
+  manaVial?: boolean,
+  speedTile?: number
 } {
   return {
     class: EClass.HERO,
@@ -640,10 +635,14 @@ function createGenericElvesData(data: Partial<IHero>): {
     belongsTo: data.belongsTo ?? 1,
     row: data.row ?? 0,
     col: data.col ?? 0,
-    isDebuffed: data.isDebuffed ?? false,
-    attackTile: data.attackTile ?? false,
-    manaVial: data.manavial ?? false,
-    speedTile: data.speedTile ?? false
+    annihilatorDebuff: data.annihilatorDebuff ?? false,
+    priestessDebuff: data.priestessDebuff ?? false,
+    isShielded: data.isShielded ?? false,
+    isDrunk: data.isDrunk ?? false,
+    paladinAura: data.paladinAura ?? 0,
+    attackTile: data.attackTile ?? 0,
+    manaVial: data.manaVial ?? false,
+    speedTile: data.speedTile ?? 0
   };
 }
 
@@ -673,7 +672,6 @@ export function createElvesImpalerData(data: Partial<IHero>): IHero {
 }
 
 export function createElvesPriestessData(data: Partial<IHero>): IHero {
-  // Heals for x2, revives for 1/2 power
   const baseHealth = 800;
   const basePower = 200;
   const physicalDamageResistance = 0;
@@ -685,7 +683,7 @@ export function createElvesPriestessData(data: Partial<IHero>): IHero {
     maxHealth: data.maxHealth ?? baseHealth,
     currentHealth: data.currentHealth ?? baseHealth,
     movement: 2,
-    attackRange: 2, // TODO: applies debuff
+    attackRange: 2,
     healingRange: 3,
     attackType: EAttackType.MAGICAL,
     basePower,
@@ -699,7 +697,6 @@ export function createElvesPriestessData(data: Partial<IHero>): IHero {
 }
 
 export function createElvesVoidMonkData(data: Partial<IHero>): IHero {
-  // AOE damage in cone (above, below and behind hit unit) for 66.6% of power
   const baseHealth = 800;
   const basePower = 200;
   const physicalDamageResistance = 20;
@@ -725,7 +722,6 @@ export function createElvesVoidMonkData(data: Partial<IHero>): IHero {
 }
 
 export function createElvesNecromancerData(data: Partial<IHero>): IHero {
-  // Transforms KO units (friend or foe) into phantoms
   const baseHealth = 800;
   const basePower = 200;
   const physicalDamageResistance = 0;
@@ -751,8 +747,6 @@ export function createElvesNecromancerData(data: Partial<IHero>): IHero {
 }
 
 export function createElvesWraithData(data: Partial<IHero>): IHero {
-  // Can consume up to 3 KO'd units to level up: +100 hp and +50 power per unit
-  // Can be deployed on a KO'd unit (does not consume it)
   const baseHealth = 800;
   const basePower = 250;
   const physicalDamageResistance = 0;
@@ -779,7 +773,6 @@ export function createElvesWraithData(data: Partial<IHero>): IHero {
 }
 
 export function createElvesPhantomData(data: Partial<IHero>): IHero {
-  // Cannot be equipped, buffed or healed, disappears if KO'd
   return {
     unitType: EHeroes.PHANTOM,
     baseHealth: 100,
@@ -815,8 +808,8 @@ export function createItemData(data: Partial<IItem>): IItem {
 // Fisher-Yates shuffle algorithm
 export function shuffleArray(array: (IHero | IItem)[]): (IHero | IItem)[] {
   for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1)); // Random index from 0 to i
-    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
 }
@@ -854,11 +847,16 @@ export function createNewGameBoardState(): ITile[] {
           maxHealth: crystalHp,
           currentHealth: crystalHp,
           isDestroyed: false,
-          isLastCrystal: specialTile.tileType === ETiles.CRYSTAL_BIG ? true : false,
+          isLastCrystal: specialTile.tileType === ETiles.CRYSTAL_BIG,
           boardPosition,
           row,
           col,
-          debuffLevel: 0
+          debuffAmount: 0, // Added missing property
+          debuffLevel: 0,
+          isShielded: false, // Added missing property
+          paladinAura: 0, // Added missing property
+          physicalDamageResistance: 0, // Added missing property
+          magicalDamageResistance: 0, // Added missing property
         };
       }
 
@@ -869,12 +867,13 @@ export function createNewGameBoardState(): ITile[] {
         y,
         boardPosition,
         tileType: specialTile ? specialTile.tileType : ETiles.BASIC,
-        obstacle: isCrystalTile ? true : false,
+        obstacle: isCrystalTile ? isCrystalTile : false,
         ...isCrystalTile ? { crystal: crystalData } : {}
       });
       newBoard.push(tile);
       boardPosition++;
-    }}
+    }
+  }
 
   return newBoard;
 }
@@ -901,10 +900,8 @@ export function getCrystalHp(tileType: ETiles) {
 }
 
 export function calculateAllCenterPoints(): ICoordinates[] {
-  // Adding coordinates for the board tiles
   const centerPoints: ICoordinates[] = calculateBoardCenterPoints();
 
-  // Adding coordinates for the items in the player's hand
   const leftMostItem = {
     x: 700,
     y: 745
@@ -919,7 +916,6 @@ export function calculateAllCenterPoints(): ICoordinates[] {
     leftMostItem.x += 80;
   }
 
-  // Adding coordinates for the deck (door)
   centerPoints.push({
     x: 435,
     y: 720
@@ -973,10 +969,9 @@ export function createTileData(data: ITile): ITile {
     tileType: data.tileType ?? tileType,
     obstacle: data.obstacle ?? obstacle,
     hero: data.hero ?? hero,
-    crystal: data.crystal ?? crystal
+    crystal: data.crystal ?? crystal,
   };
 }
-
 function shuffleDeck(unitsDeck: IHero[], itemsDeck: IItem[]) {
   const shuffledUnits = shuffleArray(unitsDeck);
 
@@ -985,9 +980,9 @@ function shuffleDeck(unitsDeck: IHero[], itemsDeck: IItem[]) {
 
   const mappedDeck = [...startingHeroes, ...shuffledDeck].map((elem, index) => {
     if (index < 6) {
-      elem.boardPosition = 45 + index; // First 6 units get positions 45 to 50 on the board (the player's hand)
+      elem.boardPosition = 45 + index;
     } else {
-      elem.boardPosition = 51; // Remaining units get 51 (deck, hidden)
+      elem.boardPosition = 51;
     }
     return elem;
   });
