@@ -59,6 +59,11 @@ const CrystalSchema = new Schema({
     required: true,
     default: 0
   },
+  annihilatorDebuff: {
+    type: Boolean,
+    required: true,
+    default: 0
+  },
   isShielded: {
     type: Boolean,
     required: true,
@@ -128,7 +133,7 @@ const ItemSchema = new Schema({
  * Hero Schema
  */
 const HeroSchema = new Schema({
-  unitType: { // <-- ADD THIS FIELD!
+  unitType: {
     type: String,
     required: true
   },
