@@ -51,38 +51,31 @@ const CrystalSchema = new Schema({
   },
   debuffAmount: {
     type: Number,
-    required: true,
-    default: 0
+    required: true
   },
   debuffLevel: {
     type: Number,
-    required: true,
-    default: 0
+    required: true
   },
   annihilatorDebuff: {
     type: Boolean,
-    required: true,
-    default: 0
+    required: true
   },
   isShielded: {
     type: Boolean,
-    required: true,
-    default: false
+    required: true
   },
   paladinAura: {
     type: Number,
-    required: true,
-    default: 0
+    required: true
   },
   physicalDamageResistance: {
     type: Number,
-    required: true,
-    default: 0
+    required: true
   },
   magicalDamageResistance: {
     type: Number,
-    required: true,
-    default: 0
+    required: true
   },
   row: {
     type: Number,

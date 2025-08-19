@@ -851,12 +851,13 @@ export function createNewGameBoardState(): ITile[] {
           boardPosition,
           row,
           col,
-          debuffAmount: 0, // Added missing property
+          debuffAmount: 0,
           debuffLevel: 0,
-          isShielded: false, // Added missing property
-          paladinAura: 0, // Added missing property
-          physicalDamageResistance: 0, // Added missing property
-          magicalDamageResistance: 0, // Added missing property
+          annihilatorDebuff: false,
+          isShielded: false,
+          paladinAura: 0,
+          physicalDamageResistance: 0,
+          magicalDamageResistance: 0,
         };
       }
 

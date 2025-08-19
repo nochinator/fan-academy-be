@@ -164,21 +164,6 @@ export interface IPlayerState {
 }
 
 /**
- * Crystal Interface
- */
-export interface ICrystal {
-  belongsTo: number;
-  maxHealth: number;
-  currentHealth: number;
-  isDestroyed: boolean;
-  isLastCrystal: boolean;
-  boardPosition: number;
-  debuffLevel: number;
-  row: number;
-  col: number;
-}
-
-/**
  * Tile Interface
  */
 export interface ITile {
